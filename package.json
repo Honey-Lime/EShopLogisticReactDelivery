@@ -4,28 +4,31 @@
   "description": "React-компонент выбора доставки EShopLogistic и серверная функция создания заказа.",
   "type": "module",
   "main": "./index.cjs",
+  "module": "./dist/index.js",
   "exports": {
     ".": {
-      "import": "./index.js",
+      "import": "./dist/index.js",
       "require": "./index.cjs"
     },
-    "./client": "./client.js",
+    "./client": "./dist/index.js",
     "./server": {
       "import": "./createOrder.js",
       "require": "./server.cjs"
     },
-    "./styles.css": "./EShopLogistic.css"
+    "./styles.css": "./dist/index.css"
   },
   "files": [
-    "index.js",
+    "dist",
     "index.cjs",
     "client.js",
     "server.cjs",
-    "EShopLogistic.jsx",
-    "EShopLogistic.css",
     "createOrder.js",
     "README.md"
   ],
+  "scripts": {
+    "build": "vite build",
+    "prepublishOnly": "npm run build"
+  },
   "sideEffects": [
     "*.css"
   ],
@@ -44,5 +47,9 @@
     "delivery",
     "react"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.3",
+    "vite": "^8.1.5"
+  }
 }

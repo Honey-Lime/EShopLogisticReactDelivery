@@ -15,6 +15,77 @@ npm install eshoplogistic-react
 
 Пакет ожидает, что в проекте уже установлены `react` и `react-dom`. Они указаны как `peerDependencies`, чтобы библиотека использовала React из вашего приложения.
 
+## Требования к проекту-потребителю
+
+Пакет рассчитан на использование в React-приложении со сборщиком, который понимает npm-пакеты, ES modules и CSS-импорты из `node_modules`. Подходят, например, Vite, Webpack, Next.js и похожие сборки.
+
+Минимальная ожидаемая конфигурация:
+
+- Node.js `18` или новее;
+- React `18` или новее;
+- установленный `react-dom` той же основной версии, что и `react`;
+- поддержка JSX/React в проекте;
+- поддержка импорта CSS из npm-пакетов;
+- клиентская часть должна выполняться в браузере, серверная функция `createOrder` — только на backend.
+
+Пример зависимостей в приложении:
+
+```json
+{
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "eshoplogistic-react": "^1.0.8"
+  }
+}
+```
+
+Для Vite обычно достаточно стандартной конфигурации React-проекта:
+
+```js
+// vite.config.js
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+});
+```
+
+Специально настраивать `react-dadata-box` в проекте-потребителе не нужно: пакет `eshoplogistic-react` публикуется уже собранным в `dist`, а CommonJS-зависимость `react-dadata-box` обрабатывается на этапе сборки самого пакета.
+
+Если после обновления версии в Vite-приложении браузер продолжает показывать старую ошибку из `node_modules`, остановите dev-сервер, очистите кэш Vite и запустите проект заново:
+
+```bash
+rm -rf node_modules/.vite
+npm run dev
+```
+
+В Windows PowerShell:
+
+```powershell
+Remove-Item -Recurse -Force node_modules\.vite
+npm run dev
+```
+
+Для обновления пакета в приложении используйте диапазон версий с `^`, например:
+
+```json
+{
+  "dependencies": {
+    "eshoplogistic-react": "^1.0.8"
+  }
+}
+```
+
+Тогда после публикации новой patch/minor-версии команда сможет подтянуть обновление:
+
+```bash
+npm update eshoplogistic-react
+```
+
 ## React-компонент `EShopLogistic`
 
 Компонент показывает выбор города, способов доставки, пунктов выдачи/курьерской доставки и возвращает выбранные пользователем данные через callback.
@@ -25,7 +96,7 @@ npm install eshoplogistic-react
 import { EShopLogistic } from "eshoplogistic-react/client";
 ```
 
-Стили уже импортируются внутри компонента из `EShopLogistic.jsx`. Если ваш сборщик требует явного CSS-импорта из пакета, можно дополнительно подключить:
+Стили попадают в собранный пакет. Если ваш сборщик требует явного CSS-импорта из пакета, можно дополнительно подключить:
 
 ```js
 import "eshoplogistic-react/styles.css";
