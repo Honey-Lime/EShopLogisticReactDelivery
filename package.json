@@ -1,15 +1,26 @@
 {
   "name": "eshoplogistic-react",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "React-компонент выбора доставки EShopLogistic и серверная функция создания заказа.",
   "type": "module",
-  "main": "./index.js",
+  "main": "./index.cjs",
   "exports": {
-    ".": "./index.js",
+    ".": {
+      "import": "./index.js",
+      "require": "./index.cjs"
+    },
+    "./client": "./client.js",
+    "./server": {
+      "import": "./createOrder.js",
+      "require": "./server.cjs"
+    },
     "./styles.css": "./EShopLogistic.css"
   },
   "files": [
     "index.js",
+    "index.cjs",
+    "client.js",
+    "server.cjs",
     "EShopLogistic.jsx",
     "EShopLogistic.css",
     "createOrder.js",

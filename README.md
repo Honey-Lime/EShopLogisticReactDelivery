@@ -1,10 +1,10 @@
 # eshoplogistic-react
 
-Пакет экспортирует два публичных модуля из корня:
+Пакет экспортирует клиентский React-компонент и серверную функцию отдельными точками входа:
 
 ```js
-import { EShopLogistic } from "eshoplogistic-react";
-import { createOrder } from "eshoplogistic-react";
+import { EShopLogistic } from "eshoplogistic-react/client";
+const { createOrder } = require("eshoplogistic-react/server");
 ```
 
 ## Установка
@@ -22,7 +22,7 @@ npm install eshoplogistic-react
 ### Импорт
 
 ```jsx
-import { EShopLogistic } from "eshoplogistic-react";
+import { EShopLogistic } from "eshoplogistic-react/client";
 ```
 
 Стили уже импортируются внутри компонента из `EShopLogistic.jsx`. Если ваш сборщик требует явного CSS-импорта из пакета, можно дополнительно подключить:
@@ -35,7 +35,7 @@ import "eshoplogistic-react/styles.css";
 
 ```jsx
 import { useState } from "react";
-import { EShopLogistic } from "eshoplogistic-react";
+import { EShopLogistic } from "eshoplogistic-react/client";
 
 export function DeliveryBlock() {
   const [deliveryData, setDeliveryData] = useState(null);
@@ -86,7 +86,7 @@ export function DeliveryBlock() {
 ### Пример использования серверной функции
 
 ```js
-import { createOrder } from "eshoplogistic-react";
+const { createOrder } = require("eshoplogistic-react/server");
 
 app.post("/api/test", async (req, res) => {
   const { deliveryData } = req.body; // Получаем из EShopLogistic компонента
@@ -161,14 +161,22 @@ app.post("/api/test", async (req, res) => {
 
 ### Импорт
 
+CommonJS backend:
+
 ```js
-import { createOrder } from "eshoplogistic-react";
+const { createOrder } = require("eshoplogistic-react/server");
+```
+
+ES modules:
+
+```js
+import { createOrder } from "eshoplogistic-react/server";
 ```
 
 ### Пример использования
 
 ```js
-import { createOrder } from "eshoplogistic-react";
+const { createOrder } = require("eshoplogistic-react/server");
 
 const result = await createOrder(
   process.env.ESHOPLOGISTIC_TOKEN,
