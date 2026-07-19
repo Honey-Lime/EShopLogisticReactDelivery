@@ -139,7 +139,9 @@ app.post("/api/test", async (req, res) => {
 
   const result = await createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, companyData);
 
-  res.status(200).json(result);
+  console.log(result);
+
+  res.status(200).json("OK");
 });
 ```
 

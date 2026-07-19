@@ -268,11 +268,6 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
 
       const result = await response.json();
       const suggestion = result.suggestions?.[0];
-      // console.log(suggestion.data);
-      // console.log(suggestion.data.region);
-      // console.log(suggestion.data.street);
-      // console.log(suggestion.data.house);
-      
 
       return {
         fias:
@@ -716,9 +711,6 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
             selectedMethod.name
           );
 
-          // console.log(recalculation);
-          
-
           if (!recalculation) {
             return;
           }
@@ -731,7 +723,6 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
           out.time = recalculation.data.door.time.value;
           out.unitTime = recalculation.data.door.time.unit;
         } else {
-          // console.log(data.calculation[selectedMethod.name].data);
           out.price = data.calculation[selectedMethod.name].data.door.price.value;
           out.unitPrice = data.calculation[selectedMethod.name].data.door.price.unit;
           out.time = data.calculation[selectedMethod.name].data.door.time.value;
@@ -1163,7 +1154,6 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
   // Этап 5. Финально проверяем контакты и передаём подтверждённую доставку в checkout.
   async function submitDelivery() {
     if (!output) {
-      // console.log("NO OUTPUT");
       return;
     }
 
@@ -1187,7 +1177,6 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
 
     if (Object.keys(nextErrors).length > 0) {
       showError("delivery-required-fields", "Заполните обязательные поля доставки.");
-      // console.log("NEXT_ERRORS", nextErrors);
       return;
     }
 
