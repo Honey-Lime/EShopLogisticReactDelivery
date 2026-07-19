@@ -1,5 +1,10 @@
 import { useState, useEffect, Fragment, useRef } from "react";
-import ReactDadataBox from "react-dadata-box";
+import * as ReactDadataBoxModule from "react-dadata-box";
+const ReactDadataBox =
+  ReactDadataBoxModule.ReactDaDataBox ||
+  ReactDadataBoxModule.default ||
+  ReactDadataBoxModule;
+
 import "./EShopLogistic.css";
 
 const DEFAULT_MAP_LOCATION = {
