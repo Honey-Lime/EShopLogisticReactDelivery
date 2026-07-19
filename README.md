@@ -34,6 +34,7 @@ import "eshoplogistic-react/styles.css";
 ### Пример использования компонента
 
 ```jsx
+import { useState } from "react";
 import { EShopLogistic } from "eshoplogistic-react";
 
 export function DeliveryBlock() {
@@ -48,11 +49,13 @@ export function DeliveryBlock() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          deliveryData: deliveryData
+          deliveryData
         }),
       });
+    } catch (error) {
+      console.error("Ошибка оформления доставки:", error);
     }
-  }
+  };
 
   return (
     <>
@@ -68,7 +71,7 @@ export function DeliveryBlock() {
       
       <button
         className="btn-pay"
-        onClick={()=> {
+        onClick={() => {
           handlePlaceOrder();
         }}
       >
@@ -83,10 +86,12 @@ export function DeliveryBlock() {
 ### Пример использования серверной функции
 
 ```js
-app.post('/api/test', async(req, res) => {
+import { createOrder } from "eshoplogistic-react";
+
+app.post("/api/test", async (req, res) => {
   const { deliveryData } = req.body; // Получаем из EShopLogistic компонента
 
-  ESHOPLOGISTIC_TOKEN = "ваш_токен";
+  const ESHOPLOGISTIC_TOKEN = process.env.ESHOPLOGISTIC_TOKEN;
 
 
   // otherData заполняем данными своего магазина, отправителя, адреса отправки заказа(если посылки у вас забирает курьер)
@@ -132,8 +137,9 @@ app.post('/api/test', async(req, res) => {
                                 // cashless - безналичный расчет
   };
 
-  createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, companyData);
-  res.status(200).send('OK');
+  const result = await createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, companyData);
+
+  res.status(200).json(result);
 });
 ```
 
@@ -162,36 +168,35 @@ import { createOrder } from "eshoplogistic-react";
 ```js
 import { createOrder } from "eshoplogistic-react";
 
-const result = await createOrder(deliveryData, orderData, otherData, {
-  ESHOPLOGISTIC_TOKEN: process.env.ESHOPLOGISTIC_TOKEN,
-});
+const result = await createOrder(
+  process.env.ESHOPLOGISTIC_TOKEN,
+  deliveryData,
+  orderData,
+  otherData
+);
 
 console.log(result);
 ```
 
-Функция также может взять токен из `process.env.ESHOPLOGISTIC_TOKEN`, если не передать его в `options`:
-
-```js
-const result = await createOrder(deliveryData, orderData, otherData);
-```
+Токен создания заказа передаётся первым аргументом. Не храните его в клиентском коде.
 
 ### Сигнатура
 
 ```js
-createOrder(deliveryData, orderData, otherData, options)
+createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, otherData)
 ```
 
 | Параметр | Тип | Описание |
 | --- | --- | --- |
+| `ESHOPLOGISTIC_TOKEN` | `string` | Токен EShopLogistic для создания заказа. Передавайте его только на сервере. |
 | `deliveryData` | `object` | Данные выбранной доставки: служба, тип доставки, адрес/терминал, цена, получатель, комментарий. |
 | `orderData` | `object` | Данные заказа: id, товары/грузовые места, вес, габариты, оплата. |
 | `otherData` | `object` | Данные магазина/отправителя и адреса отправки. |
-| `options.ESHOPLOGISTIC_TOKEN` | `string` | Токен EShopLogistic для создания заказа. |
 
-Подробный пример структуры `orderData` и `otherData` есть в файле `InstructionCreateOrder.js`.
+Пример структуры `orderData` и `otherData` показан выше в разделе «Пример использования серверной функции».
 
 ## Важное про безопасность
 
-В публичной версии пакета токен создания заказа не хранится в коде. Передавайте его на сервере через `process.env.ESHOPLOGISTIC_TOKEN` или через `options.ESHOPLOGISTIC_TOKEN`.
+В публичной версии пакета токен создания заказа не хранится в коде. Передавайте его только на сервере, например через `process.env.ESHOPLOGISTIC_TOKEN`.
 
 Не добавляйте секретный токен в React-компонент, если этот токен не должен быть виден пользователям сайта.

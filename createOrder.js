@@ -101,5 +101,3 @@ export async function createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, 
   let result = await response.json();
   return result;
 }
-
-export { createOrder };

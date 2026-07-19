@@ -630,7 +630,7 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
     if (isMethodChanged) {
       setDeliveryAddress(null);
       setOutput(null);
-      onDeliveryConfirm(null);
+      onDeliveryConfirm?.(null);
     }
 
     switch (type) {
@@ -1202,7 +1202,7 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
       checked: true,
     };
 
-    onDeliveryConfirm(finalOutput);
+    onDeliveryConfirm?.(finalOutput);
   }
 
   useEffect(() => {
