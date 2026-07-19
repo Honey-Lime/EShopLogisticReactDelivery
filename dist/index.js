@@ -1,2497 +1,2932 @@
-import { Fragment as e, useEffect as t, useRef as n, useState as r } from "react";
-//#region \0rolldown/runtime.js
-var i = (e, t) => () => (t || (e((t = { exports: {} }).exports, t), e = null), t.exports), a = /* @__PURE__ */ ((e) => typeof require < "u" ? require : typeof Proxy < "u" ? new Proxy(e, { get: (e, t) => (typeof require < "u" ? require : e)[t] }) : e)(function(e) {
-	if (typeof require < "u") return require.apply(this, arguments);
-	throw Error("Calling `require` for \"" + e + "\" in an environment that doesn't expose the `require` function. See https://rolldown.rs/in-depth/bundling-cjs#require-external-modules for more details.");
-}), o = /* @__PURE__ */ i(((e) => {
-	var t = typeof Symbol == "function" && Symbol.for, n = t ? Symbol.for("react.element") : 60103, r = t ? Symbol.for("react.portal") : 60106, i = t ? Symbol.for("react.fragment") : 60107, a = t ? Symbol.for("react.strict_mode") : 60108, o = t ? Symbol.for("react.profiler") : 60114, s = t ? Symbol.for("react.provider") : 60109, c = t ? Symbol.for("react.context") : 60110, l = t ? Symbol.for("react.async_mode") : 60111, u = t ? Symbol.for("react.concurrent_mode") : 60111, d = t ? Symbol.for("react.forward_ref") : 60112, f = t ? Symbol.for("react.suspense") : 60113, p = t ? Symbol.for("react.suspense_list") : 60120, m = t ? Symbol.for("react.memo") : 60115, h = t ? Symbol.for("react.lazy") : 60116, g = t ? Symbol.for("react.block") : 60121, _ = t ? Symbol.for("react.fundamental") : 60117, v = t ? Symbol.for("react.responder") : 60118, y = t ? Symbol.for("react.scope") : 60119;
-	function b(e) {
-		if (typeof e == "object" && e) {
-			var t = e.$$typeof;
-			switch (t) {
-				case n: switch (e = e.type, e) {
-					case l:
-					case u:
-					case i:
-					case o:
-					case a:
-					case f: return e;
-					default: switch (e &&= e.$$typeof, e) {
-						case c:
-						case d:
-						case h:
-						case m:
-						case s: return e;
-						default: return t;
-					}
-				}
-				case r: return t;
-			}
-		}
-	}
-	function x(e) {
-		return b(e) === u;
-	}
-	e.AsyncMode = l, e.ConcurrentMode = u, e.ContextConsumer = c, e.ContextProvider = s, e.Element = n, e.ForwardRef = d, e.Fragment = i, e.Lazy = h, e.Memo = m, e.Portal = r, e.Profiler = o, e.StrictMode = a, e.Suspense = f, e.isAsyncMode = function(e) {
-		return x(e) || b(e) === l;
-	}, e.isConcurrentMode = x, e.isContextConsumer = function(e) {
-		return b(e) === c;
-	}, e.isContextProvider = function(e) {
-		return b(e) === s;
-	}, e.isElement = function(e) {
-		return typeof e == "object" && !!e && e.$$typeof === n;
-	}, e.isForwardRef = function(e) {
-		return b(e) === d;
-	}, e.isFragment = function(e) {
-		return b(e) === i;
-	}, e.isLazy = function(e) {
-		return b(e) === h;
-	}, e.isMemo = function(e) {
-		return b(e) === m;
-	}, e.isPortal = function(e) {
-		return b(e) === r;
-	}, e.isProfiler = function(e) {
-		return b(e) === o;
-	}, e.isStrictMode = function(e) {
-		return b(e) === a;
-	}, e.isSuspense = function(e) {
-		return b(e) === f;
-	}, e.isValidElementType = function(e) {
-		return typeof e == "string" || typeof e == "function" || e === i || e === u || e === o || e === a || e === f || e === p || typeof e == "object" && !!e && (e.$$typeof === h || e.$$typeof === m || e.$$typeof === s || e.$$typeof === c || e.$$typeof === d || e.$$typeof === _ || e.$$typeof === v || e.$$typeof === y || e.$$typeof === g);
-	}, e.typeOf = b;
-})), s = /* @__PURE__ */ i(((e) => {
-	process.env.NODE_ENV !== "production" && (function() {
-		var t = typeof Symbol == "function" && Symbol.for, n = t ? Symbol.for("react.element") : 60103, r = t ? Symbol.for("react.portal") : 60106, i = t ? Symbol.for("react.fragment") : 60107, a = t ? Symbol.for("react.strict_mode") : 60108, o = t ? Symbol.for("react.profiler") : 60114, s = t ? Symbol.for("react.provider") : 60109, c = t ? Symbol.for("react.context") : 60110, l = t ? Symbol.for("react.async_mode") : 60111, u = t ? Symbol.for("react.concurrent_mode") : 60111, d = t ? Symbol.for("react.forward_ref") : 60112, f = t ? Symbol.for("react.suspense") : 60113, p = t ? Symbol.for("react.suspense_list") : 60120, m = t ? Symbol.for("react.memo") : 60115, h = t ? Symbol.for("react.lazy") : 60116, g = t ? Symbol.for("react.block") : 60121, _ = t ? Symbol.for("react.fundamental") : 60117, v = t ? Symbol.for("react.responder") : 60118, y = t ? Symbol.for("react.scope") : 60119;
-		function b(e) {
-			return typeof e == "string" || typeof e == "function" || e === i || e === u || e === o || e === a || e === f || e === p || typeof e == "object" && !!e && (e.$$typeof === h || e.$$typeof === m || e.$$typeof === s || e.$$typeof === c || e.$$typeof === d || e.$$typeof === _ || e.$$typeof === v || e.$$typeof === y || e.$$typeof === g);
-		}
-		function x(e) {
-			if (typeof e == "object" && e) {
-				var t = e.$$typeof;
-				switch (t) {
-					case n:
-						var p = e.type;
-						switch (p) {
-							case l:
-							case u:
-							case i:
-							case o:
-							case a:
-							case f: return p;
-							default:
-								var g = p && p.$$typeof;
-								switch (g) {
-									case c:
-									case d:
-									case h:
-									case m:
-									case s: return g;
-									default: return t;
-								}
-						}
-					case r: return t;
-				}
-			}
-		}
-		var S = l, C = u, w = c, T = s, E = n, D = d, O = i, k = h, A = m, j = r, M = o, N = a, P = f, F = !1;
-		function I(e) {
-			return F || (F = !0, console.warn("The ReactIs.isAsyncMode() alias has been deprecated, and will be removed in React 17+. Update your code to use ReactIs.isConcurrentMode() instead. It has the exact same API.")), L(e) || x(e) === l;
-		}
-		function L(e) {
-			return x(e) === u;
-		}
-		function R(e) {
-			return x(e) === c;
-		}
-		function ee(e) {
-			return x(e) === s;
-		}
-		function z(e) {
-			return typeof e == "object" && !!e && e.$$typeof === n;
-		}
-		function B(e) {
-			return x(e) === d;
-		}
-		function te(e) {
-			return x(e) === i;
-		}
-		function V(e) {
-			return x(e) === h;
-		}
-		function ne(e) {
-			return x(e) === m;
-		}
-		function re(e) {
-			return x(e) === r;
-		}
-		function H(e) {
-			return x(e) === o;
-		}
-		function U(e) {
-			return x(e) === a;
-		}
-		function W(e) {
-			return x(e) === f;
-		}
-		e.AsyncMode = S, e.ConcurrentMode = C, e.ContextConsumer = w, e.ContextProvider = T, e.Element = E, e.ForwardRef = D, e.Fragment = O, e.Lazy = k, e.Memo = A, e.Portal = j, e.Profiler = M, e.StrictMode = N, e.Suspense = P, e.isAsyncMode = I, e.isConcurrentMode = L, e.isContextConsumer = R, e.isContextProvider = ee, e.isElement = z, e.isForwardRef = B, e.isFragment = te, e.isLazy = V, e.isMemo = ne, e.isPortal = re, e.isProfiler = H, e.isStrictMode = U, e.isSuspense = W, e.isValidElementType = b, e.typeOf = x;
-	})();
-})), c = /* @__PURE__ */ i(((e, t) => {
-	process.env.NODE_ENV === "production" ? t.exports = o() : t.exports = s();
-})), l = /* @__PURE__ */ i(((e, t) => {
-	var n = Object.getOwnPropertySymbols, r = Object.prototype.hasOwnProperty, i = Object.prototype.propertyIsEnumerable;
-	function a(e) {
-		if (e == null) throw TypeError("Object.assign cannot be called with null or undefined");
-		return Object(e);
-	}
-	function o() {
-		try {
-			if (!Object.assign) return !1;
-			var e = /* @__PURE__ */ new String("abc");
-			if (e[5] = "de", Object.getOwnPropertyNames(e)[0] === "5") return !1;
-			for (var t = {}, n = 0; n < 10; n++) t["_" + String.fromCharCode(n)] = n;
-			if (Object.getOwnPropertyNames(t).map(function(e) {
-				return t[e];
-			}).join("") !== "0123456789") return !1;
-			var r = {};
-			return "abcdefghijklmnopqrst".split("").forEach(function(e) {
-				r[e] = e;
-			}), Object.keys(Object.assign({}, r)).join("") === "abcdefghijklmnopqrst";
-		} catch {
-			return !1;
-		}
-	}
-	t.exports = o() ? Object.assign : function(e, t) {
-		for (var o, s = a(e), c, l = 1; l < arguments.length; l++) {
-			for (var u in o = Object(arguments[l]), o) r.call(o, u) && (s[u] = o[u]);
-			if (n) {
-				c = n(o);
-				for (var d = 0; d < c.length; d++) i.call(o, c[d]) && (s[c[d]] = o[c[d]]);
-			}
-		}
-		return s;
-	};
-})), u = /* @__PURE__ */ i(((e, t) => {
-	t.exports = "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED";
-})), d = /* @__PURE__ */ i(((e, t) => {
-	t.exports = Function.call.bind(Object.prototype.hasOwnProperty);
-})), f = /* @__PURE__ */ i(((e, t) => {
-	var n = function() {};
-	if (process.env.NODE_ENV !== "production") {
-		var r = u(), i = {}, a = d();
-		n = function(e) {
-			var t = "Warning: " + e;
-			typeof console < "u" && console.error(t);
-			try {
-				throw Error(t);
-			} catch {}
-		};
-	}
-	function o(e, t, o, s, c) {
-		if (process.env.NODE_ENV !== "production") {
-			for (var l in e) if (a(e, l)) {
-				var u;
-				try {
-					if (typeof e[l] != "function") {
-						var d = Error((s || "React class") + ": " + o + " type `" + l + "` is invalid; it must be a function, usually from the `prop-types` package, but received `" + typeof e[l] + "`.This often happens because of typos such as `PropTypes.function` instead of `PropTypes.func`.");
-						throw d.name = "Invariant Violation", d;
-					}
-					u = e[l](t, l, s, o, null, r);
-				} catch (e) {
-					u = e;
-				}
-				if (u && !(u instanceof Error) && n((s || "React class") + ": type specification of " + o + " `" + l + "` is invalid; the type checker function must return `null` or an `Error` but returned a " + typeof u + ". You may have forgotten to pass an argument to the type checker creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and shape all require an argument)."), u instanceof Error && !(u.message in i)) {
-					i[u.message] = !0;
-					var f = c ? c() : "";
-					n("Failed " + o + " type: " + u.message + (f ?? ""));
-				}
-			}
-		}
-	}
-	o.resetWarningCache = function() {
-		process.env.NODE_ENV !== "production" && (i = {});
-	}, t.exports = o;
-})), p = /* @__PURE__ */ i(((e, t) => {
-	var n = c(), r = l(), i = u(), a = d(), o = f(), s = function() {};
-	process.env.NODE_ENV !== "production" && (s = function(e) {
-		var t = "Warning: " + e;
-		typeof console < "u" && console.error(t);
-		try {
-			throw Error(t);
-		} catch {}
-	});
-	function p() {
-		return null;
-	}
-	t.exports = function(e, t) {
-		var c = typeof Symbol == "function" && Symbol.iterator, l = "@@iterator";
-		function u(e) {
-			var t = e && (c && e[c] || e[l]);
-			if (typeof t == "function") return t;
-		}
-		var d = "<<anonymous>>", f = {
-			array: _("array"),
-			bigint: _("bigint"),
-			bool: _("boolean"),
-			func: _("function"),
-			number: _("number"),
-			object: _("object"),
-			string: _("string"),
-			symbol: _("symbol"),
-			any: v(),
-			arrayOf: y,
-			element: b(),
-			elementType: x(),
-			instanceOf: S,
-			node: E(),
-			objectOf: w,
-			oneOf: C,
-			oneOfType: T,
-			shape: O,
-			exact: k
-		};
-		function m(e, t) {
-			return e === t ? e !== 0 || 1 / e == 1 / t : e !== e && t !== t;
-		}
-		function h(e, t) {
-			this.message = e, this.data = t && typeof t == "object" ? t : {}, this.stack = "";
-		}
-		h.prototype = Error.prototype;
-		function g(e) {
-			if (process.env.NODE_ENV !== "production") var n = {}, r = 0;
-			function a(a, o, c, l, u, f, p) {
-				if (l ||= d, f ||= c, p !== i) {
-					if (t) {
-						var m = /* @__PURE__ */ Error("Calling PropTypes validators directly is not supported by the `prop-types` package. Use `PropTypes.checkPropTypes()` to call them. Read more at http://fb.me/use-check-prop-types");
-						throw m.name = "Invariant Violation", m;
-					} else if (process.env.NODE_ENV !== "production" && typeof console < "u") {
-						var g = l + ":" + c;
-						!n[g] && r < 3 && (s("You are manually calling a React.PropTypes validation function for the `" + f + "` prop on `" + l + "`. This is deprecated and will throw in the standalone `prop-types` package. You may be seeing this warning due to a third-party PropTypes library. See https://fb.me/react-warning-dont-call-proptypes for details."), n[g] = !0, r++);
-					}
-				}
-				return o[c] == null ? a ? o[c] === null ? new h("The " + u + " `" + f + "` is marked as required " + ("in `" + l + "`, but its value is `null`.")) : new h("The " + u + " `" + f + "` is marked as required in " + ("`" + l + "`, but its value is `undefined`.")) : null : e(o, c, l, u, f);
-			}
-			var o = a.bind(null, !1);
-			return o.isRequired = a.bind(null, !0), o;
-		}
-		function _(e) {
-			function t(t, n, r, i, a, o) {
-				var s = t[n];
-				if (M(s) !== e) {
-					var c = N(s);
-					return new h("Invalid " + i + " `" + a + "` of type " + ("`" + c + "` supplied to `" + r + "`, expected ") + ("`" + e + "`."), { expectedType: e });
-				}
-				return null;
-			}
-			return g(t);
-		}
-		function v() {
-			return g(p);
-		}
-		function y(e) {
-			function t(t, n, r, a, o) {
-				if (typeof e != "function") return new h("Property `" + o + "` of component `" + r + "` has invalid PropType notation inside arrayOf.");
-				var s = t[n];
-				if (!Array.isArray(s)) {
-					var c = M(s);
-					return new h("Invalid " + a + " `" + o + "` of type " + ("`" + c + "` supplied to `" + r + "`, expected an array."));
-				}
-				for (var l = 0; l < s.length; l++) {
-					var u = e(s, l, r, a, o + "[" + l + "]", i);
-					if (u instanceof Error) return u;
-				}
-				return null;
-			}
-			return g(t);
-		}
-		function b() {
-			function t(t, n, r, i, a) {
-				var o = t[n];
-				if (!e(o)) {
-					var s = M(o);
-					return new h("Invalid " + i + " `" + a + "` of type " + ("`" + s + "` supplied to `" + r + "`, expected a single ReactElement."));
-				}
-				return null;
-			}
-			return g(t);
-		}
-		function x() {
-			function e(e, t, r, i, a) {
-				var o = e[t];
-				if (!n.isValidElementType(o)) {
-					var s = M(o);
-					return new h("Invalid " + i + " `" + a + "` of type " + ("`" + s + "` supplied to `" + r + "`, expected a single ReactElement type."));
-				}
-				return null;
-			}
-			return g(e);
-		}
-		function S(e) {
-			function t(t, n, r, i, a) {
-				if (!(t[n] instanceof e)) {
-					var o = e.name || d, s = F(t[n]);
-					return new h("Invalid " + i + " `" + a + "` of type " + ("`" + s + "` supplied to `" + r + "`, expected ") + ("instance of `" + o + "`."));
-				}
-				return null;
-			}
-			return g(t);
-		}
-		function C(e) {
-			if (!Array.isArray(e)) return process.env.NODE_ENV !== "production" && (arguments.length > 1 ? s("Invalid arguments supplied to oneOf, expected an array, got " + arguments.length + " arguments. A common mistake is to write oneOf(x, y, z) instead of oneOf([x, y, z]).") : s("Invalid argument supplied to oneOf, expected an array.")), p;
-			function t(t, n, r, i, a) {
-				for (var o = t[n], s = 0; s < e.length; s++) if (m(o, e[s])) return null;
-				var c = JSON.stringify(e, function(e, t) {
-					return N(t) === "symbol" ? String(t) : t;
-				});
-				return new h("Invalid " + i + " `" + a + "` of value `" + String(o) + "` " + ("supplied to `" + r + "`, expected one of " + c + "."));
-			}
-			return g(t);
-		}
-		function w(e) {
-			function t(t, n, r, o, s) {
-				if (typeof e != "function") return new h("Property `" + s + "` of component `" + r + "` has invalid PropType notation inside objectOf.");
-				var c = t[n], l = M(c);
-				if (l !== "object") return new h("Invalid " + o + " `" + s + "` of type " + ("`" + l + "` supplied to `" + r + "`, expected an object."));
-				for (var u in c) if (a(c, u)) {
-					var d = e(c, u, r, o, s + "." + u, i);
-					if (d instanceof Error) return d;
-				}
-				return null;
-			}
-			return g(t);
-		}
-		function T(e) {
-			if (!Array.isArray(e)) return process.env.NODE_ENV !== "production" && s("Invalid argument supplied to oneOfType, expected an instance of array."), p;
-			for (var t = 0; t < e.length; t++) {
-				var n = e[t];
-				if (typeof n != "function") return s("Invalid argument supplied to oneOfType. Expected an array of check functions, but received " + P(n) + " at index " + t + "."), p;
-			}
-			function r(t, n, r, o, s) {
-				for (var c = [], l = 0; l < e.length; l++) {
-					var u = e[l], d = u(t, n, r, o, s, i);
-					if (d == null) return null;
-					d.data && a(d.data, "expectedType") && c.push(d.data.expectedType);
-				}
-				var f = c.length > 0 ? ", expected one of type [" + c.join(", ") + "]" : "";
-				return new h("Invalid " + o + " `" + s + "` supplied to " + ("`" + r + "`" + f + "."));
-			}
-			return g(r);
-		}
-		function E() {
-			function e(e, t, n, r, i) {
-				return A(e[t]) ? null : new h("Invalid " + r + " `" + i + "` supplied to " + ("`" + n + "`, expected a ReactNode."));
-			}
-			return g(e);
-		}
-		function D(e, t, n, r, i) {
-			return new h((e || "React class") + ": " + t + " type `" + n + "." + r + "` is invalid; it must be a function, usually from the `prop-types` package, but received `" + i + "`.");
-		}
-		function O(e) {
-			function t(t, n, r, a, o) {
-				var s = t[n], c = M(s);
-				if (c !== "object") return new h("Invalid " + a + " `" + o + "` of type `" + c + "` " + ("supplied to `" + r + "`, expected `object`."));
-				for (var l in e) {
-					var u = e[l];
-					if (typeof u != "function") return D(r, a, o, l, N(u));
-					var d = u(s, l, r, a, o + "." + l, i);
-					if (d) return d;
-				}
-				return null;
-			}
-			return g(t);
-		}
-		function k(e) {
-			function t(t, n, o, s, c) {
-				var l = t[n], u = M(l);
-				if (u !== "object") return new h("Invalid " + s + " `" + c + "` of type `" + u + "` " + ("supplied to `" + o + "`, expected `object`."));
-				for (var d in r({}, t[n], e)) {
-					var f = e[d];
-					if (a(e, d) && typeof f != "function") return D(o, s, c, d, N(f));
-					if (!f) return new h("Invalid " + s + " `" + c + "` key `" + d + "` supplied to `" + o + "`.\nBad object: " + JSON.stringify(t[n], null, "  ") + "\nValid keys: " + JSON.stringify(Object.keys(e), null, "  "));
-					var p = f(l, d, o, s, c + "." + d, i);
-					if (p) return p;
-				}
-				return null;
-			}
-			return g(t);
-		}
-		function A(t) {
-			switch (typeof t) {
-				case "number":
-				case "string":
-				case "undefined": return !0;
-				case "boolean": return !t;
-				case "object":
-					if (Array.isArray(t)) return t.every(A);
-					if (t === null || e(t)) return !0;
-					var n = u(t);
-					if (n) {
-						var r = n.call(t), i;
-						if (n !== t.entries) {
-							for (; !(i = r.next()).done;) if (!A(i.value)) return !1;
-						} else for (; !(i = r.next()).done;) {
-							var a = i.value;
-							if (a && !A(a[1])) return !1;
-						}
-					} else return !1;
-					return !0;
-				default: return !1;
-			}
-		}
-		function j(e, t) {
-			return e === "symbol" ? !0 : t ? t["@@toStringTag"] === "Symbol" || typeof Symbol == "function" && t instanceof Symbol : !1;
-		}
-		function M(e) {
-			var t = typeof e;
-			return Array.isArray(e) ? "array" : e instanceof RegExp ? "object" : j(t, e) ? "symbol" : t;
-		}
-		function N(e) {
-			if (e == null) return "" + e;
-			var t = M(e);
-			if (t === "object") {
-				if (e instanceof Date) return "date";
-				if (e instanceof RegExp) return "regexp";
-			}
-			return t;
-		}
-		function P(e) {
-			var t = N(e);
-			switch (t) {
-				case "array":
-				case "object": return "an " + t;
-				case "boolean":
-				case "date":
-				case "regexp": return "a " + t;
-				default: return t;
-			}
-		}
-		function F(e) {
-			return !e.constructor || !e.constructor.name ? d : e.constructor.name;
-		}
-		return f.checkPropTypes = o, f.resetWarningCache = o.resetWarningCache, f.PropTypes = f, f;
-	};
-})), m = /* @__PURE__ */ i(((e, t) => {
-	var n = u();
-	function r() {}
-	function i() {}
-	i.resetWarningCache = r, t.exports = function() {
-		function e(e, t, r, i, a, o) {
-			if (o !== n) {
-				var s = /* @__PURE__ */ Error("Calling PropTypes validators directly is not supported by the `prop-types` package. Use PropTypes.checkPropTypes() to call them. Read more at http://fb.me/use-check-prop-types");
-				throw s.name = "Invariant Violation", s;
-			}
-		}
-		e.isRequired = e;
-		function t() {
-			return e;
-		}
-		var a = {
-			array: e,
-			bigint: e,
-			bool: e,
-			func: e,
-			number: e,
-			object: e,
-			string: e,
-			symbol: e,
-			any: e,
-			arrayOf: t,
-			element: e,
-			elementType: e,
-			instanceOf: t,
-			node: e,
-			objectOf: t,
-			oneOf: t,
-			oneOfType: t,
-			shape: t,
-			exact: t,
-			checkPropTypes: i,
-			resetWarningCache: r
-		};
-		return a.PropTypes = a, a;
-	};
-})), h = /* @__PURE__ */ i(((e, t) => {
-	if (process.env.NODE_ENV !== "production") {
-		var n = c();
-		t.exports = p()(n.isElement, !0);
-	} else t.exports = m()();
-})), g = /* @__PURE__ */ i(((e, t) => {
-	t.exports = (function(e) {
-		var t = {};
-		function n(r) {
-			if (t[r]) return t[r].exports;
-			var i = t[r] = {
-				exports: {},
-				id: r,
-				loaded: !1
-			};
-			return e[r].call(i.exports, i, i.exports, n), i.loaded = !0, i.exports;
-		}
-		return n.m = e, n.c = t, n.p = "", n(0);
-	})([
-		(function(e, t, n) {
-			e.exports = n(1);
-		}),
-		(function(e, t, n) {
-			Object.defineProperty(t, "__esModule", { value: !0 });
-			function r(e) {
-				return e && e.__esModule ? e : { default: e };
-			}
-			t.default = r(n(2)).default, e.exports = t.default;
-		}),
-		(function(e, t, n) {
-			Object.defineProperty(t, "__esModule", { value: !0 });
-			var r = Object.assign || function(e) {
-				for (var t = 1; t < arguments.length; t++) {
-					var n = arguments[t];
-					for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
-				}
-				return e;
-			};
-			t.default = u;
-			function i(e) {
-				return e && e.__esModule ? e : { default: e };
-			}
-			function a(e, t) {
-				var n = {};
-				for (var r in e) t.indexOf(r) >= 0 || Object.prototype.hasOwnProperty.call(e, r) && (n[r] = e[r]);
-				return n;
-			}
-			var o = n(3), s = i(n(4)), c = n(14), l = i(n(15));
-			u.propTypes = {
-				activeClassName: s.default.string,
-				activeIndex: s.default.number,
-				activeStyle: s.default.object,
-				autoEscape: s.default.bool,
-				className: s.default.string,
-				findChunks: s.default.func,
-				highlightClassName: s.default.oneOfType([s.default.object, s.default.string]),
-				highlightStyle: s.default.object,
-				highlightTag: s.default.oneOfType([
-					s.default.node,
-					s.default.func,
-					s.default.string
-				]),
-				sanitize: s.default.func,
-				searchWords: s.default.arrayOf(s.default.oneOfType([s.default.string, s.default.instanceOf(RegExp)])).isRequired,
-				textToHighlight: s.default.string.isRequired,
-				unhighlightClassName: s.default.string,
-				unhighlightStyle: s.default.object
-			};
-			function u(e) {
-				var t = e.activeClassName, n = t === void 0 ? "" : t, i = e.activeIndex, s = i === void 0 ? -1 : i, u = e.activeStyle, d = e.autoEscape, f = e.caseSensitive, p = f !== void 0 && f, m = e.className, h = e.findChunks, g = e.highlightClassName, _ = g === void 0 ? "" : g, v = e.highlightStyle, y = v === void 0 ? {} : v, b = e.highlightTag, x = b === void 0 ? "mark" : b, S = e.sanitize, C = e.searchWords, w = e.textToHighlight, T = e.unhighlightClassName, E = T === void 0 ? "" : T, D = e.unhighlightStyle, O = a(e, [
-					"activeClassName",
-					"activeIndex",
-					"activeStyle",
-					"autoEscape",
-					"caseSensitive",
-					"className",
-					"findChunks",
-					"highlightClassName",
-					"highlightStyle",
-					"highlightTag",
-					"sanitize",
-					"searchWords",
-					"textToHighlight",
-					"unhighlightClassName",
-					"unhighlightStyle"
-				]), k = (0, o.findAll)({
-					autoEscape: d,
-					caseSensitive: p,
-					findChunks: h,
-					sanitize: S,
-					searchWords: C,
-					textToHighlight: w
-				}), A = x, j = -1, M = "", N = void 0, P = (0, l.default)(function(e) {
-					var t = {};
-					for (var n in e) t[n.toLowerCase()] = e[n];
-					return t;
-				});
-				return (0, c.createElement)("span", r({ className: m }, O, { children: k.map(function(e, t) {
-					var r = w.substr(e.start, e.end - e.start);
-					if (e.highlight) {
-						j++;
-						var i = void 0;
-						typeof _ == "object" ? p ? i = _[r] : (_ = P(_), i = _[r.toLowerCase()]) : i = _;
-						var a = j === +s;
-						M = i + " " + (a ? n : ""), N = a === !0 && u != null ? Object.assign({}, y, u) : y;
-						var o = {
-							children: r,
-							className: M,
-							key: t,
-							style: N
-						};
-						return typeof A != "string" && (o.highlightIndex = j), (0, c.createElement)(A, o);
-					} else return (0, c.createElement)("span", {
-						children: r,
-						className: E,
-						key: t,
-						style: D
-					});
-				}) }));
-			}
-			e.exports = t.default;
-		}),
-		(function(e, t) {
-			e.exports = (function(e) {
-				var t = {};
-				function n(r) {
-					if (t[r]) return t[r].exports;
-					var i = t[r] = {
-						exports: {},
-						id: r,
-						loaded: !1
-					};
-					return e[r].call(i.exports, i, i.exports, n), i.loaded = !0, i.exports;
-				}
-				return n.m = e, n.c = t, n.p = "", n(0);
-			})([
-				(function(e, t, n) {
-					e.exports = n(1);
-				}),
-				(function(e, t, n) {
-					Object.defineProperty(t, "__esModule", { value: !0 });
-					var r = n(2);
-					Object.defineProperty(t, "combineChunks", {
-						enumerable: !0,
-						get: function() {
-							return r.combineChunks;
-						}
-					}), Object.defineProperty(t, "fillInChunks", {
-						enumerable: !0,
-						get: function() {
-							return r.fillInChunks;
-						}
-					}), Object.defineProperty(t, "findAll", {
-						enumerable: !0,
-						get: function() {
-							return r.findAll;
-						}
-					}), Object.defineProperty(t, "findChunks", {
-						enumerable: !0,
-						get: function() {
-							return r.findChunks;
-						}
-					});
-				}),
-				(function(e, t) {
-					Object.defineProperty(t, "__esModule", { value: !0 }), t.findAll = function(e) {
-						var t = e.autoEscape, a = e.caseSensitive, o = a !== void 0 && a, s = e.findChunks, c = s === void 0 ? r : s, l = e.sanitize, u = e.searchWords, d = e.textToHighlight;
-						return i({
-							chunksToHighlight: n({ chunks: c({
-								autoEscape: t,
-								caseSensitive: o,
-								sanitize: l,
-								searchWords: u,
-								textToHighlight: d
-							}) }),
-							totalLength: d ? d.length : 0
-						});
-					};
-					var n = t.combineChunks = function(e) {
-						var t = e.chunks;
-						return t = t.sort(function(e, t) {
-							return e.start - t.start;
-						}).reduce(function(e, t) {
-							if (e.length === 0) return [t];
-							var n = e.pop();
-							if (t.start <= n.end) {
-								var r = Math.max(n.end, t.end);
-								e.push({
-									start: n.start,
-									end: r
-								});
-							} else e.push(n, t);
-							return e;
-						}, []), t;
-					}, r = function(e) {
-						var t = e.autoEscape, n = e.caseSensitive, r = e.sanitize, i = r === void 0 ? a : r, s = e.searchWords, c = e.textToHighlight;
-						return c = i(c), s.filter(function(e) {
-							return e;
-						}).reduce(function(e, r) {
-							r = i(r), t && (r = o(r));
-							for (var a = new RegExp(r, n ? "g" : "gi"), s = void 0; s = a.exec(c);) {
-								var l = s.index, u = a.lastIndex;
-								u > l && e.push({
-									start: l,
-									end: u
-								}), s.index == a.lastIndex && a.lastIndex++;
-							}
-							return e;
-						}, []);
-					};
-					t.findChunks = r;
-					var i = t.fillInChunks = function(e) {
-						var t = e.chunksToHighlight, n = e.totalLength, r = [], i = function(e, t, n) {
-							t - e > 0 && r.push({
-								start: e,
-								end: t,
-								highlight: n
-							});
-						};
-						if (t.length === 0) i(0, n, !1);
-						else {
-							var a = 0;
-							t.forEach(function(e) {
-								i(a, e.start, !1), i(e.start, e.end, !0), a = e.end;
-							}), i(a, n, !1);
-						}
-						return r;
-					};
-					function a(e) {
-						return e;
-					}
-					function o(e) {
-						return e.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-					}
-				})
-			]);
-		}),
-		(function(e, t, n) {
-			(function(t) {
-				if (t.env.NODE_ENV !== "production") {
-					var r = typeof Symbol == "function" && Symbol.for && Symbol.for("react.element") || 60103;
-					e.exports = n(6)(function(e) {
-						return typeof e == "object" && !!e && e.$$typeof === r;
-					}, !0);
-				} else e.exports = n(13)();
-			}).call(t, n(5));
-		}),
-		(function(e, t) {
-			var n = e.exports = {}, r, i;
-			function a() {
-				throw Error("setTimeout has not been defined");
-			}
-			function o() {
-				throw Error("clearTimeout has not been defined");
-			}
-			(function() {
-				try {
-					r = typeof setTimeout == "function" ? setTimeout : a;
-				} catch {
-					r = a;
-				}
-				try {
-					i = typeof clearTimeout == "function" ? clearTimeout : o;
-				} catch {
-					i = o;
-				}
-			})();
-			function s(e) {
-				if (r === setTimeout) return setTimeout(e, 0);
-				if ((r === a || !r) && setTimeout) return r = setTimeout, setTimeout(e, 0);
-				try {
-					return r(e, 0);
-				} catch {
-					try {
-						return r.call(null, e, 0);
-					} catch {
-						return r.call(this, e, 0);
-					}
-				}
-			}
-			function c(e) {
-				if (i === clearTimeout) return clearTimeout(e);
-				if ((i === o || !i) && clearTimeout) return i = clearTimeout, clearTimeout(e);
-				try {
-					return i(e);
-				} catch {
-					try {
-						return i.call(null, e);
-					} catch {
-						return i.call(this, e);
-					}
-				}
-			}
-			var l = [], u = !1, d, f = -1;
-			function p() {
-				!u || !d || (u = !1, d.length ? l = d.concat(l) : f = -1, l.length && m());
-			}
-			function m() {
-				if (!u) {
-					var e = s(p);
-					u = !0;
-					for (var t = l.length; t;) {
-						for (d = l, l = []; ++f < t;) d && d[f].run();
-						f = -1, t = l.length;
-					}
-					d = null, u = !1, c(e);
-				}
-			}
-			n.nextTick = function(e) {
-				var t = Array(arguments.length - 1);
-				if (arguments.length > 1) for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
-				l.push(new h(e, t)), l.length === 1 && !u && s(m);
-			};
-			function h(e, t) {
-				this.fun = e, this.array = t;
-			}
-			h.prototype.run = function() {
-				this.fun.apply(null, this.array);
-			}, n.title = "browser", n.browser = !0, n.env = {}, n.argv = [], n.version = "", n.versions = {};
-			function g() {}
-			n.on = g, n.addListener = g, n.once = g, n.off = g, n.removeListener = g, n.removeAllListeners = g, n.emit = g, n.prependListener = g, n.prependOnceListener = g, n.listeners = function(e) {
-				return [];
-			}, n.binding = function(e) {
-				throw Error("process.binding is not supported");
-			}, n.cwd = function() {
-				return "/";
-			}, n.chdir = function(e) {
-				throw Error("process.chdir is not supported");
-			}, n.umask = function() {
-				return 0;
-			};
-		}),
-		(function(e, t, n) {
-			(function(t) {
-				var r = n(7), i = n(8), a = n(9), o = n(10), s = n(11), c = n(12);
-				e.exports = function(e, n) {
-					var l = typeof Symbol == "function" && Symbol.iterator, u = "@@iterator";
-					function d(e) {
-						var t = e && (l && e[l] || e[u]);
-						if (typeof t == "function") return t;
-					}
-					var f = "<<anonymous>>", p = {
-						array: _("array"),
-						bool: _("boolean"),
-						func: _("function"),
-						number: _("number"),
-						object: _("object"),
-						string: _("string"),
-						symbol: _("symbol"),
-						any: v(),
-						arrayOf: y,
-						element: b(),
-						instanceOf: x,
-						node: T(),
-						objectOf: C,
-						oneOf: S,
-						oneOfType: w,
-						shape: E,
-						exact: D
-					};
-					function m(e, t) {
-						return e === t ? e !== 0 || 1 / e == 1 / t : e !== e && t !== t;
-					}
-					function h(e) {
-						this.message = e, this.stack = "";
-					}
-					h.prototype = Error.prototype;
-					function g(e) {
-						if (t.env.NODE_ENV !== "production") var r = {}, o = 0;
-						function c(c, l, u, d, p, m, g) {
-							if (d ||= f, m ||= u, g !== s) {
-								if (n) i(!1, "Calling PropTypes validators directly is not supported by the `prop-types` package. Use `PropTypes.checkPropTypes()` to call them. Read more at http://fb.me/use-check-prop-types");
-								else if (t.env.NODE_ENV !== "production" && typeof console < "u") {
-									var _ = d + ":" + u;
-									!r[_] && o < 3 && (a(!1, "You are manually calling a React.PropTypes validation function for the `%s` prop on `%s`. This is deprecated and will throw in the standalone `prop-types` package. You may be seeing this warning due to a third-party PropTypes library. See https://fb.me/react-warning-dont-call-proptypes for details.", m, d), r[_] = !0, o++);
-								}
-							}
-							return l[u] == null ? c ? l[u] === null ? new h("The " + p + " `" + m + "` is marked as required " + ("in `" + d + "`, but its value is `null`.")) : new h("The " + p + " `" + m + "` is marked as required in " + ("`" + d + "`, but its value is `undefined`.")) : null : e(l, u, d, p, m);
-						}
-						var l = c.bind(null, !1);
-						return l.isRequired = c.bind(null, !0), l;
-					}
-					function _(e) {
-						function t(t, n, r, i, a, o) {
-							var s = t[n];
-							if (A(s) !== e) {
-								var c = j(s);
-								return new h("Invalid " + i + " `" + a + "` of type " + ("`" + c + "` supplied to `" + r + "`, expected ") + ("`" + e + "`."));
-							}
-							return null;
-						}
-						return g(t);
-					}
-					function v() {
-						return g(r.thatReturnsNull);
-					}
-					function y(e) {
-						function t(t, n, r, i, a) {
-							if (typeof e != "function") return new h("Property `" + a + "` of component `" + r + "` has invalid PropType notation inside arrayOf.");
-							var o = t[n];
-							if (!Array.isArray(o)) {
-								var c = A(o);
-								return new h("Invalid " + i + " `" + a + "` of type " + ("`" + c + "` supplied to `" + r + "`, expected an array."));
-							}
-							for (var l = 0; l < o.length; l++) {
-								var u = e(o, l, r, i, a + "[" + l + "]", s);
-								if (u instanceof Error) return u;
-							}
-							return null;
-						}
-						return g(t);
-					}
-					function b() {
-						function t(t, n, r, i, a) {
-							var o = t[n];
-							if (!e(o)) {
-								var s = A(o);
-								return new h("Invalid " + i + " `" + a + "` of type " + ("`" + s + "` supplied to `" + r + "`, expected a single ReactElement."));
-							}
-							return null;
-						}
-						return g(t);
-					}
-					function x(e) {
-						function t(t, n, r, i, a) {
-							if (!(t[n] instanceof e)) {
-								var o = e.name || f, s = N(t[n]);
-								return new h("Invalid " + i + " `" + a + "` of type " + ("`" + s + "` supplied to `" + r + "`, expected ") + ("instance of `" + o + "`."));
-							}
-							return null;
-						}
-						return g(t);
-					}
-					function S(e) {
-						if (!Array.isArray(e)) return t.env.NODE_ENV !== "production" && a(!1, "Invalid argument supplied to oneOf, expected an instance of array."), r.thatReturnsNull;
-						function n(t, n, r, i, a) {
-							for (var o = t[n], s = 0; s < e.length; s++) if (m(o, e[s])) return null;
-							var c = JSON.stringify(e);
-							return new h("Invalid " + i + " `" + a + "` of value `" + o + "` " + ("supplied to `" + r + "`, expected one of " + c + "."));
-						}
-						return g(n);
-					}
-					function C(e) {
-						function t(t, n, r, i, a) {
-							if (typeof e != "function") return new h("Property `" + a + "` of component `" + r + "` has invalid PropType notation inside objectOf.");
-							var o = t[n], c = A(o);
-							if (c !== "object") return new h("Invalid " + i + " `" + a + "` of type " + ("`" + c + "` supplied to `" + r + "`, expected an object."));
-							for (var l in o) if (o.hasOwnProperty(l)) {
-								var u = e(o, l, r, i, a + "." + l, s);
-								if (u instanceof Error) return u;
-							}
-							return null;
-						}
-						return g(t);
-					}
-					function w(e) {
-						if (!Array.isArray(e)) return t.env.NODE_ENV !== "production" && a(!1, "Invalid argument supplied to oneOfType, expected an instance of array."), r.thatReturnsNull;
-						for (var n = 0; n < e.length; n++) {
-							var i = e[n];
-							if (typeof i != "function") return a(!1, "Invalid argument supplied to oneOfType. Expected an array of check functions, but received %s at index %s.", M(i), n), r.thatReturnsNull;
-						}
-						function o(t, n, r, i, a) {
-							for (var o = 0; o < e.length; o++) {
-								var c = e[o];
-								if (c(t, n, r, i, a, s) == null) return null;
-							}
-							return new h("Invalid " + i + " `" + a + "` supplied to " + ("`" + r + "`."));
-						}
-						return g(o);
-					}
-					function T() {
-						function e(e, t, n, r, i) {
-							return O(e[t]) ? null : new h("Invalid " + r + " `" + i + "` supplied to " + ("`" + n + "`, expected a ReactNode."));
-						}
-						return g(e);
-					}
-					function E(e) {
-						function t(t, n, r, i, a) {
-							var o = t[n], c = A(o);
-							if (c !== "object") return new h("Invalid " + i + " `" + a + "` of type `" + c + "` " + ("supplied to `" + r + "`, expected `object`."));
-							for (var l in e) {
-								var u = e[l];
-								if (u) {
-									var d = u(o, l, r, i, a + "." + l, s);
-									if (d) return d;
-								}
-							}
-							return null;
-						}
-						return g(t);
-					}
-					function D(e) {
-						function t(t, n, r, i, a) {
-							var c = t[n], l = A(c);
-							if (l !== "object") return new h("Invalid " + i + " `" + a + "` of type `" + l + "` " + ("supplied to `" + r + "`, expected `object`."));
-							for (var u in o({}, t[n], e)) {
-								var d = e[u];
-								if (!d) return new h("Invalid " + i + " `" + a + "` key `" + u + "` supplied to `" + r + "`.\nBad object: " + JSON.stringify(t[n], null, "  ") + "\nValid keys: " + JSON.stringify(Object.keys(e), null, "  "));
-								var f = d(c, u, r, i, a + "." + u, s);
-								if (f) return f;
-							}
-							return null;
-						}
-						return g(t);
-					}
-					function O(t) {
-						switch (typeof t) {
-							case "number":
-							case "string":
-							case "undefined": return !0;
-							case "boolean": return !t;
-							case "object":
-								if (Array.isArray(t)) return t.every(O);
-								if (t === null || e(t)) return !0;
-								var n = d(t);
-								if (n) {
-									var r = n.call(t), i;
-									if (n !== t.entries) {
-										for (; !(i = r.next()).done;) if (!O(i.value)) return !1;
-									} else for (; !(i = r.next()).done;) {
-										var a = i.value;
-										if (a && !O(a[1])) return !1;
-									}
-								} else return !1;
-								return !0;
-							default: return !1;
-						}
-					}
-					function k(e, t) {
-						return e === "symbol" || t["@@toStringTag"] === "Symbol" || typeof Symbol == "function" && t instanceof Symbol;
-					}
-					function A(e) {
-						var t = typeof e;
-						return Array.isArray(e) ? "array" : e instanceof RegExp ? "object" : k(t, e) ? "symbol" : t;
-					}
-					function j(e) {
-						if (e == null) return "" + e;
-						var t = A(e);
-						if (t === "object") {
-							if (e instanceof Date) return "date";
-							if (e instanceof RegExp) return "regexp";
-						}
-						return t;
-					}
-					function M(e) {
-						var t = j(e);
-						switch (t) {
-							case "array":
-							case "object": return "an " + t;
-							case "boolean":
-							case "date":
-							case "regexp": return "a " + t;
-							default: return t;
-						}
-					}
-					function N(e) {
-						return !e.constructor || !e.constructor.name ? f : e.constructor.name;
-					}
-					return p.checkPropTypes = c, p.PropTypes = p, p;
-				};
-			}).call(t, n(5));
-		}),
-		(function(e, t) {
-			function n(e) {
-				return function() {
-					return e;
-				};
-			}
-			var r = function() {};
-			r.thatReturns = n, r.thatReturnsFalse = n(!1), r.thatReturnsTrue = n(!0), r.thatReturnsNull = n(null), r.thatReturnsThis = function() {
-				return this;
-			}, r.thatReturnsArgument = function(e) {
-				return e;
-			}, e.exports = r;
-		}),
-		(function(e, t, n) {
-			(function(t) {
-				var n = function(e) {};
-				t.env.NODE_ENV !== "production" && (n = function(e) {
-					if (e === void 0) throw Error("invariant requires an error message argument");
-				});
-				function r(e, t, r, i, a, o, s, c) {
-					if (n(t), !e) {
-						var l;
-						if (t === void 0) l = /* @__PURE__ */ Error("Minified exception occurred; use the non-minified dev environment for the full error message and additional helpful warnings.");
-						else {
-							var u = [
-								r,
-								i,
-								a,
-								o,
-								s,
-								c
-							], d = 0;
-							l = Error(t.replace(/%s/g, function() {
-								return u[d++];
-							})), l.name = "Invariant Violation";
-						}
-						throw l.framesToPop = 1, l;
-					}
-				}
-				e.exports = r;
-			}).call(t, n(5));
-		}),
-		(function(e, t, n) {
-			(function(t) {
-				var r = n(7);
-				if (t.env.NODE_ENV !== "production") {
-					var i = function(e) {
-						var t = [...arguments].slice(1), n = 0, r = "Warning: " + e.replace(/%s/g, function() {
-							return t[n++];
-						});
-						typeof console < "u" && console.error(r);
-						try {
-							throw Error(r);
-						} catch {}
-					};
-					r = function(e, t) {
-						if (t === void 0) throw Error("`warning(condition, format, ...args)` requires a warning message argument");
-						if (t.indexOf("Failed Composite propType: ") !== 0 && !e) {
-							var n = [...arguments].slice(2);
-							i.apply(void 0, [t].concat(n));
-						}
-					};
-				}
-				e.exports = r;
-			}).call(t, n(5));
-		}),
-		(function(e, t) {
-			var n = Object.getOwnPropertySymbols, r = Object.prototype.hasOwnProperty, i = Object.prototype.propertyIsEnumerable;
-			function a(e) {
-				if (e == null) throw TypeError("Object.assign cannot be called with null or undefined");
-				return Object(e);
-			}
-			function o() {
-				try {
-					if (!Object.assign) return !1;
-					var e = /* @__PURE__ */ new String("abc");
-					if (e[5] = "de", Object.getOwnPropertyNames(e)[0] === "5") return !1;
-					for (var t = {}, n = 0; n < 10; n++) t["_" + String.fromCharCode(n)] = n;
-					if (Object.getOwnPropertyNames(t).map(function(e) {
-						return t[e];
-					}).join("") !== "0123456789") return !1;
-					var r = {};
-					return "abcdefghijklmnopqrst".split("").forEach(function(e) {
-						r[e] = e;
-					}), Object.keys(Object.assign({}, r)).join("") === "abcdefghijklmnopqrst";
-				} catch {
-					return !1;
-				}
-			}
-			e.exports = o() ? Object.assign : function(e, t) {
-				for (var o, s = a(e), c, l = 1; l < arguments.length; l++) {
-					for (var u in o = Object(arguments[l]), o) r.call(o, u) && (s[u] = o[u]);
-					if (n) {
-						c = n(o);
-						for (var d = 0; d < c.length; d++) i.call(o, c[d]) && (s[c[d]] = o[c[d]]);
-					}
-				}
-				return s;
-			};
-		}),
-		(function(e, t) {
-			e.exports = "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED";
-		}),
-		(function(e, t, n) {
-			(function(t) {
-				if (t.env.NODE_ENV !== "production") var r = n(8), i = n(9), a = n(11), o = {};
-				function s(e, n, s, c, l) {
-					if (t.env.NODE_ENV !== "production") {
-						for (var u in e) if (e.hasOwnProperty(u)) {
-							var d;
-							try {
-								r(typeof e[u] == "function", "%s: %s type `%s` is invalid; it must be a function, usually from the `prop-types` package, but received `%s`.", c || "React class", s, u, typeof e[u]), d = e[u](n, u, c, s, null, a);
-							} catch (e) {
-								d = e;
-							}
-							if (i(!d || d instanceof Error, "%s: type specification of %s `%s` is invalid; the type checker function must return `null` or an `Error` but returned a %s. You may have forgotten to pass an argument to the type checker creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and shape all require an argument).", c || "React class", s, u, typeof d), d instanceof Error && !(d.message in o)) {
-								o[d.message] = !0;
-								var f = l ? l() : "";
-								i(!1, "Failed %s type: %s%s", s, d.message, f ?? "");
-							}
-						}
-					}
-				}
-				e.exports = s;
-			}).call(t, n(5));
-		}),
-		(function(e, t, n) {
-			var r = n(7), i = n(8), a = n(11);
-			e.exports = function() {
-				function e(e, t, n, r, o, s) {
-					s !== a && i(!1, "Calling PropTypes validators directly is not supported by the `prop-types` package. Use PropTypes.checkPropTypes() to call them. Read more at http://fb.me/use-check-prop-types");
-				}
-				e.isRequired = e;
-				function t() {
-					return e;
-				}
-				var n = {
-					array: e,
-					bool: e,
-					func: e,
-					number: e,
-					object: e,
-					string: e,
-					symbol: e,
-					any: e,
-					arrayOf: t,
-					element: e,
-					instanceOf: t,
-					node: e,
-					objectOf: t,
-					oneOf: t,
-					oneOfType: t,
-					shape: t,
-					exact: t
-				};
-				return n.checkPropTypes = r, n.PropTypes = n, n;
-			};
-		}),
-		(function(e, t) {
-			e.exports = a("react");
-		}),
-		(function(e, t) {
-			var n = function(e, t) {
-				return e === t;
-			};
-			function r(e) {
-				var t = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : n, r = void 0, i = [], a = void 0, o = !1, s = function(e, n) {
-					return t(e, i[n]);
-				};
-				return function() {
-					var t = [...arguments];
-					return o && r === this && t.length === i.length && t.every(s) ? a : (o = !0, r = this, i = t, a = e.apply(this, t), a);
-				};
-			}
-			e.exports = r;
-		})
-	]);
-})), _ = /* @__PURE__ */ i((() => {})), v = (/* @__PURE__ */ i(((e) => {
-	Object.defineProperty(e, "__esModule", { value: !0 }), e.ReactDaDataBox = void 0;
-	var t = function() {
-		function e(e, t) {
-			for (var n = 0; n < t.length; n++) {
-				var r = t[n];
-				r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
-			}
-		}
-		return function(t, n, r) {
-			return n && e(t.prototype, n), r && e(t, r), t;
-		};
-	}(), n = Object.assign || function(e) {
-		for (var t = 1; t < arguments.length; t++) {
-			var n = arguments[t];
-			for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (e[r] = n[r]);
-		}
-		return e;
-	}, r = typeof Symbol == "function" && typeof Symbol.iterator == "symbol" ? function(e) {
-		return typeof e;
-	} : function(e) {
-		return e && typeof Symbol == "function" && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
-	}, i = l(a("react")), o = c(h()), s = c(g());
-	_();
-	function c(e) {
-		return e && e.__esModule ? e : { default: e };
-	}
-	function l(e) {
-		if (e && e.__esModule) return e;
-		var t = {};
-		if (e != null) for (var n in e) Object.prototype.hasOwnProperty.call(e, n) && (t[n] = e[n]);
-		return t.default = e, t;
-	}
-	function u(e, t) {
-		if (!(e instanceof t)) throw TypeError("Cannot call a class as a function");
-	}
-	function d(e, t) {
-		if (!e) throw ReferenceError("this hasn't been initialised - super() hasn't been called");
-		return t && (typeof t == "object" || typeof t == "function") ? t : e;
-	}
-	function f(e, t) {
-		if (typeof t != "function" && t !== null) throw TypeError("Super expression must either be null or a function, not " + typeof t);
-		e.prototype = Object.create(t && t.prototype, { constructor: {
-			value: e,
-			enumerable: !1,
-			writable: !0,
-			configurable: !0
-		} }), t && (Object.setPrototypeOf ? Object.setPrototypeOf(e, t) : e.__proto__ = t);
-	}
-	var p = [
-		"г",
-		"респ",
-		"ул",
-		"р-н",
-		"село",
-		"деревня",
-		"поселок",
-		"пр-д",
-		"пл",
-		"к",
-		"кв",
-		"обл",
-		"д"
-	], m = {
-		data: {},
-		unrestricted_value: "",
-		value: ""
-	}, v = {
-		api: "suggestions/api/4_1/rs/suggest",
-		host: "https://suggestions.dadata.ru"
-	}, y = {
-		"react-dadata__custom-action": "react-dadata__suggestion react-dadata__custom-action",
-		"react-dadata__suggestion": "react-dadata__suggestion",
-		"react-dadata__suggestion-note": "react-dadata__suggestion-note",
-		"react-dadata__suggestions": "react-dadata__suggestions"
-	}, b = function(e) {
-		var t = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, n = arguments[2];
-		return t[e] && r(t[e]) === "object" ? {
-			className: ((y[e] || e) + " " + (n || "")).trim(),
-			style: t[e]
-		} : { className: ((y[e] || e) + " " + (n || "") + " " + (t[e] || "")).trim() };
-	}, x = function(e) {
-		return e.endsWith("/") ? e.slice(0, -1) : e;
-	}, S = function(e) {
-		if (typeof e == "string") {
-			if (/^http[s]?:/g.test(e) || e.startsWith("/")) return x(e + "/" + v.api);
-		} else if (e instanceof Object) {
-			var t = n({}, v, e);
-			return x(t.host) + "/" + x(t.api);
-		}
-		return x(v.host + "/" + v.api);
-	}, C = function(e) {
-		return e.replace(",", "").split(" ").filter(function(e) {
-			return p.indexOf(e) < 0;
-		});
-	}, w = function() {
-		return Math.random().toString(16).slice(2);
-	}, T = function(e) {
-		var t = e.data, n = t === void 0 ? {} : t, r = e.type;
-		return i.createElement("div", { className: "react-dadata__suggestion-info" }, i.createElement("span", null, [r === "party" ? n.inn || null : n.bic || null, n.address && n.address.value || null].join(" ")));
-	}, E = function(e) {
-		return i.createElement("div", b("react-dadata__suggestion-note", e), i.createElement("span", { className: "suggestion-note_arrow" }, i.createElement("svg", {
-			width: "34",
-			height: "16",
-			viewBox: "0 0 44 21",
-			fill: "none",
-			xmlns: "http://www.w3.org/2000/svg"
-		}, i.createElement("path", {
-			d: "M25.9 20.1H41.2C42.1 20.1 42.9 19.4 42.9 18.4V3.1C42.9 2.2 42.1 1.4 41.2 1.4H25.9C24.9 1.4 24.2 2.2 24.2 3.1V18.4C24.2 19.4 25 20.1 25.9 20.1Z",
-			stroke: "#424242",
-			strokeWidth: "1.122",
-			strokeMiterlimit: "10"
-		}), i.createElement("path", {
-			d: "M33.4295 6.62049C33.4295 7.32049 33.4295 8.0205 33.4295 8.7205C33.4295 10.9205 33.4295 13.2205 33.4295 15.5205C33.4295 15.6205 33.4295 15.6205 33.4295 15.7205C33.4295 15.8205 33.5295 15.9205 33.6295 15.9205C33.7295 15.9205 33.8295 15.8205 33.8295 15.7205C33.8295 15.6205 33.8295 15.6205 33.8295 15.5205C33.8295 12.6205 33.8295 9.82049 33.8295 6.92049C33.8295 6.82049 33.8295 6.8205 33.8295 6.7205C33.9295 6.8205 33.9295 6.8205 34.0295 6.8205C34.4295 7.2205 34.9295 7.72049 35.3295 8.12049C35.4295 8.22049 35.5295 8.2205 35.6295 8.2205C35.7295 8.2205 35.8295 8.12049 35.8295 8.02049C35.8295 7.92049 35.8295 7.8205 35.7295 7.7205C35.4295 7.4205 35.1295 7.1205 34.8295 6.8205C34.5295 6.5205 34.2295 6.2205 33.8295 5.8205C33.6295 5.6205 33.5295 5.6205 33.4295 5.8205C32.8295 6.4205 32.2295 7.0205 31.5295 7.7205C31.3295 7.9205 31.4295 8.12049 31.6295 8.12049C31.7295 8.12049 31.8295 8.02049 31.9295 8.02049C32.3295 7.62049 32.8295 7.1205 33.2295 6.7205C33.2295 6.7205 33.3295 6.72049 33.4295 6.62049Z",
-			fill: "#424242",
-			stroke: "#424242",
-			strokeWidth: "0.8",
-			strokeMiterlimit: "10"
-		}), i.createElement("path", {
-			d: "M0.699997 3.1V18.4C0.699997 19.4 1.5 20.1 2.4 20.1H17.7C18.6 20.1 19.4 19.4 19.4 18.4V3.1C19.4 2.1 18.6 1.4 17.7 1.4H2.4C1.4 1.5 0.699997 2.2 0.699997 3.1Z",
-			stroke: "#424242",
-			strokeWidth: "1.122",
-			strokeMiterlimit: "10"
-		}), i.createElement("path", {
-			d: "M10.3 15C10.3 14.3 10.3 13.6 10.3 12.9C10.3 10.7 10.3 8.4 10.3 6.1C10.3 6 10.3 6 10.3 5.9C10.3 5.8 10.2 5.7 10.1 5.7C9.99999 5.7 9.89999 5.8 9.89999 5.9C9.89999 6 9.89999 6 9.89999 6.1C9.89999 9 9.89999 11.8 9.89999 14.7C9.89999 14.8 9.89999 14.8 9.89999 14.9C9.79999 14.8 9.79999 14.8 9.69999 14.8C9.29999 14.4 8.79999 13.9 8.39999 13.5C8.29999 13.4 8.19999 13.4 8.09999 13.4C7.99999 13.4 7.89999 13.5 7.89999 13.6C7.89999 13.7 7.89999 13.8 7.99999 13.9C8.29999 14.2 8.59999 14.5 8.89999 14.8C9.19999 15.1 9.49999 15.4 9.89999 15.8C10.1 16 10.2 16 10.3 15.8C10.9 15.2 11.5 14.6 12.2 13.9C12.4 13.7 12.3 13.5 12.1 13.5C12 13.5 11.9 13.6 11.8 13.6C11.4 14 10.9 14.5 10.5 14.9C10.4 14.9 10.3 14.9 10.3 15Z",
-			fill: "#424242",
-			stroke: "#424242",
-			strokeWidth: "0.8",
-			strokeMiterlimit: "10"
-		}))), i.createElement("span", null, "навигация"), i.createElement("span", { className: "suggestion-note_arrow" }, i.createElement("svg", {
-			width: "18",
-			height: "16",
-			viewBox: "0 0 21 21",
-			fill: "none",
-			xmlns: "http://www.w3.org/2000/svg"
-		}, i.createElement("path", {
-			d: "M2.9 20.1H18.2C19.1 20.1 19.9 19.4 19.9 18.4V3.09999C19.9 2.19999 19.1 1.39999 18.2 1.39999H2.9C1.9 1.39999 1.2 2.19999 1.2 3.09999V18.4C1.2 19.4 2 20.1 2.9 20.1Z",
-			stroke: "#424242",
-			strokeWidth: "1.122",
-			strokeMiterlimit: "10"
-		}), i.createElement("path", {
-			d: "M14.8 10.6C14.1 10.6 13.4 10.6 12.7 10.6C10.5 10.6 8.2 10.6 5.9 10.6C5.8 10.6 5.8 10.6 5.7 10.6C5.6 10.6 5.5 10.7 5.5 10.8C5.5 10.9 5.6 11 5.7 11C5.8 11 5.8 11 5.9 11C8.8 11 11.6 11 14.5 11C14.6 11 14.6 11 14.7 11C14.6 11.1 14.6 11.1 14.6 11.2C14.2 11.6 13.7 12.1 13.3 12.5C13.2 12.6 13.2 12.7 13.2 12.8C13.2 12.9 13.3 13 13.4 13C13.5 13 13.6 13 13.7 12.9C14 12.6 14.3 12.3 14.6 12C14.9 11.7 15.2 11.4 15.6 11C15.8 10.8 15.8 10.7 15.6 10.6C15 9.99999 14.4 9.39999 13.7 8.69999C13.5 8.49999 13.3 8.59999 13.3 8.79999C13.3 8.89999 13.4 8.99999 13.4 9.09999C13.8 9.49999 14.3 9.99999 14.7 10.4C14.7 10.4 14.7 10.5 14.8 10.6Z",
-			fill: "#424242",
-			stroke: "#424242",
-			strokeWidth: "0.8",
-			strokeMiterlimit: "10"
-		}))), i.createElement("span", null, "подстановка"));
-	}, D = function(e, t, r) {
-		var a = e.customActions, o = e.customStyles, s = e.suggestions;
-		if (!a) return [];
-		var c = a instanceof Function ? a(s) : a;
-		return c = c instanceof Array ? c : c ? [c] : !1, c && c.length ? [i.createElement("hr", {
-			key: "custom-actions-line",
-			className: "actions-delimiter"
-		})].concat(c.map(function(e) {
-			return i.createElement("div", n({
-				key: w(),
-				onMouseDown: t,
-				onClick: r
-			}, b("react-dadata__custom-action", o)), e);
-		})) : !1;
-	}, O = function(e) {
-		var t = e.actions, r = t === void 0 ? [] : t, a = e.customStyles, o = e.onSuggestionClick, c = e.query, l = e.showNote, u = l === void 0 || l, d = e.suggestionIndex, f = e.suggestions, p = e.type;
-		return !!(f.length || r.length) && i.createElement("div", b("react-dadata__suggestions", a), u && i.createElement(E, null), f.map(function(e, t) {
-			var r = e.value, l = e.data;
-			return i.createElement("div", n({
-				key: w(),
-				onMouseDown: function() {
-					o(t);
-				}
-			}, b("react-dadata__suggestion", a, t === d && "react-dadata__suggestion--current")), i.createElement(s.default, {
-				highlightClassName: "react-dadata--highlighted",
-				searchWords: C(c),
-				textToHighlight: r,
-				autoEscape: !0
-			}), (p === "party" || p === "bank") && i.createElement(T, {
-				data: l,
-				type: p
-			}));
-		}), r);
-	}, k = function(e) {
-		f(n, e);
-		function n() {
-			var e, t, r, i;
-			u(this, n);
-			var a = [...arguments];
-			return i = (t = (r = d(this, (e = n.__proto__ || Object.getPrototypeOf(n)).call.apply(e, [this].concat(a))), r), A.call(r), t), d(r, i);
-		}
-		return t(n, [{
-			key: "componentWillUnmount",
-			value: function() {
-				clearTimeout(this.debounceTimer), this.xhr.abort();
-			}
-		}, {
-			key: "render",
-			value: function() {
-				var e = this.state, t = e.inputFocused, n = e.query, r = e.showSuggestions, a = e.suggestionIndex, o = e.suggestions, s = e.type, c = this.props, l = c.allowClear, u = c.autocomplete, d = c.className, f = c.customActions, p = c.customInput, m = c.customStyles, h = c.forceOpenList, g = c.placeholder, _ = c.showNote, v = c.style, y = t && r, b = {
-					autoComplete: u === "on" && u || "off",
-					className: "react-dadata__input" + (l ? " react-dadata__input-clearable" : ""),
-					onBlur: this.onInputBlur,
-					onChange: this.onInputChange,
-					onFocus: this.onInputFocus,
-					onKeyDown: this.onKeyPress,
-					placeholder: g,
-					value: n
-				};
-				return i.createElement("div", {
-					className: "react-dadata react-dadata__container " + d,
-					style: v
-				}, p(b), l && n && i.createElement("span", {
-					className: "react-dadata__input-suffix",
-					onClick: this.clear
-				}, i.createElement("i", { className: "react-dadata__icon react-dadata__icon-clear" })), (y || h) && i.createElement(O, {
-					actions: f && D({
-						customActions: f,
-						customStyles: m,
-						suggestions: o
-					}, this.muteEventHandler, this.onInputBlur),
-					customStyles: m,
-					suggestions: o,
-					suggestionIndex: a,
-					query: n,
-					type: s,
-					showNote: _,
-					onSuggestionClick: this.onSuggestionClick
-				}));
-			}
-		}]), n;
-	}(i.PureComponent);
-	k.displayName = "ReactDaDataBox";
-	var A = function() {
-		var e = this;
-		this.state = {
-			inputFocused: !1,
-			isValid: !1,
-			query: this.props.query || "",
-			showSuggestions: !0,
-			suggestionIndex: 0,
-			suggestions: [],
-			type: this.props.type || "address"
-		}, this.componentDidMount = function() {
-			e.xhr = new XMLHttpRequest(), (e.props.query || e.props.silentQuery) && e.fetchSuggestions(null, function() {
-				if (e.props.silentInit) {
-					var t = e.props.silentInit(e.state.suggestions);
-					t !== void 0 && typeof t == "number" && t < e.state.suggestions.length && e.selectSuggestion(t);
-				}
-			});
-		}, this.componentDidUpdate = function(t) {
-			e.props.query !== t.query && e.setState({ query: e.props.query }, e.fetchSuggestions);
-		}, this.onInputFocus = function() {
-			!e.state.value && e.props.silentQuery ? e.fetchSuggestions({
-				inputFocused: !0,
-				showSuggestions: !0
-			}) : e.setState({ inputFocused: !0 });
-		}, this.onInputBlur = function(t) {
-			e.setState({ inputFocused: !1 }), t && e.props.onBlur && (t.preventDefault(), t.stopPropagation(), e.props.onBlur(t, e.state.query));
-		}, this.debounce = function(t) {
-			var n = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 350;
-			return function() {
-				var r = [...arguments];
-				e.debounceTimer && clearTimeout(e.debounceTimer), e.debounceTimer = setTimeout(function() {
-					t.apply(void 0, r);
-				}, n);
-			};
-		}, this.onInputChange = function(t) {
-			var n = t.target.value;
-			e.setState({
-				query: n,
-				showSuggestions: !0
-			}, function() {
-				e.debounce(e.fetchSuggestions, e.props.debounce)({
-					inputFocused: !0,
-					showSuggestions: !0
-				});
-			}), !n && e.clear();
-		}, this.onKeyPress = function(t) {
-			var n = e.state, r = n.suggestionIndex, i = n.suggestions;
-			t.which === 40 && r < i.length - 1 ? e.setState(function(e) {
-				return { suggestionIndex: e.suggestionIndex + 1 };
-			}) : t.which === 38 && r > 0 ? e.setState(function(e) {
-				return { suggestionIndex: e.suggestionIndex - 1 };
-			}) : t.which === 39 && r >= 0 ? e.selectSuggestion(e.state.suggestionIndex, !0) : t.which === 13 && r >= 0 && (t.preventDefault(), t.stopPropagation(), e.selectSuggestion(e.state.suggestionIndex));
-		}, this.fetchSuggestions = function() {
-			var t = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {}, r = arguments[1];
-			e.xhr.abort();
-			var i = e.state.type, a = e.props, o = a.city, s = a.customEndpoint, c = {
-				query: e.state.query || e.props.silentQuery,
-				count: e.props.count || 10
-			};
-			o && i === "address" && (c.from_bound = { value: "city" }, c.to_bound = { value: "settlement" }, c.value = "settlement"), e.props.payloadModifier && (c = e.props.payloadModifier instanceof Function ? e.props.payloadModifier(c) : e.props.payloadModifier instanceof Object ? Object.assign(c, e.props.payloadModifier) : c), e.xhr.open("POST", x(S(s)) + "/" + i), e.xhr.setRequestHeader("Accept", "application/json"), e.xhr.setRequestHeader("Authorization", "Token " + e.props.token), e.xhr.setRequestHeader("Content-Type", "application/json"), e.xhr.send(JSON.stringify(c)), e.xhr.onreadystatechange = function() {
-				if (e.xhr.readyState === 4 && e.xhr.status === 200) {
-					var i = JSON.parse(e.xhr.response).suggestions, a = t || {};
-					i && i.length ? e.setState(n({}, a, {
-						suggestions: i,
-						suggestionIndex: 0,
-						showSuggestions: e.state.inputFocused || a.inputFocused ? !!a.showSuggestions : !1
-					}), r) : e.props.onIdleOut && e.props.onIdleOut(e.state.query);
-				}
-			};
-		}, this.onSuggestionClick = function(t) {
-			e.state.suggestions[t] && e.selectSuggestion(t);
-		}, this.clear = function() {
-			e.setState({
-				query: "",
-				showSuggestions: !1
-			}), e.props.onChange && e.props.onChange(m);
-		}, this.selectSuggestion = function(t) {
-			var n = arguments.length > 1 && arguments[1] !== void 0 && arguments[1], r = e.state.suggestions, i = r[t].value;
-			e.setState({
-				query: i,
-				showSuggestions: n
-			}), e.props.onChange && e.props.onChange(r[t]);
-		}, this.muteEventHandler = function(e) {
-			e.preventDefault(), e.stopPropagation();
-		};
-	};
-	k.propTypes = {
-		allowClear: o.default.bool,
-		autocomplete: o.default.bool,
-		city: o.default.bool,
-		className: o.default.string,
-		count: o.default.number,
-		customActions: o.default.oneOfType([o.default.node, o.default.func]),
-		customEndpoint: o.default.oneOfType([
-			o.default.object,
-			o.default.shape,
-			o.default.string
-		]),
-		customInput: o.default.func,
-		customStyles: o.default.object,
-		debounce: o.default.number,
-		forceOpenList: o.default.bool,
-		onChange: o.default.func,
-		onBlur: o.default.func,
-		onIdleOut: o.default.func,
-		payloadModifier: o.default.oneOfType([
-			o.default.object,
-			o.default.shape,
-			o.default.func
-		]),
-		placeholder: o.default.string,
-		query: o.default.string,
-		showNote: o.default.bool,
-		silentInit: o.default.func,
-		silentQuery: o.default.string,
-		style: o.default.objectOf(o.default.string),
-		token: o.default.string.isRequired,
-		type: o.default.string
-	}, k.defaultProps = {
-		type: "address",
-		customInput: function(e) {
-			return i.createElement("input", e);
-		}
-	}, e.ReactDaDataBox = k;
-})))(), y = /* @__PURE__ */ i(((e) => {
-	var t = Symbol.for("react.transitional.element"), n = Symbol.for("react.fragment");
-	function r(e, n, r) {
-		var i = null;
-		if (r !== void 0 && (i = "" + r), n.key !== void 0 && (i = "" + n.key), "key" in n) for (var a in r = {}, n) a !== "key" && (r[a] = n[a]);
-		else r = n;
-		return n = r.ref, {
-			$$typeof: t,
-			type: e,
-			key: i,
-			ref: n === void 0 ? null : n,
-			props: r
-		};
-	}
-	e.Fragment = n, e.jsx = r, e.jsxs = r;
-})), b = /* @__PURE__ */ i(((e) => {
-	process.env.NODE_ENV !== "production" && (function() {
-		function t(e) {
-			if (e == null) return null;
-			if (typeof e == "function") return e.$$typeof === k ? null : e.displayName || e.name || null;
-			if (typeof e == "string") return e;
-			switch (e) {
-				case v: return "Fragment";
-				case b: return "Profiler";
-				case y: return "StrictMode";
-				case w: return "Suspense";
-				case T: return "SuspenseList";
-				case O: return "Activity";
-			}
-			if (typeof e == "object") switch (typeof e.tag == "number" && console.error("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), e.$$typeof) {
-				case _: return "Portal";
-				case S: return e.displayName || "Context";
-				case x: return (e._context.displayName || "Context") + ".Consumer";
-				case C:
-					var n = e.render;
-					return e = e.displayName, e ||= (e = n.displayName || n.name || "", e === "" ? "ForwardRef" : "ForwardRef(" + e + ")"), e;
-				case E: return n = e.displayName || null, n === null ? t(e.type) || "Memo" : n;
-				case D:
-					n = e._payload, e = e._init;
-					try {
-						return t(e(n));
-					} catch {}
-			}
-			return null;
-		}
-		function n(e) {
-			return "" + e;
-		}
-		function r(e) {
-			try {
-				n(e);
-				var t = !1;
-			} catch {
-				t = !0;
-			}
-			if (t) {
-				t = console;
-				var r = t.error, i = typeof Symbol == "function" && Symbol.toStringTag && e[Symbol.toStringTag] || e.constructor.name || "Object";
-				return r.call(t, "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.", i), n(e);
-			}
-		}
-		function i(e) {
-			if (e === v) return "<>";
-			if (typeof e == "object" && e && e.$$typeof === D) return "<...>";
-			try {
-				var n = t(e);
-				return n ? "<" + n + ">" : "<...>";
-			} catch {
-				return "<...>";
-			}
-		}
-		function o() {
-			var e = A.A;
-			return e === null ? null : e.getOwner();
-		}
-		function s() {
-			return Error("react-stack-top-frame");
-		}
-		function c(e) {
-			if (j.call(e, "key")) {
-				var t = Object.getOwnPropertyDescriptor(e, "key").get;
-				if (t && t.isReactWarning) return !1;
-			}
-			return e.key !== void 0;
-		}
-		function l(e, t) {
-			function n() {
-				P || (P = !0, console.error("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)", t));
-			}
-			n.isReactWarning = !0, Object.defineProperty(e, "key", {
-				get: n,
-				configurable: !0
-			});
-		}
-		function u() {
-			var e = t(this.type);
-			return F[e] || (F[e] = !0, console.error("Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release.")), e = this.props.ref, e === void 0 ? null : e;
-		}
-		function d(e, t, n, r, i, a) {
-			var o = n.ref;
-			return e = {
-				$$typeof: g,
-				type: e,
-				key: t,
-				props: n,
-				_owner: r
-			}, (o === void 0 ? null : o) === null ? Object.defineProperty(e, "ref", {
-				enumerable: !1,
-				value: null
-			}) : Object.defineProperty(e, "ref", {
-				enumerable: !1,
-				get: u
-			}), e._store = {}, Object.defineProperty(e._store, "validated", {
-				configurable: !1,
-				enumerable: !1,
-				writable: !0,
-				value: 0
-			}), Object.defineProperty(e, "_debugInfo", {
-				configurable: !1,
-				enumerable: !1,
-				writable: !0,
-				value: null
-			}), Object.defineProperty(e, "_debugStack", {
-				configurable: !1,
-				enumerable: !1,
-				writable: !0,
-				value: i
-			}), Object.defineProperty(e, "_debugTask", {
-				configurable: !1,
-				enumerable: !1,
-				writable: !0,
-				value: a
-			}), Object.freeze && (Object.freeze(e.props), Object.freeze(e)), e;
-		}
-		function f(e, n, i, a, s, u) {
-			var f = n.children;
-			if (f !== void 0) if (a) if (M(f)) {
-				for (a = 0; a < f.length; a++) p(f[a]);
-				Object.freeze && Object.freeze(f);
-			} else console.error("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");
-			else p(f);
-			if (j.call(n, "key")) {
-				f = t(e);
-				var m = Object.keys(n).filter(function(e) {
-					return e !== "key";
-				});
-				a = 0 < m.length ? "{key: someKey, " + m.join(": ..., ") + ": ...}" : "{key: someKey}", R[f + a] || (m = 0 < m.length ? "{" + m.join(": ..., ") + ": ...}" : "{}", console.error("A props object containing a \"key\" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />", a, f, m, f), R[f + a] = !0);
-			}
-			if (f = null, i !== void 0 && (r(i), f = "" + i), c(n) && (r(n.key), f = "" + n.key), "key" in n) for (var h in i = {}, n) h !== "key" && (i[h] = n[h]);
-			else i = n;
-			return f && l(i, typeof e == "function" ? e.displayName || e.name || "Unknown" : e), d(e, f, i, o(), s, u);
-		}
-		function p(e) {
-			m(e) ? e._store && (e._store.validated = 1) : typeof e == "object" && e && e.$$typeof === D && (e._payload.status === "fulfilled" ? m(e._payload.value) && e._payload.value._store && (e._payload.value._store.validated = 1) : e._store && (e._store.validated = 1));
-		}
-		function m(e) {
-			return typeof e == "object" && !!e && e.$$typeof === g;
-		}
-		var h = a("react"), g = Symbol.for("react.transitional.element"), _ = Symbol.for("react.portal"), v = Symbol.for("react.fragment"), y = Symbol.for("react.strict_mode"), b = Symbol.for("react.profiler"), x = Symbol.for("react.consumer"), S = Symbol.for("react.context"), C = Symbol.for("react.forward_ref"), w = Symbol.for("react.suspense"), T = Symbol.for("react.suspense_list"), E = Symbol.for("react.memo"), D = Symbol.for("react.lazy"), O = Symbol.for("react.activity"), k = Symbol.for("react.client.reference"), A = h.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, j = Object.prototype.hasOwnProperty, M = Array.isArray, N = console.createTask ? console.createTask : function() {
-			return null;
-		};
-		h = { react_stack_bottom_frame: function(e) {
-			return e();
-		} };
-		var P, F = {}, I = h.react_stack_bottom_frame.bind(h, s)(), L = N(i(s)), R = {};
-		e.Fragment = v, e.jsx = function(e, t, n) {
-			var r = 1e4 > A.recentlyCreatedOwnerStacks++;
-			return f(e, t, n, !1, r ? Error("react-stack-top-frame") : I, r ? N(i(e)) : L);
-		}, e.jsxs = function(e, t, n) {
-			var r = 1e4 > A.recentlyCreatedOwnerStacks++;
-			return f(e, t, n, !0, r ? Error("react-stack-top-frame") : I, r ? N(i(e)) : L);
-		};
-	})();
-})), x = (/* @__PURE__ */ i(((e, t) => {
-	process.env.NODE_ENV === "production" ? t.exports = y() : t.exports = b();
-})))(), S = {
-	center: [37.588144, 55.733842],
-	zoom: 9
-}, C = {
-	code: "initial-loading",
-	type: "info",
-	text: "Загружаем варианты доставки...",
-	reloadRecommended: !1
-}, w = "EShopLogisticDeliveryData", T = ({ DADATA_TOKEN: i, ESHOPLOGISTIC_TOKEN: a, YANDEX_API_KEY: o, orderWeight: s, onDeliveryConfirm: c }) => {
-	function l() {
-		try {
-			let e = localStorage.getItem(w);
-			return e ? JSON.parse(e) : {};
-		} catch {
-			return {};
-		}
-	}
-	let u = l(), [d, f] = r({}), [p, m] = r({}), [h, g] = r(null), [_, y] = r(!1), [b, T] = r(null), [E, D] = r(!1), [O, k] = r(null), [A, j] = r(null), [M, N] = r(u.deliveryRoom || ""), [P, F] = r(u.deliveryName || ""), [I, L] = r(u.deliveryPhone || ""), [R, ee] = r(u.deliveryComment || null), [z, B] = r({}), [te, V] = r({}), [ne, re] = r(!1), [H, U] = r(null), [W, ie] = r(!0), [ae, oe] = r(C), [G, se] = r(!1), [K, ce] = r(!1), le = n(null), q = n(null), J = n(null), ue = n(!1), Y = n(null), X = n(!1), de = n(!1), fe = n(null);
-	function Z(e, t, n, r = !1) {
-		oe((i) => i?.code === e && i?.type === t && i?.text === n && i?.reloadRecommended === r ? i : {
-			code: e,
-			type: t,
-			text: n,
-			reloadRecommended: r
-		});
-	}
-	function Q(e, t, n = !1) {
-		Z(e, "error", t, n);
-	}
-	function $(e = null) {
-		oe((t) => !t || e && t.code !== e ? t : null);
-	}
-	function pe(e) {
-		return e == null ? "" : typeof e == "object" ? JSON.stringify(e) : String(e);
-	}
-	function me(e) {
-		let t = e.replace(/\D/g, "").slice(0, 11);
-		if (!t.length) return "";
-		let n = t;
-		return t.length > 4 && (n = `${t.slice(0, 4)} ${t.slice(4)}`), t.length > 7 && (n = `${t.slice(0, 4)} ${t.slice(4, 7)}-${t.slice(7)}`), t.length > 9 && (n = `${t.slice(0, 4)} ${t.slice(4, 7)}-${t.slice(7, 9)}-${t.slice(9)}`), n;
-	}
-	function he(e) {
-		return e?.data ? {
-			value: e.value || e.source,
-			fias: e.data.city_fias_id || e.data.settlement_fias_id || e.data.region_fias_id,
-			lon: Number(e.data.geo_lon),
-			lat: Number(e.data.geo_lat)
-		} : null;
-	}
-	let ge = (e) => {
-		let t = he(e);
-		if (!t) {
-			g(null);
-			return;
-		}
-		if ($("invalid-method"), $("map-click-error"), E) {
-			let n = {
-				address: e.value,
-				lon: t.lon,
-				lat: t.lat
-			};
-			X.current = !0, k(n), j(n), g({
-				...t,
-				value: e.value || t.value
-			}), Z("address-selected", "success", "Адрес выбран. Проверьте данные и подтвердите доставку.");
-		} else g(t), Z("city-selected", "info", "Город выбран. Загружаем доступные способы доставки...");
-	};
-	async function _e(e) {
-		try {
-			let t = await fetch("https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address", {
-				method: "POST",
-				mode: "cors",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-					Authorization: "Token " + i
-				},
-				body: JSON.stringify({
-					query: e,
-					count: 1
-				})
-			});
-			if (!t.ok) return console.error("Ошибка получения FIAS по адресу:", t.status, e), null;
-			let n = (await t.json()).suggestions?.[0];
-			return {
-				fias: n?.data?.city_fias_id || n?.data?.settlement_fias_id || n?.data?.region_fias_id || null,
-				value: n?.data?.city_with_type || n?.data?.settlement_with_type || n?.data?.region_with_type || n?.value || e,
-				country: n.data.country_iso_code,
-				city: n.data.city_with_type,
-				region: n.data.region_with_type,
-				district: n.data.city_district,
-				street: n.data.street_with_type,
-				house: n.data.house
-			};
-		} catch (e) {
-			return console.error("Ошибка получения FIAS по адресу:", e), null;
-		}
-	}
-	async function ve(e, t) {
-		let n = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=${o}&geocode=${e},${t}&format=json`);
-		if (!n.ok) throw Error("Не удалось определить адрес по точке на карте.");
-		return { address: ((await n.json()).response.GeoObjectCollection.featureMember?.[0]?.GeoObject)?.metaDataProperty?.GeocoderMetaData?.text || null };
-	}
-	async function ye(e) {
-		let [t, n] = e;
-		try {
-			$("map-click-error"), Z("map-click-loading", "info", "Определяем адрес по выбранной точке на карте...");
-			let e = (await ve(t, n))?.address;
-			if (!e) {
-				Q("map-click-error", "Не удалось определить адрес по выбранной точке. Попробуйте выбрать другое место.");
-				return;
-			}
-			let r = await _e(e), i = r?.fias, a = r?.value, o = {
-				address: e,
-				lon: t,
-				lat: n,
-				country: r.country,
-				city: r.city,
-				region: r.region,
-				district: r.district,
-				street: r.street,
-				house: r.house
-			};
-			X.current = !0, k(o), j(o), g({
-				value: a || e,
-				fias: i || h?.fias || null,
-				lon: t,
-				lat: n
-			}), Z("address-selected", "success", "Адрес определён. Проверьте его и подтвердите доставку.");
-		} catch (e) {
-			console.error("Ошибка выбора адреса на карте:", e), Q("map-click-error", "Не удалось получить адрес по точке на карте. Попробуйте ещё раз. Если ошибка повторяется, перезагрузите страницу.", !0);
-		}
-	}
-	function be() {
-		Y.current && q.current && (q.current.removeChild(Y.current), Y.current = null);
-	}
-	function xe(e) {
-		if (!q.current || !window.ymaps3 || !e || !de.current) return;
-		let { YMapMarker: t } = window.ymaps3;
-		be();
-		let n = document.createElement("div");
-		n.className = "delivery-address-marker", Y.current = new t({
-			coordinates: [e.lon, e.lat],
-			source: "delivery-address-source"
-		}, n), q.current.addChild(Y.current);
-	}
-	async function Se(e, t = {}, n = !1) {
-		let r = e.split("/"), i = r[r.length - 1];
-		try {
-			let r = await fetch("https://api.esplc.ru" + e, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					key: a,
-					...t
-				})
-			});
-			if (V((e) => ({
-				...e,
-				[n]: !1
-			})), !r.ok) return console.error(`Ошибка ${i}: ${r.status}`, t), n && f((e) => ({
-				...e,
-				[i]: {
-					...e[i],
-					[n]: {}
-				}
-			})), Q(`${i}-error`, "Не удалось загрузить часть данных по доставке. Попробуйте выбрать другой способ или перезагрузить страницу.", !0), V((e) => ({
-				...e,
-				[n]: !0
-			})), null;
-			let o = await r.json();
-			return V((e) => ({
-				...e,
-				[n]: !0
-			})), f(n ? (e) => ({
-				...e,
-				[i]: {
-					...e[i],
-					[n]: o
-				}
-			}) : (e) => ({
-				...e,
-				[i]: o
-			})), o;
-		} catch (t) {
-			return console.error(`Network error ${e}:`, t), n && f((e) => ({
-				...e,
-				[i]: {
-					...e[i],
-					[n]: {}
-				}
-			})), Q(`${i}-network-error`, "Ошибка сети при загрузке доставки. Проверьте интернет и, если проблема не исчезнет, перезагрузите страницу.", !0), null;
-		}
-	}
-	function Ce(e) {
-		let { YMapMarker: t } = window.ymaps3, n = e.properties.terminal, r = document.createElement("img");
-		return r.className = "ymap-marker", r.src = n.image, r.onclick = (e) => {
-			let t = {
-				address: n.address,
-				lon: Number(n.lon),
-				lat: Number(n.lat)
-			};
-			T(n), k(t), $("invalid-method"), Z("terminal-selected", "success", "Пункт выдачи выбран. Проверьте данные и подтвердите доставку."), document.querySelectorAll(".ymap-marker").forEach((e) => {
-				e.classList.remove("active");
-			}), e.currentTarget.classList.add("active");
-		}, new t({
-			coordinates: e.geometry.coordinates,
-			source: "clusterer-source"
-		}, r);
-	}
-	function we(e, t) {
-		let { YMapMarker: n } = window.ymaps3, r = document.createElement("div");
-		return r.className = "ymap-cluster", r.textContent = t.length, new n({
-			coordinates: e,
-			source: "clusterer-source"
-		}, r);
-	}
-	function Te(e) {
-		return e ? Object.entries(e.data.terminals || {}).map(([e, t]) => ({
-			id: `${t.service}-${e}`,
-			type: "Feature",
-			geometry: {
-				type: "Point",
-				coordinates: [Number(t.lon), Number(t.lat)]
-			},
-			properties: {
-				terminal: t,
-				service: t.service
-			}
-		})) : [];
-	}
-	function Ee(e, t, n) {
-		document.querySelectorAll(".deliveryMethod").forEach((e) => e.classList.remove("active")), e.currentTarget.classList.add("active");
-		let r = A, i = _?.name !== t || _?.type !== n;
-		switch (i && (k(null), U(null), c?.(null)), n) {
-			case "terminal":
-				D(!1), X.current = !1, be(), T(null), Z("terminal-mode", "info", "Выберите удобный пункт выдачи на карте.");
-				break;
-			case "door":
-				D(!0), T(null), X.current = !1, k(!i && r ? r : null), Z("door-mode", "info", "Выберите адрес на карте или введите его в строке поиска.");
-				break;
-			default: break;
-		}
-		y({
-			name: t,
-			type: n
-		});
-	}
-	async function De() {
-		if (!_) return;
-		let e = {};
-		switch (e.service = _.name, e.type = _.type, _.type) {
-			case "terminal":
-				if (!b) return;
-				e.isPostamat = b.is_postamat, e.address = { address: b.address }, e.code = b.code, e.price = b.price.value, e.unitPrice = b.price.unit, e.time = b.time.value, e.unitTime = b.time.unit, e.payment = b.payment.methods;
-				break;
-			case "door": {
-				if (!O) return;
-				let t = null;
-				if (X.current && (console.error("recalculation"), t = await Se("/delivery/calculation", {
-					to: h.fias,
-					weight: s,
-					service: _.name,
-					address: O.address
-				}, _.name), !t)) return;
-				e.address = O, t ? (e.price = t.data.door.price.value, e.unitPrice = t.data.door.price.unit, e.time = t.data.door.time.value, e.unitTime = t.data.door.time.unit) : (e.price = d.calculation[_.name].data.door.price.value, e.unitPrice = d.calculation[_.name].data.door.price.unit, e.time = d.calculation[_.name].data.door.time.value, e.unitTime = d.calculation[_.name].data.door.time.unit);
-				break;
-			}
-			default: break;
-		}
-		U(e), Z("delivery-confirmed", "success", "Адрес доставки подтверждён.");
-	}
-	t(() => {
-		ue.current = E;
-	}, [E]), t(() => {
-		if (!K || !O || !E) return;
-		let e = Number(O.lon), t = Number(O.lat);
-		q.current && Number.isFinite(e) && Number.isFinite(t) && q.current.setLocation({ center: [e, t] }), xe(O.address);
-	}, [
-		O,
-		K,
-		E
-	]), t(() => {
-		(async () => {
-			try {
-				ie(!0), $(), Z("initial-loading", "info", "Загружаем варианты доставки..."), await Se("/client/state");
-				let e = await fetch("https://api.ipify.org?format=json");
-				if (!e.ok) throw Error("Не удалось определить IP адрес.");
-				let t = await e.json(), n = await fetch("https://suggestions.dadata.ru/suggestions/api/4_1/rs/iplocate/address", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Accept: "application/json",
-						Authorization: "Token " + i
-					},
-					body: JSON.stringify({ ip: t.ip })
-				});
-				if (!n.ok) throw Error("Не удалось определить город автоматически.");
-				let r = await n.json();
-				ge(r.location), k(null), j(null);
-			} catch (e) {
-				console.error("Ошибка начальной загрузки:", e), Q("initial-load-error", "Не удалось полностью загрузить данные доставки. Вы можете попробовать выбрать город вручную. Если ошибка повторяется, перезагрузите страницу.", !0);
-			}
-		})();
-	}, []), t(() => {
-		d.state && m(d.state.data.services);
-	}, [d.state]), t(() => {
-		!h?.fias || !h?.value || !Object.keys(p).length || fe.current !== h.fias && (fe.current = h.fias, Z("calculation-loading", "info", "Рассчитываем стоимость и сроки доставки..."), Object.keys(p).forEach((e) => {
-			Se("/delivery/calculation", {
-				to: h.fias,
-				weight: s,
-				service: e,
-				address: h.value
-			}, e);
-		}));
-	}, [h, p]), t(() => {
-		if (!_ || !d.calculation) return;
-		let e = d.calculation[_.name];
-		(_.type === "terminal" ? e?.data?.terminal : e?.data?.door) || (document.querySelectorAll(".deliveryMethod").forEach((e) => e.classList.remove("active")), y(!1), T(null), E || be(), Z("invalid-method", "info", "Выбранный способ доставки больше недоступен для текущего адреса. Пожалуйста, выберите другой вариант."));
-	}, [
-		d.calculation,
-		_,
-		E
-	]), t(() => {
-		if (!G || !q.current || !h) return;
-		let e = Number(h.lon), t = Number(h.lat);
-		!Number.isFinite(e) || !Number.isFinite(t) || G && d.state && q.current.setLocation({ center: [e, t] });
-	}, [
-		h,
-		G,
-		d.state
-	]), t(() => {
-		!G || !K || !d.calculation || !q.current || !window.ymaps3 || !_ || (_.type === "terminal" && (async () => {
-			T(null);
-			let { YMapClusterer: e, clusterByGrid: t } = await window.ymaps3.import("@yandex/ymaps3-clusterer@0.0.1"), n = d.calculation[_.name];
-			if (!n?.data?.terminals) {
-				Z("terminal-points-missing", "info", "Для выбранного способа нет точек выдачи. Попробуйте другой вариант доставки.");
-				return;
-			}
-			let r = Te(n);
-			J.current &&= (q.current.removeChild(J.current), null), J.current = new e({
-				method: t({ gridSize: 128 }),
-				features: r,
-				marker: Ce,
-				cluster: we
-			}), q.current.addChild(J.current);
-		})(), _.type === "door" && (async () => {
-			T(null), J.current &&= (q.current.removeChild(J.current), null);
-		})());
-	}, [
-		G,
-		K,
-		_,
-		d.calculation
-	]), t(() => {
-		d.state && (ie(!1), Z("state-loaded", "success", "Данные доставки загружены. Выберите подходящий способ."));
-	}, [d.state]), t(() => {
-		if (W) return;
-		ce(!1), de.current = !1;
-		let e = !1, t = () => new Promise((e, t) => {
-			if (window.ymaps3) {
-				e();
-				return;
-			}
-			let n = document.querySelector("script[src^=\"https://api-maps.yandex.ru/v3/\"]");
-			if (n) {
-				n.addEventListener("load", e, { once: !0 }), n.addEventListener("error", t, { once: !0 });
-				return;
-			}
-			let r = document.createElement("script");
-			r.src = `https://api-maps.yandex.ru/v3/?apikey=${o}&lang=ru_RU`, r.async = !0, r.onload = e, r.onerror = t, document.head.appendChild(r);
-		});
-		return (async () => {
-			try {
-				if (Z("map-loading", "info", "Загружаем карту..."), await t(), await window.ymaps3.ready, ymaps3.import.registerCdn("https://cdn.jsdelivr.net/npm/{package}", "@yandex/ymaps3-default-ui-theme@latest"), e || !le.current) return;
-				let { YMap: n, YMapDefaultSchemeLayer: r, YMapDefaultFeaturesLayer: i, YMapFeatureDataSource: a, YMapLayer: o, YMapListener: s } = window.ymaps3, { YMapControls: c } = window.ymaps3, { YMapZoomControl: l } = await window.ymaps3.import("@yandex/ymaps3-default-ui-theme");
-				q.current = new n(le.current, { location: S });
-				let u = new c({
-					position: "right",
-					orientation: "vertical"
-				}, [new l({ easing: "linear" })]), d = new s({
-					layer: "any",
-					onClick: (e, t) => {
-						ue.current && ye(t.coordinates);
-					}
-				});
-				q.current.addChild(new r()).addChild(new i()).addChild(new a({ id: "clusterer-source" })).addChild(new o({
-					source: "clusterer-source",
-					type: "markers",
-					zIndex: 1800
-				})).addChild(new a({ id: "delivery-address-source" })).addChild(new o({
-					source: "delivery-address-source",
-					type: "markers",
-					zIndex: 1900
-				})).addChild(u).addChild(d), de.current = !0, ce(!0), se(!0), Z("map-ready", "success", "Карта загружена. Теперь можно выбрать способ и адрес доставки.");
-			} catch (e) {
-				console.error("Ошибка загрузки Яндекс.Карт:", e), Q("map-load-error", "Не удалось загрузить карту. Попробуйте перезагрузить страницу. Если карта не нужна, вы всё равно можете выбрать город через поиск.", !0);
-			}
-		})(), () => {
-			e = !0, ce(!1), de.current = !1, Y.current = null, q.current && q.current.destroy();
-		};
-	}, [W]), t(() => {
-		let e = b || E && O;
-		if (e) {
-			re(e);
-			return;
-		}
-		re(!1);
-	}, [
-		b,
-		E,
-		O
-	]), t(() => {
-		if (U(null), _?.type === "door") {
-			if (!X.current || !E || !O) return;
-			De(), X.current = !1;
-			return;
-		}
-		_?.type === "terminal" && b && De();
-	}, [
-		O,
-		E,
-		_,
-		b
-	]);
-	async function Oe() {
-		if (!H) return;
-		let e = {};
-		H.type === "door" && !M?.trim() && (e.deliveryRoom = !0), P?.trim() || (e.deliveryName = !0);
-		let t = (I || "").replace(/\D/g, "");
-		if ((!I?.trim() || t.length !== 11) && (e.deliveryPhone = !0), B(e), Object.keys(e).length > 0) {
-			Q("delivery-required-fields", "Заполните обязательные поля доставки.");
-			return;
-		}
-		$("delivery-required-fields");
-		let n = {
-			...H,
-			room: M?.trim() || "",
-			name: P.trim(),
-			phone: I.trim(),
-			comment: R,
-			checked: !0
-		};
-		c?.(n);
-	}
-	return t(() => {
-		H && Oe();
-	}, [
-		H,
-		M,
-		P,
-		I,
-		R
-	]), t(() => {
-		let e = {};
-		e.deliveryRoom = !M, e.deliveryName = !P, e.deliveryPhone = !I, B(e);
-	}, [
-		M,
-		P,
-		I,
-		_
-	]), t(() => {
-		localStorage.setItem(w, JSON.stringify({
-			deliveryRoom: M,
-			deliveryName: P,
-			deliveryPhone: I,
-			deliveryComment: R
-		}));
-	}, [
-		M,
-		P,
-		I,
-		R
-	]), /* @__PURE__ */ (0, x.jsxs)("div", {
-		className: "EShopLogistic",
-		children: [W && /* @__PURE__ */ (0, x.jsx)("div", {
-			className: "deliveryLoading",
-			children: "Загрузка..."
-		}), !W && /* @__PURE__ */ (0, x.jsxs)(x.Fragment, { children: [
-			/* @__PURE__ */ (0, x.jsx)(v.ReactDaDataBox, {
-				token: i,
-				type: "address",
-				onChange: ge,
-				placeholder: "Введите город / Адрес доставки...",
-				query: O?.address || h?.value || ""
-			}),
-			d.calculation && /* @__PURE__ */ (0, x.jsxs)("div", {
-				className: "deliverySettings",
-				children: [/* @__PURE__ */ (0, x.jsx)("ul", {
-					className: "deliveryCalculation",
-					children: Object.entries(d.calculation).map(([t, n]) => /* @__PURE__ */ (0, x.jsxs)(e, { children: [n?.data?.terminal && /* @__PURE__ */ (0, x.jsx)("li", {
-						className: "deliveryMethod",
-						onClick: (e) => {
-							Ee(e, t, "terminal");
-						},
-						children: /* @__PURE__ */ (0, x.jsxs)("span", { children: [
-							d.state.data.services[t].name,
-							" до пункта выдачи: ",
-							n?.data?.terminal?.price?.value,
-							" ",
-							n?.data?.terminal?.price?.unit,
-							" - ",
-							n?.data?.terminal?.time?.value,
-							" ",
-							n?.data?.terminal?.time?.unit
-						] })
-					}), n?.data?.door && /* @__PURE__ */ (0, x.jsx)("li", {
-						className: "deliveryMethod",
-						onClick: (e) => {
-							Ee(e, t, "door");
-						},
-						children: /* @__PURE__ */ (0, x.jsxs)("span", { children: [
-							d.state.data.services[t].name,
-							" курьером: ",
-							n?.data?.door?.price?.value,
-							" ",
-							n?.data?.door?.price?.unit,
-							" - ",
-							n?.data?.door?.time?.value,
-							" ",
-							n?.data?.door?.time?.unit
-						] })
-					})] }, t))
-				}), /* @__PURE__ */ (0, x.jsx)("div", { children: Object.values(te).some((e) => e === !1) && /* @__PURE__ */ (0, x.jsx)("div", { children: "Loading..." }) })]
-			}),
-			/* @__PURE__ */ (0, x.jsxs)("div", {
-				className: "deliveryInfo",
-				children: [/* @__PURE__ */ (0, x.jsx)("div", {
-					id: "ymap",
-					ref: le
-				}), /* @__PURE__ */ (0, x.jsxs)("ul", {
-					className: "pointInfo",
-					children: [b && /* @__PURE__ */ (0, x.jsxs)(x.Fragment, { children: [
-						/* @__PURE__ */ (0, x.jsx)("li", { children: /* @__PURE__ */ (0, x.jsx)("img", {
-							src: b.image,
-							alt: b.service
-						}) }),
-						/* @__PURE__ */ (0, x.jsx)("li", { children: b.is_postamat ? "Постамат" : "Пункт выдачи" }),
-						/* @__PURE__ */ (0, x.jsx)("li", { children: pe(b.address) }),
-						/* @__PURE__ */ (0, x.jsx)("li", { children: pe(b.workTime) }),
-						/* @__PURE__ */ (0, x.jsxs)("li", { children: ["Номер: ", Array.isArray(b.phones) ? b.phones.join(", ") : pe(b.phones)] }),
-						/* @__PURE__ */ (0, x.jsx)("q", { children: pe(b.note) })
-					] }), !b && O && _ && p[_.name] && /* @__PURE__ */ (0, x.jsxs)(x.Fragment, { children: [
-						/* @__PURE__ */ (0, x.jsx)("li", { children: /* @__PURE__ */ (0, x.jsx)("img", {
-							src: p[_.name].logo,
-							alt: _.name
-						}) }),
-						/* @__PURE__ */ (0, x.jsx)("li", { children: p[_.name].name }),
-						/* @__PURE__ */ (0, x.jsx)("li", { children: O.address })
-					] })]
-				})]
-			}),
-			H && /* @__PURE__ */ (0, x.jsxs)("div", {
-				className: "prooveDelivery",
-				children: [
-					/* @__PURE__ */ (0, x.jsx)("img", {
-						src: p[H.service].logo,
-						alt: H.service
-					}),
-					/* @__PURE__ */ (0, x.jsxs)("div", {
-						className: "heading",
-						children: [
-							H.type == "terminal" ? H.isPostamat == 1 ? "Постамат" : "Пункт выдачи" : "Курьер",
-							" ",
-							p[H.service].name
-						]
-					}),
-					/* @__PURE__ */ (0, x.jsx)("div", {
-						className: "address",
-						children: H.address.address
-					}),
-					_.type == "door" && /* @__PURE__ */ (0, x.jsxs)("div", { children: [
-						/* @__PURE__ */ (0, x.jsx)("span", {
-							className: "red",
-							children: "*"
-						}),
-						"Квартира: ",
-						" ",
-						/* @__PURE__ */ (0, x.jsx)("input", {
-							className: `room ${z.deliveryRoom ? "inputError" : ""}`,
-							type: "text",
-							placeholder: "№",
-							value: M || "",
-							onChange: (e) => {
-								N(e.target.value), B((e) => ({
-									...e,
-									deliveryRoom: !1
-								}));
-							}
-						})
-					] }),
-					/* @__PURE__ */ (0, x.jsxs)("div", { children: [
-						/* @__PURE__ */ (0, x.jsx)("span", {
-							className: "red",
-							children: "*"
-						}),
-						"Имя: ",
-						" ",
-						/* @__PURE__ */ (0, x.jsx)("input", {
-							className: `name ${z.deliveryName ? "inputError" : ""}`,
-							type: "text",
-							placeholder: "Сайтама",
-							value: P || "",
-							onChange: (e) => {
-								F(e.target.value), B((e) => ({
-									...e,
-									deliveryName: !1
-								}));
-							}
-						})
-					] }),
-					/* @__PURE__ */ (0, x.jsxs)("div", { children: [
-						/* @__PURE__ */ (0, x.jsx)("span", {
-							className: "red",
-							children: "*"
-						}),
-						"Телефон: ",
-						" ",
-						/* @__PURE__ */ (0, x.jsx)("input", {
-							className: `phone ${z.deliveryPhone ? "inputError" : ""}`,
-							type: "text",
-							inputMode: "tel",
-							placeholder: "+7 (900) 800-70-60",
-							value: I || "",
-							onChange: (e) => {
-								L(me(e.target.value)), B((e) => ({
-									...e,
-									deliveryPhone: !1
-								}));
-							}
-						})
-					] }),
-					/* @__PURE__ */ (0, x.jsxs)("div", { children: ["Комментарий:", /* @__PURE__ */ (0, x.jsx)("input", {
-						className: "comment",
-						type: "text",
-						value: R || "",
-						onChange: (e) => ee(e.target.value),
-						placeholder: "Комментарий к доставке (укажите особенности адреса)"
-					})] }),
-					/* @__PURE__ */ (0, x.jsx)("div", {
-						className: "time",
-						children: H.time + " " + H.unitTime
-					}),
-					/* @__PURE__ */ (0, x.jsx)("div", {
-						className: "price",
-						children: H.price + " " + H.unitPrice
-					})
-				]
-			}),
-			ae?.text && /* @__PURE__ */ (0, x.jsxs)("div", {
-				className: `deliveryStatus deliveryStatus--${ae.type}`,
-				children: [/* @__PURE__ */ (0, x.jsx)("div", { children: ae.text }), ae.reloadRecommended && /* @__PURE__ */ (0, x.jsx)("div", {
-					className: "deliveryStatusHint",
-					children: "Если проблема повторяется, попробуйте перезагрузить страницу."
-				})]
-			})
-		] })]
-	});
-};
-//#endregion
-//#region createOrder.js
-async function E(e, t, n, r, i = {}) {
-	if (!e) throw Error("ESHOPLOGISTIC_TOKEN is required to create an EShopLogistic delivery order.");
-	let a = r.pick_up == 1 ? {
-		pick_up: r.pick_up,
-		address: r.address
-	} : { pick_up: r.pick_up }, o = t.type == "terminal" ? { terminal: t.code } : { address: {
-		country: t.address.country,
-		region: t.address.region,
-		city: t.address.city,
-		district: t.address.district,
-		street: t.address.street,
-		house: t.address.house,
-		room: t.room
-	} }, s = {
-		id: n.id,
-		comment: t.comment
-	}, c;
-	switch (t.service) {
-		case "sdek":
-			s.type = n.type, n.combine_places_apply == 1 && (s.combine_places = {}, s.combine_places.apply = !0, s.combine_places.weight = n.total_weight, s.combine_places.dimensions = n.dimensions), t.type == "terminal" ? c = 136 : t.type == "door" && (c = 137);
-			break;
-		default: break;
-	}
-	let l = {
-		key: e,
-		action: "create",
-		cms: "custom",
-		service: t.service,
-		order: s,
-		sender: {
-			name: r.senderName,
-			phone: r.senderPhone,
-			company: r.senderCompany
-		},
-		receiver: {
-			name: t.name,
-			phone: t.phone
-		},
-		places: n.places,
-		delivery: {
-			type: t.type,
-			tariff: c,
-			location_from: a,
-			location_to: o,
-			payment: n.payment,
-			cost: t.price
-		}
-	}, u = await fetch("https://api.esplc.ru/delivery/order", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(l)
-	});
-	if (!u.ok) throw Error(`EShopLogistic order creation failed with status ${u.status}`);
-	return await u.json();
+import Je, { useState as re, useRef as me, useEffect as le, Fragment as Dt } from "react";
+var ze = { exports: {} }, be = {};
+/**
+ * @license React
+ * react-jsx-runtime.production.js
+ *
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+var dt;
+function Wt() {
+  if (dt) return be;
+  dt = 1;
+  var d = Symbol.for("react.transitional.element"), e = Symbol.for("react.fragment");
+  function o(r, a, s) {
+    var E = null;
+    if (s !== void 0 && (E = "" + s), a.key !== void 0 && (E = "" + a.key), "key" in a) {
+      s = {};
+      for (var i in a)
+        i !== "key" && (s[i] = a[i]);
+    } else s = a;
+    return a = s.ref, {
+      $$typeof: d,
+      type: r,
+      key: E,
+      ref: a !== void 0 ? a : null,
+      props: s
+    };
+  }
+  return be.Fragment = e, be.jsx = o, be.jsxs = o, be;
 }
-//#endregion
-export { T as EShopLogistic, E as createOrder };
+var we = {};
+/**
+ * @license React
+ * react-jsx-runtime.development.js
+ *
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+var pt;
+function Ht() {
+  return pt || (pt = 1, process.env.NODE_ENV !== "production" && function() {
+    function d(t) {
+      if (t == null) return null;
+      if (typeof t == "function")
+        return t.$$typeof === ee ? null : t.displayName || t.name || null;
+      if (typeof t == "string") return t;
+      switch (t) {
+        case k:
+          return "Fragment";
+        case F:
+          return "Profiler";
+        case I:
+          return "StrictMode";
+        case Q:
+          return "Suspense";
+        case X:
+          return "SuspenseList";
+        case ie:
+          return "Activity";
+      }
+      if (typeof t == "object")
+        switch (typeof t.tag == "number" && console.error(
+          "Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."
+        ), t.$$typeof) {
+          case m:
+            return "Portal";
+          case M:
+            return t.displayName || "Context";
+          case C:
+            return (t._context.displayName || "Context") + ".Consumer";
+          case S:
+            var n = t.render;
+            return t = t.displayName, t || (t = n.displayName || n.name || "", t = t !== "" ? "ForwardRef(" + t + ")" : "ForwardRef"), t;
+          case he:
+            return n = t.displayName || null, n !== null ? n : d(t.type) || "Memo";
+          case K:
+            n = t._payload, t = t._init;
+            try {
+              return d(t(n));
+            } catch {
+            }
+        }
+      return null;
+    }
+    function e(t) {
+      return "" + t;
+    }
+    function o(t) {
+      try {
+        e(t);
+        var n = !1;
+      } catch {
+        n = !0;
+      }
+      if (n) {
+        n = console;
+        var l = n.error, T = typeof Symbol == "function" && Symbol.toStringTag && t[Symbol.toStringTag] || t.constructor.name || "Object";
+        return l.call(
+          n,
+          "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.",
+          T
+        ), e(t);
+      }
+    }
+    function r(t) {
+      if (t === k) return "<>";
+      if (typeof t == "object" && t !== null && t.$$typeof === K)
+        return "<...>";
+      try {
+        var n = d(t);
+        return n ? "<" + n + ">" : "<...>";
+      } catch {
+        return "<...>";
+      }
+    }
+    function a() {
+      var t = fe.A;
+      return t === null ? null : t.getOwner();
+    }
+    function s() {
+      return Error("react-stack-top-frame");
+    }
+    function E(t) {
+      if (ne.call(t, "key")) {
+        var n = Object.getOwnPropertyDescriptor(t, "key").get;
+        if (n && n.isReactWarning) return !1;
+      }
+      return t.key !== void 0;
+    }
+    function i(t, n) {
+      function l() {
+        Z || (Z = !0, console.error(
+          "%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)",
+          n
+        ));
+      }
+      l.isReactWarning = !0, Object.defineProperty(t, "key", {
+        get: l,
+        configurable: !0
+      });
+    }
+    function y() {
+      var t = d(this.type);
+      return ae[t] || (ae[t] = !0, console.error(
+        "Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."
+      )), t = this.props.ref, t !== void 0 ? t : null;
+    }
+    function g(t, n, l, T, _, R) {
+      var w = l.ref;
+      return t = {
+        $$typeof: x,
+        type: t,
+        key: n,
+        props: l,
+        _owner: T
+      }, (w !== void 0 ? w : null) !== null ? Object.defineProperty(t, "ref", {
+        enumerable: !1,
+        get: y
+      }) : Object.defineProperty(t, "ref", { enumerable: !1, value: null }), t._store = {}, Object.defineProperty(t._store, "validated", {
+        configurable: !1,
+        enumerable: !1,
+        writable: !0,
+        value: 0
+      }), Object.defineProperty(t, "_debugInfo", {
+        configurable: !1,
+        enumerable: !1,
+        writable: !0,
+        value: null
+      }), Object.defineProperty(t, "_debugStack", {
+        configurable: !1,
+        enumerable: !1,
+        writable: !0,
+        value: _
+      }), Object.defineProperty(t, "_debugTask", {
+        configurable: !1,
+        enumerable: !1,
+        writable: !0,
+        value: R
+      }), Object.freeze && (Object.freeze(t.props), Object.freeze(t)), t;
+    }
+    function v(t, n, l, T, _, R) {
+      var w = n.children;
+      if (w !== void 0)
+        if (T)
+          if (de(w)) {
+            for (T = 0; T < w.length; T++)
+              h(w[T]);
+            Object.freeze && Object.freeze(w);
+          } else
+            console.error(
+              "React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead."
+            );
+        else h(w);
+      if (ne.call(n, "key")) {
+        w = d(t);
+        var A = Object.keys(n).filter(function(j) {
+          return j !== "key";
+        });
+        T = 0 < A.length ? "{key: someKey, " + A.join(": ..., ") + ": ...}" : "{key: someKey}", b[w + T] || (A = 0 < A.length ? "{" + A.join(": ..., ") + ": ...}" : "{}", console.error(
+          `A props object containing a "key" prop is being spread into JSX:
+  let props = %s;
+  <%s {...props} />
+React keys must be passed directly to JSX without using spread:
+  let props = %s;
+  <%s key={someKey} {...props} />`,
+          T,
+          w,
+          A,
+          w
+        ), b[w + T] = !0);
+      }
+      if (w = null, l !== void 0 && (o(l), w = "" + l), E(n) && (o(n.key), w = "" + n.key), "key" in n) {
+        l = {};
+        for (var P in n)
+          P !== "key" && (l[P] = n[P]);
+      } else l = n;
+      return w && i(
+        l,
+        typeof t == "function" ? t.displayName || t.name || "Unknown" : t
+      ), g(
+        t,
+        w,
+        l,
+        a(),
+        _,
+        R
+      );
+    }
+    function h(t) {
+      O(t) ? t._store && (t._store.validated = 1) : typeof t == "object" && t !== null && t.$$typeof === K && (t._payload.status === "fulfilled" ? O(t._payload.value) && t._payload.value._store && (t._payload.value._store.validated = 1) : t._store && (t._store.validated = 1));
+    }
+    function O(t) {
+      return typeof t == "object" && t !== null && t.$$typeof === x;
+    }
+    var c = Je, x = Symbol.for("react.transitional.element"), m = Symbol.for("react.portal"), k = Symbol.for("react.fragment"), I = Symbol.for("react.strict_mode"), F = Symbol.for("react.profiler"), C = Symbol.for("react.consumer"), M = Symbol.for("react.context"), S = Symbol.for("react.forward_ref"), Q = Symbol.for("react.suspense"), X = Symbol.for("react.suspense_list"), he = Symbol.for("react.memo"), K = Symbol.for("react.lazy"), ie = Symbol.for("react.activity"), ee = Symbol.for("react.client.reference"), fe = c.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ne = Object.prototype.hasOwnProperty, de = Array.isArray, ce = console.createTask ? console.createTask : function() {
+      return null;
+    };
+    c = {
+      react_stack_bottom_frame: function(t) {
+        return t();
+      }
+    };
+    var Z, ae = {}, te = c.react_stack_bottom_frame.bind(
+      c,
+      s
+    )(), pe = ce(r(s)), b = {};
+    we.Fragment = k, we.jsx = function(t, n, l) {
+      var T = 1e4 > fe.recentlyCreatedOwnerStacks++;
+      return v(
+        t,
+        n,
+        l,
+        !1,
+        T ? Error("react-stack-top-frame") : te,
+        T ? ce(r(t)) : pe
+      );
+    }, we.jsxs = function(t, n, l) {
+      var T = 1e4 > fe.recentlyCreatedOwnerStacks++;
+      return v(
+        t,
+        n,
+        l,
+        !0,
+        T ? Error("react-stack-top-frame") : te,
+        T ? ce(r(t)) : pe
+      );
+    };
+  }()), we;
+}
+process.env.NODE_ENV === "production" ? ze.exports = Wt() : ze.exports = Ht();
+var q = ze.exports, Ie = {}, Be = { exports: {} }, je = { exports: {} }, B = {};
+/** @license React v16.13.1
+ * react-is.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+var ht;
+function Ut() {
+  if (ht) return B;
+  ht = 1;
+  var d = typeof Symbol == "function" && Symbol.for, e = d ? Symbol.for("react.element") : 60103, o = d ? Symbol.for("react.portal") : 60106, r = d ? Symbol.for("react.fragment") : 60107, a = d ? Symbol.for("react.strict_mode") : 60108, s = d ? Symbol.for("react.profiler") : 60114, E = d ? Symbol.for("react.provider") : 60109, i = d ? Symbol.for("react.context") : 60110, y = d ? Symbol.for("react.async_mode") : 60111, g = d ? Symbol.for("react.concurrent_mode") : 60111, v = d ? Symbol.for("react.forward_ref") : 60112, h = d ? Symbol.for("react.suspense") : 60113, O = d ? Symbol.for("react.suspense_list") : 60120, c = d ? Symbol.for("react.memo") : 60115, x = d ? Symbol.for("react.lazy") : 60116, m = d ? Symbol.for("react.block") : 60121, k = d ? Symbol.for("react.fundamental") : 60117, I = d ? Symbol.for("react.responder") : 60118, F = d ? Symbol.for("react.scope") : 60119;
+  function C(S) {
+    if (typeof S == "object" && S !== null) {
+      var Q = S.$$typeof;
+      switch (Q) {
+        case e:
+          switch (S = S.type, S) {
+            case y:
+            case g:
+            case r:
+            case s:
+            case a:
+            case h:
+              return S;
+            default:
+              switch (S = S && S.$$typeof, S) {
+                case i:
+                case v:
+                case x:
+                case c:
+                case E:
+                  return S;
+                default:
+                  return Q;
+              }
+          }
+        case o:
+          return Q;
+      }
+    }
+  }
+  function M(S) {
+    return C(S) === g;
+  }
+  return B.AsyncMode = y, B.ConcurrentMode = g, B.ContextConsumer = i, B.ContextProvider = E, B.Element = e, B.ForwardRef = v, B.Fragment = r, B.Lazy = x, B.Memo = c, B.Portal = o, B.Profiler = s, B.StrictMode = a, B.Suspense = h, B.isAsyncMode = function(S) {
+    return M(S) || C(S) === y;
+  }, B.isConcurrentMode = M, B.isContextConsumer = function(S) {
+    return C(S) === i;
+  }, B.isContextProvider = function(S) {
+    return C(S) === E;
+  }, B.isElement = function(S) {
+    return typeof S == "object" && S !== null && S.$$typeof === e;
+  }, B.isForwardRef = function(S) {
+    return C(S) === v;
+  }, B.isFragment = function(S) {
+    return C(S) === r;
+  }, B.isLazy = function(S) {
+    return C(S) === x;
+  }, B.isMemo = function(S) {
+    return C(S) === c;
+  }, B.isPortal = function(S) {
+    return C(S) === o;
+  }, B.isProfiler = function(S) {
+    return C(S) === s;
+  }, B.isStrictMode = function(S) {
+    return C(S) === a;
+  }, B.isSuspense = function(S) {
+    return C(S) === h;
+  }, B.isValidElementType = function(S) {
+    return typeof S == "string" || typeof S == "function" || S === r || S === g || S === s || S === a || S === h || S === O || typeof S == "object" && S !== null && (S.$$typeof === x || S.$$typeof === c || S.$$typeof === E || S.$$typeof === i || S.$$typeof === v || S.$$typeof === k || S.$$typeof === I || S.$$typeof === F || S.$$typeof === m);
+  }, B.typeOf = C, B;
+}
+var J = {};
+/** @license React v16.13.1
+ * react-is.development.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+var vt;
+function zt() {
+  return vt || (vt = 1, process.env.NODE_ENV !== "production" && function() {
+    var d = typeof Symbol == "function" && Symbol.for, e = d ? Symbol.for("react.element") : 60103, o = d ? Symbol.for("react.portal") : 60106, r = d ? Symbol.for("react.fragment") : 60107, a = d ? Symbol.for("react.strict_mode") : 60108, s = d ? Symbol.for("react.profiler") : 60114, E = d ? Symbol.for("react.provider") : 60109, i = d ? Symbol.for("react.context") : 60110, y = d ? Symbol.for("react.async_mode") : 60111, g = d ? Symbol.for("react.concurrent_mode") : 60111, v = d ? Symbol.for("react.forward_ref") : 60112, h = d ? Symbol.for("react.suspense") : 60113, O = d ? Symbol.for("react.suspense_list") : 60120, c = d ? Symbol.for("react.memo") : 60115, x = d ? Symbol.for("react.lazy") : 60116, m = d ? Symbol.for("react.block") : 60121, k = d ? Symbol.for("react.fundamental") : 60117, I = d ? Symbol.for("react.responder") : 60118, F = d ? Symbol.for("react.scope") : 60119;
+    function C(f) {
+      return typeof f == "string" || typeof f == "function" || // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
+      f === r || f === g || f === s || f === a || f === h || f === O || typeof f == "object" && f !== null && (f.$$typeof === x || f.$$typeof === c || f.$$typeof === E || f.$$typeof === i || f.$$typeof === v || f.$$typeof === k || f.$$typeof === I || f.$$typeof === F || f.$$typeof === m);
+    }
+    function M(f) {
+      if (typeof f == "object" && f !== null) {
+        var z = f.$$typeof;
+        switch (z) {
+          case e:
+            var oe = f.type;
+            switch (oe) {
+              case y:
+              case g:
+              case r:
+              case s:
+              case a:
+              case h:
+                return oe;
+              default:
+                var ve = oe && oe.$$typeof;
+                switch (ve) {
+                  case i:
+                  case v:
+                  case x:
+                  case c:
+                  case E:
+                    return ve;
+                  default:
+                    return z;
+                }
+            }
+          case o:
+            return z;
+        }
+      }
+    }
+    var S = y, Q = g, X = i, he = E, K = e, ie = v, ee = r, fe = x, ne = c, de = o, ce = s, Z = a, ae = h, te = !1;
+    function pe(f) {
+      return te || (te = !0, console.warn("The ReactIs.isAsyncMode() alias has been deprecated, and will be removed in React 17+. Update your code to use ReactIs.isConcurrentMode() instead. It has the exact same API.")), b(f) || M(f) === y;
+    }
+    function b(f) {
+      return M(f) === g;
+    }
+    function t(f) {
+      return M(f) === i;
+    }
+    function n(f) {
+      return M(f) === E;
+    }
+    function l(f) {
+      return typeof f == "object" && f !== null && f.$$typeof === e;
+    }
+    function T(f) {
+      return M(f) === v;
+    }
+    function _(f) {
+      return M(f) === r;
+    }
+    function R(f) {
+      return M(f) === x;
+    }
+    function w(f) {
+      return M(f) === c;
+    }
+    function A(f) {
+      return M(f) === o;
+    }
+    function P(f) {
+      return M(f) === s;
+    }
+    function j(f) {
+      return M(f) === a;
+    }
+    function L(f) {
+      return M(f) === h;
+    }
+    J.AsyncMode = S, J.ConcurrentMode = Q, J.ContextConsumer = X, J.ContextProvider = he, J.Element = K, J.ForwardRef = ie, J.Fragment = ee, J.Lazy = fe, J.Memo = ne, J.Portal = de, J.Profiler = ce, J.StrictMode = Z, J.Suspense = ae, J.isAsyncMode = pe, J.isConcurrentMode = b, J.isContextConsumer = t, J.isContextProvider = n, J.isElement = l, J.isForwardRef = T, J.isFragment = _, J.isLazy = R, J.isMemo = w, J.isPortal = A, J.isProfiler = P, J.isStrictMode = j, J.isSuspense = L, J.isValidElementType = C, J.typeOf = M;
+  }()), J;
+}
+var mt;
+function Ct() {
+  return mt || (mt = 1, process.env.NODE_ENV === "production" ? je.exports = Ut() : je.exports = zt()), je.exports;
+}
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+var Fe, yt;
+function Bt() {
+  if (yt) return Fe;
+  yt = 1;
+  var d = Object.getOwnPropertySymbols, e = Object.prototype.hasOwnProperty, o = Object.prototype.propertyIsEnumerable;
+  function r(s) {
+    if (s == null)
+      throw new TypeError("Object.assign cannot be called with null or undefined");
+    return Object(s);
+  }
+  function a() {
+    try {
+      if (!Object.assign)
+        return !1;
+      var s = new String("abc");
+      if (s[5] = "de", Object.getOwnPropertyNames(s)[0] === "5")
+        return !1;
+      for (var E = {}, i = 0; i < 10; i++)
+        E["_" + String.fromCharCode(i)] = i;
+      var y = Object.getOwnPropertyNames(E).map(function(v) {
+        return E[v];
+      });
+      if (y.join("") !== "0123456789")
+        return !1;
+      var g = {};
+      return "abcdefghijklmnopqrst".split("").forEach(function(v) {
+        g[v] = v;
+      }), Object.keys(Object.assign({}, g)).join("") === "abcdefghijklmnopqrst";
+    } catch {
+      return !1;
+    }
+  }
+  return Fe = a() ? Object.assign : function(s, E) {
+    for (var i, y = r(s), g, v = 1; v < arguments.length; v++) {
+      i = Object(arguments[v]);
+      for (var h in i)
+        e.call(i, h) && (y[h] = i[h]);
+      if (d) {
+        g = d(i);
+        for (var O = 0; O < g.length; O++)
+          o.call(i, g[O]) && (y[g[O]] = i[g[O]]);
+      }
+    }
+    return y;
+  }, Fe;
+}
+var Ye, gt;
+function Ve() {
+  if (gt) return Ye;
+  gt = 1;
+  var d = "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED";
+  return Ye = d, Ye;
+}
+var De, Et;
+function Rt() {
+  return Et || (Et = 1, De = Function.call.bind(Object.prototype.hasOwnProperty)), De;
+}
+var We, Tt;
+function Jt() {
+  if (Tt) return We;
+  Tt = 1;
+  var d = function() {
+  };
+  if (process.env.NODE_ENV !== "production") {
+    var e = Ve(), o = {}, r = Rt();
+    d = function(s) {
+      var E = "Warning: " + s;
+      typeof console < "u" && console.error(E);
+      try {
+        throw new Error(E);
+      } catch {
+      }
+    };
+  }
+  function a(s, E, i, y, g) {
+    if (process.env.NODE_ENV !== "production") {
+      for (var v in s)
+        if (r(s, v)) {
+          var h;
+          try {
+            if (typeof s[v] != "function") {
+              var O = Error(
+                (y || "React class") + ": " + i + " type `" + v + "` is invalid; it must be a function, usually from the `prop-types` package, but received `" + typeof s[v] + "`.This often happens because of typos such as `PropTypes.function` instead of `PropTypes.func`."
+              );
+              throw O.name = "Invariant Violation", O;
+            }
+            h = s[v](E, v, y, i, null, e);
+          } catch (x) {
+            h = x;
+          }
+          if (h && !(h instanceof Error) && d(
+            (y || "React class") + ": type specification of " + i + " `" + v + "` is invalid; the type checker function must return `null` or an `Error` but returned a " + typeof h + ". You may have forgotten to pass an argument to the type checker creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and shape all require an argument)."
+          ), h instanceof Error && !(h.message in o)) {
+            o[h.message] = !0;
+            var c = g ? g() : "";
+            d(
+              "Failed " + i + " type: " + h.message + (c ?? "")
+            );
+          }
+        }
+    }
+  }
+  return a.resetWarningCache = function() {
+    process.env.NODE_ENV !== "production" && (o = {});
+  }, We = a, We;
+}
+var He, bt;
+function Vt() {
+  if (bt) return He;
+  bt = 1;
+  var d = Ct(), e = Bt(), o = Ve(), r = Rt(), a = Jt(), s = function() {
+  };
+  process.env.NODE_ENV !== "production" && (s = function(i) {
+    var y = "Warning: " + i;
+    typeof console < "u" && console.error(y);
+    try {
+      throw new Error(y);
+    } catch {
+    }
+  });
+  function E() {
+    return null;
+  }
+  return He = function(i, y) {
+    var g = typeof Symbol == "function" && Symbol.iterator, v = "@@iterator";
+    function h(b) {
+      var t = b && (g && b[g] || b[v]);
+      if (typeof t == "function")
+        return t;
+    }
+    var O = "<<anonymous>>", c = {
+      array: I("array"),
+      bigint: I("bigint"),
+      bool: I("boolean"),
+      func: I("function"),
+      number: I("number"),
+      object: I("object"),
+      string: I("string"),
+      symbol: I("symbol"),
+      any: F(),
+      arrayOf: C,
+      element: M(),
+      elementType: S(),
+      instanceOf: Q,
+      node: ie(),
+      objectOf: he,
+      oneOf: X,
+      oneOfType: K,
+      shape: fe,
+      exact: ne
+    };
+    function x(b, t) {
+      return b === t ? b !== 0 || 1 / b === 1 / t : b !== b && t !== t;
+    }
+    function m(b, t) {
+      this.message = b, this.data = t && typeof t == "object" ? t : {}, this.stack = "";
+    }
+    m.prototype = Error.prototype;
+    function k(b) {
+      if (process.env.NODE_ENV !== "production")
+        var t = {}, n = 0;
+      function l(_, R, w, A, P, j, L) {
+        if (A = A || O, j = j || w, L !== o) {
+          if (y) {
+            var f = new Error(
+              "Calling PropTypes validators directly is not supported by the `prop-types` package. Use `PropTypes.checkPropTypes()` to call them. Read more at http://fb.me/use-check-prop-types"
+            );
+            throw f.name = "Invariant Violation", f;
+          } else if (process.env.NODE_ENV !== "production" && typeof console < "u") {
+            var z = A + ":" + w;
+            !t[z] && // Avoid spamming the console because they are often not actionable except for lib authors
+            n < 3 && (s(
+              "You are manually calling a React.PropTypes validation function for the `" + j + "` prop on `" + A + "`. This is deprecated and will throw in the standalone `prop-types` package. You may be seeing this warning due to a third-party PropTypes library. See https://fb.me/react-warning-dont-call-proptypes for details."
+            ), t[z] = !0, n++);
+          }
+        }
+        return R[w] == null ? _ ? R[w] === null ? new m("The " + P + " `" + j + "` is marked as required " + ("in `" + A + "`, but its value is `null`.")) : new m("The " + P + " `" + j + "` is marked as required in " + ("`" + A + "`, but its value is `undefined`.")) : null : b(R, w, A, P, j);
+      }
+      var T = l.bind(null, !1);
+      return T.isRequired = l.bind(null, !0), T;
+    }
+    function I(b) {
+      function t(n, l, T, _, R, w) {
+        var A = n[l], P = Z(A);
+        if (P !== b) {
+          var j = ae(A);
+          return new m(
+            "Invalid " + _ + " `" + R + "` of type " + ("`" + j + "` supplied to `" + T + "`, expected ") + ("`" + b + "`."),
+            { expectedType: b }
+          );
+        }
+        return null;
+      }
+      return k(t);
+    }
+    function F() {
+      return k(E);
+    }
+    function C(b) {
+      function t(n, l, T, _, R) {
+        if (typeof b != "function")
+          return new m("Property `" + R + "` of component `" + T + "` has invalid PropType notation inside arrayOf.");
+        var w = n[l];
+        if (!Array.isArray(w)) {
+          var A = Z(w);
+          return new m("Invalid " + _ + " `" + R + "` of type " + ("`" + A + "` supplied to `" + T + "`, expected an array."));
+        }
+        for (var P = 0; P < w.length; P++) {
+          var j = b(w, P, T, _, R + "[" + P + "]", o);
+          if (j instanceof Error)
+            return j;
+        }
+        return null;
+      }
+      return k(t);
+    }
+    function M() {
+      function b(t, n, l, T, _) {
+        var R = t[n];
+        if (!i(R)) {
+          var w = Z(R);
+          return new m("Invalid " + T + " `" + _ + "` of type " + ("`" + w + "` supplied to `" + l + "`, expected a single ReactElement."));
+        }
+        return null;
+      }
+      return k(b);
+    }
+    function S() {
+      function b(t, n, l, T, _) {
+        var R = t[n];
+        if (!d.isValidElementType(R)) {
+          var w = Z(R);
+          return new m("Invalid " + T + " `" + _ + "` of type " + ("`" + w + "` supplied to `" + l + "`, expected a single ReactElement type."));
+        }
+        return null;
+      }
+      return k(b);
+    }
+    function Q(b) {
+      function t(n, l, T, _, R) {
+        if (!(n[l] instanceof b)) {
+          var w = b.name || O, A = pe(n[l]);
+          return new m("Invalid " + _ + " `" + R + "` of type " + ("`" + A + "` supplied to `" + T + "`, expected ") + ("instance of `" + w + "`."));
+        }
+        return null;
+      }
+      return k(t);
+    }
+    function X(b) {
+      if (!Array.isArray(b))
+        return process.env.NODE_ENV !== "production" && (arguments.length > 1 ? s(
+          "Invalid arguments supplied to oneOf, expected an array, got " + arguments.length + " arguments. A common mistake is to write oneOf(x, y, z) instead of oneOf([x, y, z])."
+        ) : s("Invalid argument supplied to oneOf, expected an array.")), E;
+      function t(n, l, T, _, R) {
+        for (var w = n[l], A = 0; A < b.length; A++)
+          if (x(w, b[A]))
+            return null;
+        var P = JSON.stringify(b, function(L, f) {
+          var z = ae(f);
+          return z === "symbol" ? String(f) : f;
+        });
+        return new m("Invalid " + _ + " `" + R + "` of value `" + String(w) + "` " + ("supplied to `" + T + "`, expected one of " + P + "."));
+      }
+      return k(t);
+    }
+    function he(b) {
+      function t(n, l, T, _, R) {
+        if (typeof b != "function")
+          return new m("Property `" + R + "` of component `" + T + "` has invalid PropType notation inside objectOf.");
+        var w = n[l], A = Z(w);
+        if (A !== "object")
+          return new m("Invalid " + _ + " `" + R + "` of type " + ("`" + A + "` supplied to `" + T + "`, expected an object."));
+        for (var P in w)
+          if (r(w, P)) {
+            var j = b(w, P, T, _, R + "." + P, o);
+            if (j instanceof Error)
+              return j;
+          }
+        return null;
+      }
+      return k(t);
+    }
+    function K(b) {
+      if (!Array.isArray(b))
+        return process.env.NODE_ENV !== "production" && s("Invalid argument supplied to oneOfType, expected an instance of array."), E;
+      for (var t = 0; t < b.length; t++) {
+        var n = b[t];
+        if (typeof n != "function")
+          return s(
+            "Invalid argument supplied to oneOfType. Expected an array of check functions, but received " + te(n) + " at index " + t + "."
+          ), E;
+      }
+      function l(T, _, R, w, A) {
+        for (var P = [], j = 0; j < b.length; j++) {
+          var L = b[j], f = L(T, _, R, w, A, o);
+          if (f == null)
+            return null;
+          f.data && r(f.data, "expectedType") && P.push(f.data.expectedType);
+        }
+        var z = P.length > 0 ? ", expected one of type [" + P.join(", ") + "]" : "";
+        return new m("Invalid " + w + " `" + A + "` supplied to " + ("`" + R + "`" + z + "."));
+      }
+      return k(l);
+    }
+    function ie() {
+      function b(t, n, l, T, _) {
+        return de(t[n]) ? null : new m("Invalid " + T + " `" + _ + "` supplied to " + ("`" + l + "`, expected a ReactNode."));
+      }
+      return k(b);
+    }
+    function ee(b, t, n, l, T) {
+      return new m(
+        (b || "React class") + ": " + t + " type `" + n + "." + l + "` is invalid; it must be a function, usually from the `prop-types` package, but received `" + T + "`."
+      );
+    }
+    function fe(b) {
+      function t(n, l, T, _, R) {
+        var w = n[l], A = Z(w);
+        if (A !== "object")
+          return new m("Invalid " + _ + " `" + R + "` of type `" + A + "` " + ("supplied to `" + T + "`, expected `object`."));
+        for (var P in b) {
+          var j = b[P];
+          if (typeof j != "function")
+            return ee(T, _, R, P, ae(j));
+          var L = j(w, P, T, _, R + "." + P, o);
+          if (L)
+            return L;
+        }
+        return null;
+      }
+      return k(t);
+    }
+    function ne(b) {
+      function t(n, l, T, _, R) {
+        var w = n[l], A = Z(w);
+        if (A !== "object")
+          return new m("Invalid " + _ + " `" + R + "` of type `" + A + "` " + ("supplied to `" + T + "`, expected `object`."));
+        var P = e({}, n[l], b);
+        for (var j in P) {
+          var L = b[j];
+          if (r(b, j) && typeof L != "function")
+            return ee(T, _, R, j, ae(L));
+          if (!L)
+            return new m(
+              "Invalid " + _ + " `" + R + "` key `" + j + "` supplied to `" + T + "`.\nBad object: " + JSON.stringify(n[l], null, "  ") + `
+Valid keys: ` + JSON.stringify(Object.keys(b), null, "  ")
+            );
+          var f = L(w, j, T, _, R + "." + j, o);
+          if (f)
+            return f;
+        }
+        return null;
+      }
+      return k(t);
+    }
+    function de(b) {
+      switch (typeof b) {
+        case "number":
+        case "string":
+        case "undefined":
+          return !0;
+        case "boolean":
+          return !b;
+        case "object":
+          if (Array.isArray(b))
+            return b.every(de);
+          if (b === null || i(b))
+            return !0;
+          var t = h(b);
+          if (t) {
+            var n = t.call(b), l;
+            if (t !== b.entries) {
+              for (; !(l = n.next()).done; )
+                if (!de(l.value))
+                  return !1;
+            } else
+              for (; !(l = n.next()).done; ) {
+                var T = l.value;
+                if (T && !de(T[1]))
+                  return !1;
+              }
+          } else
+            return !1;
+          return !0;
+        default:
+          return !1;
+      }
+    }
+    function ce(b, t) {
+      return b === "symbol" ? !0 : t ? t["@@toStringTag"] === "Symbol" || typeof Symbol == "function" && t instanceof Symbol : !1;
+    }
+    function Z(b) {
+      var t = typeof b;
+      return Array.isArray(b) ? "array" : b instanceof RegExp ? "object" : ce(t, b) ? "symbol" : t;
+    }
+    function ae(b) {
+      if (typeof b > "u" || b === null)
+        return "" + b;
+      var t = Z(b);
+      if (t === "object") {
+        if (b instanceof Date)
+          return "date";
+        if (b instanceof RegExp)
+          return "regexp";
+      }
+      return t;
+    }
+    function te(b) {
+      var t = ae(b);
+      switch (t) {
+        case "array":
+        case "object":
+          return "an " + t;
+        case "boolean":
+        case "date":
+        case "regexp":
+          return "a " + t;
+        default:
+          return t;
+      }
+    }
+    function pe(b) {
+      return !b.constructor || !b.constructor.name ? O : b.constructor.name;
+    }
+    return c.checkPropTypes = a, c.resetWarningCache = a.resetWarningCache, c.PropTypes = c, c;
+  }, He;
+}
+var Ue, wt;
+function Gt() {
+  if (wt) return Ue;
+  wt = 1;
+  var d = Ve();
+  function e() {
+  }
+  function o() {
+  }
+  return o.resetWarningCache = e, Ue = function() {
+    function r(E, i, y, g, v, h) {
+      if (h !== d) {
+        var O = new Error(
+          "Calling PropTypes validators directly is not supported by the `prop-types` package. Use PropTypes.checkPropTypes() to call them. Read more at http://fb.me/use-check-prop-types"
+        );
+        throw O.name = "Invariant Violation", O;
+      }
+    }
+    r.isRequired = r;
+    function a() {
+      return r;
+    }
+    var s = {
+      array: r,
+      bigint: r,
+      bool: r,
+      func: r,
+      number: r,
+      object: r,
+      string: r,
+      symbol: r,
+      any: r,
+      arrayOf: a,
+      element: r,
+      elementType: r,
+      instanceOf: a,
+      node: r,
+      objectOf: a,
+      oneOf: a,
+      oneOfType: a,
+      shape: a,
+      exact: a,
+      checkPropTypes: o,
+      resetWarningCache: e
+    };
+    return s.PropTypes = s, s;
+  }, Ue;
+}
+if (process.env.NODE_ENV !== "production") {
+  var Zt = Ct(), Xt = !0;
+  Be.exports = Vt()(Zt.isElement, Xt);
+} else
+  Be.exports = Gt()();
+var Qt = Be.exports, _t = { exports: {} };
+(function(d) {
+  d.exports = /******/
+  function(e) {
+    var o = {};
+    function r(a) {
+      if (o[a])
+        return o[a].exports;
+      var s = o[a] = {
+        /******/
+        exports: {},
+        /******/
+        id: a,
+        /******/
+        loaded: !1
+        /******/
+      };
+      return e[a].call(s.exports, s, s.exports, r), s.loaded = !0, s.exports;
+    }
+    return r.m = e, r.c = o, r.p = "", r(0);
+  }([
+    /* 0 */
+    /***/
+    function(e, o, r) {
+      e.exports = r(1);
+    },
+    /* 1 */
+    /***/
+    function(e, o, r) {
+      Object.defineProperty(o, "__esModule", {
+        value: !0
+      });
+      function a(i) {
+        return i && i.__esModule ? i : { default: i };
+      }
+      var s = r(2), E = a(s);
+      o.default = E.default, e.exports = o.default;
+    },
+    /* 2 */
+    /***/
+    function(e, o, r) {
+      Object.defineProperty(o, "__esModule", {
+        value: !0
+      });
+      var a = Object.assign || function(x) {
+        for (var m = 1; m < arguments.length; m++) {
+          var k = arguments[m];
+          for (var I in k)
+            Object.prototype.hasOwnProperty.call(k, I) && (x[I] = k[I]);
+        }
+        return x;
+      };
+      o.default = c;
+      function s(x) {
+        return x && x.__esModule ? x : { default: x };
+      }
+      function E(x, m) {
+        var k = {};
+        for (var I in x)
+          m.indexOf(I) >= 0 || Object.prototype.hasOwnProperty.call(x, I) && (k[I] = x[I]);
+        return k;
+      }
+      var i = r(3), y = r(4), g = s(y), v = r(14), h = r(15), O = s(h);
+      c.propTypes = {
+        activeClassName: g.default.string,
+        activeIndex: g.default.number,
+        activeStyle: g.default.object,
+        autoEscape: g.default.bool,
+        className: g.default.string,
+        findChunks: g.default.func,
+        highlightClassName: g.default.oneOfType([g.default.object, g.default.string]),
+        highlightStyle: g.default.object,
+        highlightTag: g.default.oneOfType([g.default.node, g.default.func, g.default.string]),
+        sanitize: g.default.func,
+        searchWords: g.default.arrayOf(g.default.oneOfType([g.default.string, g.default.instanceOf(RegExp)])).isRequired,
+        textToHighlight: g.default.string.isRequired,
+        unhighlightClassName: g.default.string,
+        unhighlightStyle: g.default.object
+      };
+      function c(x) {
+        var m = x.activeClassName, k = m === void 0 ? "" : m, I = x.activeIndex, F = I === void 0 ? -1 : I, C = x.activeStyle, M = x.autoEscape, S = x.caseSensitive, Q = S === void 0 ? !1 : S, X = x.className, he = x.findChunks, K = x.highlightClassName, ie = K === void 0 ? "" : K, ee = x.highlightStyle, fe = ee === void 0 ? {} : ee, ne = x.highlightTag, de = ne === void 0 ? "mark" : ne, ce = x.sanitize, Z = x.searchWords, ae = x.textToHighlight, te = x.unhighlightClassName, pe = te === void 0 ? "" : te, b = x.unhighlightStyle, t = E(x, ["activeClassName", "activeIndex", "activeStyle", "autoEscape", "caseSensitive", "className", "findChunks", "highlightClassName", "highlightStyle", "highlightTag", "sanitize", "searchWords", "textToHighlight", "unhighlightClassName", "unhighlightStyle"]), n = (0, i.findAll)({
+          autoEscape: M,
+          caseSensitive: Q,
+          findChunks: he,
+          sanitize: ce,
+          searchWords: Z,
+          textToHighlight: ae
+        }), l = de, T = -1, _ = "", R = void 0, w = function(j) {
+          var L = {};
+          for (var f in j)
+            L[f.toLowerCase()] = j[f];
+          return L;
+        }, A = (0, O.default)(w);
+        return (0, v.createElement)("span", a({
+          className: X
+        }, t, {
+          children: n.map(function(P, j) {
+            var L = ae.substr(P.start, P.end - P.start);
+            if (P.highlight) {
+              T++;
+              var f = void 0;
+              typeof ie == "object" ? Q ? f = ie[L] : (ie = A(ie), f = ie[L.toLowerCase()]) : f = ie;
+              var z = T === +F;
+              _ = f + " " + (z ? k : ""), R = z === !0 && C != null ? Object.assign({}, fe, C) : fe;
+              var oe = {
+                children: L,
+                className: _,
+                key: j,
+                style: R
+              };
+              return typeof l != "string" && (oe.highlightIndex = T), (0, v.createElement)(l, oe);
+            } else
+              return (0, v.createElement)("span", {
+                children: L,
+                className: pe,
+                key: j,
+                style: b
+              });
+          })
+        }));
+      }
+      e.exports = o.default;
+    },
+    /* 3 */
+    /***/
+    function(e, o) {
+      e.exports = /******/
+      function(r) {
+        var a = {};
+        function s(E) {
+          if (a[E])
+            return a[E].exports;
+          var i = a[E] = {
+            /******/
+            exports: {},
+            /******/
+            id: E,
+            /******/
+            loaded: !1
+            /******/
+          };
+          return r[E].call(i.exports, i, i.exports, s), i.loaded = !0, i.exports;
+        }
+        return s.m = r, s.c = a, s.p = "", s(0);
+      }([
+        /* 0 */
+        /***/
+        function(r, a, s) {
+          r.exports = s(1);
+        },
+        /* 1 */
+        /***/
+        function(r, a, s) {
+          Object.defineProperty(a, "__esModule", {
+            value: !0
+          });
+          var E = s(2);
+          Object.defineProperty(a, "combineChunks", {
+            enumerable: !0,
+            get: function() {
+              return E.combineChunks;
+            }
+          }), Object.defineProperty(a, "fillInChunks", {
+            enumerable: !0,
+            get: function() {
+              return E.fillInChunks;
+            }
+          }), Object.defineProperty(a, "findAll", {
+            enumerable: !0,
+            get: function() {
+              return E.findAll;
+            }
+          }), Object.defineProperty(a, "findChunks", {
+            enumerable: !0,
+            get: function() {
+              return E.findChunks;
+            }
+          });
+        },
+        /* 2 */
+        /***/
+        function(r, a) {
+          Object.defineProperty(a, "__esModule", {
+            value: !0
+          }), a.findAll = function(h) {
+            var O = h.autoEscape, c = h.caseSensitive, x = c === void 0 ? !1 : c, m = h.findChunks, k = m === void 0 ? E : m, I = h.sanitize, F = h.searchWords, C = h.textToHighlight;
+            return i({
+              chunksToHighlight: s({
+                chunks: k({
+                  autoEscape: O,
+                  caseSensitive: x,
+                  sanitize: I,
+                  searchWords: F,
+                  textToHighlight: C
+                })
+              }),
+              totalLength: C ? C.length : 0
+            });
+          };
+          var s = a.combineChunks = function(h) {
+            var O = h.chunks;
+            return O = O.sort(function(c, x) {
+              return c.start - x.start;
+            }).reduce(function(c, x) {
+              if (c.length === 0)
+                return [x];
+              var m = c.pop();
+              if (x.start <= m.end) {
+                var k = Math.max(m.end, x.end);
+                c.push({ start: m.start, end: k });
+              } else
+                c.push(m, x);
+              return c;
+            }, []), O;
+          }, E = function(h) {
+            var O = h.autoEscape, c = h.caseSensitive, x = h.sanitize, m = x === void 0 ? y : x, k = h.searchWords, I = h.textToHighlight;
+            return I = m(I), k.filter(function(F) {
+              return F;
+            }).reduce(function(F, C) {
+              C = m(C), O && (C = g(C));
+              for (var M = new RegExp(C, c ? "g" : "gi"), S = void 0; S = M.exec(I); ) {
+                var Q = S.index, X = M.lastIndex;
+                X > Q && F.push({ start: Q, end: X }), S.index == M.lastIndex && M.lastIndex++;
+              }
+              return F;
+            }, []);
+          };
+          a.findChunks = E;
+          var i = a.fillInChunks = function(h) {
+            var O = h.chunksToHighlight, c = h.totalLength, x = [], m = function(F, C, M) {
+              C - F > 0 && x.push({
+                start: F,
+                end: C,
+                highlight: M
+              });
+            };
+            if (O.length === 0)
+              m(0, c, !1);
+            else {
+              var k = 0;
+              O.forEach(function(I) {
+                m(k, I.start, !1), m(I.start, I.end, !0), k = I.end;
+              }), m(k, c, !1);
+            }
+            return x;
+          };
+          function y(v) {
+            return v;
+          }
+          function g(v) {
+            return v.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+          }
+        }
+        /******/
+      ]);
+    },
+    /* 4 */
+    /***/
+    function(e, o, r) {
+      (function(a) {
+        if (a.env.NODE_ENV !== "production") {
+          var s = typeof Symbol == "function" && Symbol.for && Symbol.for("react.element") || 60103, E = function(y) {
+            return typeof y == "object" && y !== null && y.$$typeof === s;
+          }, i = !0;
+          e.exports = r(6)(E, i);
+        } else
+          e.exports = r(13)();
+      }).call(o, r(5));
+    },
+    /* 5 */
+    /***/
+    function(e, o) {
+      var r = e.exports = {}, a, s;
+      function E() {
+        throw new Error("setTimeout has not been defined");
+      }
+      function i() {
+        throw new Error("clearTimeout has not been defined");
+      }
+      (function() {
+        try {
+          typeof setTimeout == "function" ? a = setTimeout : a = E;
+        } catch {
+          a = E;
+        }
+        try {
+          typeof clearTimeout == "function" ? s = clearTimeout : s = i;
+        } catch {
+          s = i;
+        }
+      })();
+      function y(F) {
+        if (a === setTimeout)
+          return setTimeout(F, 0);
+        if ((a === E || !a) && setTimeout)
+          return a = setTimeout, setTimeout(F, 0);
+        try {
+          return a(F, 0);
+        } catch {
+          try {
+            return a.call(null, F, 0);
+          } catch {
+            return a.call(this, F, 0);
+          }
+        }
+      }
+      function g(F) {
+        if (s === clearTimeout)
+          return clearTimeout(F);
+        if ((s === i || !s) && clearTimeout)
+          return s = clearTimeout, clearTimeout(F);
+        try {
+          return s(F);
+        } catch {
+          try {
+            return s.call(null, F);
+          } catch {
+            return s.call(this, F);
+          }
+        }
+      }
+      var v = [], h = !1, O, c = -1;
+      function x() {
+        !h || !O || (h = !1, O.length ? v = O.concat(v) : c = -1, v.length && m());
+      }
+      function m() {
+        if (!h) {
+          var F = y(x);
+          h = !0;
+          for (var C = v.length; C; ) {
+            for (O = v, v = []; ++c < C; )
+              O && O[c].run();
+            c = -1, C = v.length;
+          }
+          O = null, h = !1, g(F);
+        }
+      }
+      r.nextTick = function(F) {
+        var C = new Array(arguments.length - 1);
+        if (arguments.length > 1)
+          for (var M = 1; M < arguments.length; M++)
+            C[M - 1] = arguments[M];
+        v.push(new k(F, C)), v.length === 1 && !h && y(m);
+      };
+      function k(F, C) {
+        this.fun = F, this.array = C;
+      }
+      k.prototype.run = function() {
+        this.fun.apply(null, this.array);
+      }, r.title = "browser", r.browser = !0, r.env = {}, r.argv = [], r.version = "", r.versions = {};
+      function I() {
+      }
+      r.on = I, r.addListener = I, r.once = I, r.off = I, r.removeListener = I, r.removeAllListeners = I, r.emit = I, r.prependListener = I, r.prependOnceListener = I, r.listeners = function(F) {
+        return [];
+      }, r.binding = function(F) {
+        throw new Error("process.binding is not supported");
+      }, r.cwd = function() {
+        return "/";
+      }, r.chdir = function(F) {
+        throw new Error("process.chdir is not supported");
+      }, r.umask = function() {
+        return 0;
+      };
+    },
+    /* 6 */
+    /***/
+    function(e, o, r) {
+      (function(a) {
+        var s = r(7), E = r(8), i = r(9), y = r(10), g = r(11), v = r(12);
+        e.exports = function(h, O) {
+          var c = typeof Symbol == "function" && Symbol.iterator, x = "@@iterator";
+          function m(n) {
+            var l = n && (c && n[c] || n[x]);
+            if (typeof l == "function")
+              return l;
+          }
+          var k = "<<anonymous>>", I = {
+            array: S("array"),
+            bool: S("boolean"),
+            func: S("function"),
+            number: S("number"),
+            object: S("object"),
+            string: S("string"),
+            symbol: S("symbol"),
+            any: Q(),
+            arrayOf: X,
+            element: he(),
+            instanceOf: K,
+            node: ne(),
+            objectOf: ee,
+            oneOf: ie,
+            oneOfType: fe,
+            shape: de,
+            exact: ce
+          };
+          function F(n, l) {
+            return n === l ? n !== 0 || 1 / n === 1 / l : n !== n && l !== l;
+          }
+          function C(n) {
+            this.message = n, this.stack = "";
+          }
+          C.prototype = Error.prototype;
+          function M(n) {
+            if (a.env.NODE_ENV !== "production")
+              var l = {}, T = 0;
+            function _(w, A, P, j, L, f, z) {
+              if (j = j || k, f = f || P, z !== g) {
+                if (O)
+                  E(
+                    !1,
+                    "Calling PropTypes validators directly is not supported by the `prop-types` package. Use `PropTypes.checkPropTypes()` to call them. Read more at http://fb.me/use-check-prop-types"
+                  );
+                else if (a.env.NODE_ENV !== "production" && typeof console < "u") {
+                  var oe = j + ":" + P;
+                  !l[oe] && // Avoid spamming the console because they are often not actionable except for lib authors
+                  T < 3 && (i(
+                    !1,
+                    "You are manually calling a React.PropTypes validation function for the `%s` prop on `%s`. This is deprecated and will throw in the standalone `prop-types` package. You may be seeing this warning due to a third-party PropTypes library. See https://fb.me/react-warning-dont-call-proptypes for details.",
+                    f,
+                    j
+                  ), l[oe] = !0, T++);
+                }
+              }
+              return A[P] == null ? w ? A[P] === null ? new C("The " + L + " `" + f + "` is marked as required " + ("in `" + j + "`, but its value is `null`.")) : new C("The " + L + " `" + f + "` is marked as required in " + ("`" + j + "`, but its value is `undefined`.")) : null : n(A, P, j, L, f);
+            }
+            var R = _.bind(null, !1);
+            return R.isRequired = _.bind(null, !0), R;
+          }
+          function S(n) {
+            function l(T, _, R, w, A, P) {
+              var j = T[_], L = te(j);
+              if (L !== n) {
+                var f = pe(j);
+                return new C("Invalid " + w + " `" + A + "` of type " + ("`" + f + "` supplied to `" + R + "`, expected ") + ("`" + n + "`."));
+              }
+              return null;
+            }
+            return M(l);
+          }
+          function Q() {
+            return M(s.thatReturnsNull);
+          }
+          function X(n) {
+            function l(T, _, R, w, A) {
+              if (typeof n != "function")
+                return new C("Property `" + A + "` of component `" + R + "` has invalid PropType notation inside arrayOf.");
+              var P = T[_];
+              if (!Array.isArray(P)) {
+                var j = te(P);
+                return new C("Invalid " + w + " `" + A + "` of type " + ("`" + j + "` supplied to `" + R + "`, expected an array."));
+              }
+              for (var L = 0; L < P.length; L++) {
+                var f = n(P, L, R, w, A + "[" + L + "]", g);
+                if (f instanceof Error)
+                  return f;
+              }
+              return null;
+            }
+            return M(l);
+          }
+          function he() {
+            function n(l, T, _, R, w) {
+              var A = l[T];
+              if (!h(A)) {
+                var P = te(A);
+                return new C("Invalid " + R + " `" + w + "` of type " + ("`" + P + "` supplied to `" + _ + "`, expected a single ReactElement."));
+              }
+              return null;
+            }
+            return M(n);
+          }
+          function K(n) {
+            function l(T, _, R, w, A) {
+              if (!(T[_] instanceof n)) {
+                var P = n.name || k, j = t(T[_]);
+                return new C("Invalid " + w + " `" + A + "` of type " + ("`" + j + "` supplied to `" + R + "`, expected ") + ("instance of `" + P + "`."));
+              }
+              return null;
+            }
+            return M(l);
+          }
+          function ie(n) {
+            if (!Array.isArray(n))
+              return a.env.NODE_ENV !== "production" && i(!1, "Invalid argument supplied to oneOf, expected an instance of array."), s.thatReturnsNull;
+            function l(T, _, R, w, A) {
+              for (var P = T[_], j = 0; j < n.length; j++)
+                if (F(P, n[j]))
+                  return null;
+              var L = JSON.stringify(n);
+              return new C("Invalid " + w + " `" + A + "` of value `" + P + "` " + ("supplied to `" + R + "`, expected one of " + L + "."));
+            }
+            return M(l);
+          }
+          function ee(n) {
+            function l(T, _, R, w, A) {
+              if (typeof n != "function")
+                return new C("Property `" + A + "` of component `" + R + "` has invalid PropType notation inside objectOf.");
+              var P = T[_], j = te(P);
+              if (j !== "object")
+                return new C("Invalid " + w + " `" + A + "` of type " + ("`" + j + "` supplied to `" + R + "`, expected an object."));
+              for (var L in P)
+                if (P.hasOwnProperty(L)) {
+                  var f = n(P, L, R, w, A + "." + L, g);
+                  if (f instanceof Error)
+                    return f;
+                }
+              return null;
+            }
+            return M(l);
+          }
+          function fe(n) {
+            if (!Array.isArray(n))
+              return a.env.NODE_ENV !== "production" && i(!1, "Invalid argument supplied to oneOfType, expected an instance of array."), s.thatReturnsNull;
+            for (var l = 0; l < n.length; l++) {
+              var T = n[l];
+              if (typeof T != "function")
+                return i(
+                  !1,
+                  "Invalid argument supplied to oneOfType. Expected an array of check functions, but received %s at index %s.",
+                  b(T),
+                  l
+                ), s.thatReturnsNull;
+            }
+            function _(R, w, A, P, j) {
+              for (var L = 0; L < n.length; L++) {
+                var f = n[L];
+                if (f(R, w, A, P, j, g) == null)
+                  return null;
+              }
+              return new C("Invalid " + P + " `" + j + "` supplied to " + ("`" + A + "`."));
+            }
+            return M(_);
+          }
+          function ne() {
+            function n(l, T, _, R, w) {
+              return Z(l[T]) ? null : new C("Invalid " + R + " `" + w + "` supplied to " + ("`" + _ + "`, expected a ReactNode."));
+            }
+            return M(n);
+          }
+          function de(n) {
+            function l(T, _, R, w, A) {
+              var P = T[_], j = te(P);
+              if (j !== "object")
+                return new C("Invalid " + w + " `" + A + "` of type `" + j + "` " + ("supplied to `" + R + "`, expected `object`."));
+              for (var L in n) {
+                var f = n[L];
+                if (f) {
+                  var z = f(P, L, R, w, A + "." + L, g);
+                  if (z)
+                    return z;
+                }
+              }
+              return null;
+            }
+            return M(l);
+          }
+          function ce(n) {
+            function l(T, _, R, w, A) {
+              var P = T[_], j = te(P);
+              if (j !== "object")
+                return new C("Invalid " + w + " `" + A + "` of type `" + j + "` " + ("supplied to `" + R + "`, expected `object`."));
+              var L = y({}, T[_], n);
+              for (var f in L) {
+                var z = n[f];
+                if (!z)
+                  return new C(
+                    "Invalid " + w + " `" + A + "` key `" + f + "` supplied to `" + R + "`.\nBad object: " + JSON.stringify(T[_], null, "  ") + `
+Valid keys: ` + JSON.stringify(Object.keys(n), null, "  ")
+                  );
+                var oe = z(P, f, R, w, A + "." + f, g);
+                if (oe)
+                  return oe;
+              }
+              return null;
+            }
+            return M(l);
+          }
+          function Z(n) {
+            switch (typeof n) {
+              case "number":
+              case "string":
+              case "undefined":
+                return !0;
+              case "boolean":
+                return !n;
+              case "object":
+                if (Array.isArray(n))
+                  return n.every(Z);
+                if (n === null || h(n))
+                  return !0;
+                var l = m(n);
+                if (l) {
+                  var T = l.call(n), _;
+                  if (l !== n.entries) {
+                    for (; !(_ = T.next()).done; )
+                      if (!Z(_.value))
+                        return !1;
+                  } else
+                    for (; !(_ = T.next()).done; ) {
+                      var R = _.value;
+                      if (R && !Z(R[1]))
+                        return !1;
+                    }
+                } else
+                  return !1;
+                return !0;
+              default:
+                return !1;
+            }
+          }
+          function ae(n, l) {
+            return n === "symbol" || l["@@toStringTag"] === "Symbol" || typeof Symbol == "function" && l instanceof Symbol;
+          }
+          function te(n) {
+            var l = typeof n;
+            return Array.isArray(n) ? "array" : n instanceof RegExp ? "object" : ae(l, n) ? "symbol" : l;
+          }
+          function pe(n) {
+            if (typeof n > "u" || n === null)
+              return "" + n;
+            var l = te(n);
+            if (l === "object") {
+              if (n instanceof Date)
+                return "date";
+              if (n instanceof RegExp)
+                return "regexp";
+            }
+            return l;
+          }
+          function b(n) {
+            var l = pe(n);
+            switch (l) {
+              case "array":
+              case "object":
+                return "an " + l;
+              case "boolean":
+              case "date":
+              case "regexp":
+                return "a " + l;
+              default:
+                return l;
+            }
+          }
+          function t(n) {
+            return !n.constructor || !n.constructor.name ? k : n.constructor.name;
+          }
+          return I.checkPropTypes = v, I.PropTypes = I, I;
+        };
+      }).call(o, r(5));
+    },
+    /* 7 */
+    /***/
+    function(e, o) {
+      function r(s) {
+        return function() {
+          return s;
+        };
+      }
+      var a = function() {
+      };
+      a.thatReturns = r, a.thatReturnsFalse = r(!1), a.thatReturnsTrue = r(!0), a.thatReturnsNull = r(null), a.thatReturnsThis = function() {
+        return this;
+      }, a.thatReturnsArgument = function(s) {
+        return s;
+      }, e.exports = a;
+    },
+    /* 8 */
+    /***/
+    function(e, o, r) {
+      (function(a) {
+        var s = function(y) {
+        };
+        a.env.NODE_ENV !== "production" && (s = function(y) {
+          if (y === void 0)
+            throw new Error("invariant requires an error message argument");
+        });
+        function E(i, y, g, v, h, O, c, x) {
+          if (s(y), !i) {
+            var m;
+            if (y === void 0)
+              m = new Error("Minified exception occurred; use the non-minified dev environment for the full error message and additional helpful warnings.");
+            else {
+              var k = [g, v, h, O, c, x], I = 0;
+              m = new Error(y.replace(/%s/g, function() {
+                return k[I++];
+              })), m.name = "Invariant Violation";
+            }
+            throw m.framesToPop = 1, m;
+          }
+        }
+        e.exports = E;
+      }).call(o, r(5));
+    },
+    /* 9 */
+    /***/
+    function(e, o, r) {
+      (function(a) {
+        var s = r(7), E = s;
+        if (a.env.NODE_ENV !== "production") {
+          var i = function(g) {
+            for (var v = arguments.length, h = Array(v > 1 ? v - 1 : 0), O = 1; O < v; O++)
+              h[O - 1] = arguments[O];
+            var c = 0, x = "Warning: " + g.replace(/%s/g, function() {
+              return h[c++];
+            });
+            typeof console < "u" && console.error(x);
+            try {
+              throw new Error(x);
+            } catch {
+            }
+          };
+          E = function(g, v) {
+            if (v === void 0)
+              throw new Error("`warning(condition, format, ...args)` requires a warning message argument");
+            if (v.indexOf("Failed Composite propType: ") !== 0 && !g) {
+              for (var h = arguments.length, O = Array(h > 2 ? h - 2 : 0), c = 2; c < h; c++)
+                O[c - 2] = arguments[c];
+              i.apply(void 0, [v].concat(O));
+            }
+          };
+        }
+        e.exports = E;
+      }).call(o, r(5));
+    },
+    /* 10 */
+    /***/
+    function(e, o) {
+      var r = Object.getOwnPropertySymbols, a = Object.prototype.hasOwnProperty, s = Object.prototype.propertyIsEnumerable;
+      function E(y) {
+        if (y == null)
+          throw new TypeError("Object.assign cannot be called with null or undefined");
+        return Object(y);
+      }
+      function i() {
+        try {
+          if (!Object.assign)
+            return !1;
+          var y = new String("abc");
+          if (y[5] = "de", Object.getOwnPropertyNames(y)[0] === "5")
+            return !1;
+          for (var g = {}, v = 0; v < 10; v++)
+            g["_" + String.fromCharCode(v)] = v;
+          var h = Object.getOwnPropertyNames(g).map(function(c) {
+            return g[c];
+          });
+          if (h.join("") !== "0123456789")
+            return !1;
+          var O = {};
+          return "abcdefghijklmnopqrst".split("").forEach(function(c) {
+            O[c] = c;
+          }), Object.keys(Object.assign({}, O)).join("") === "abcdefghijklmnopqrst";
+        } catch {
+          return !1;
+        }
+      }
+      e.exports = i() ? Object.assign : function(y, g) {
+        for (var v, h = E(y), O, c = 1; c < arguments.length; c++) {
+          v = Object(arguments[c]);
+          for (var x in v)
+            a.call(v, x) && (h[x] = v[x]);
+          if (r) {
+            O = r(v);
+            for (var m = 0; m < O.length; m++)
+              s.call(v, O[m]) && (h[O[m]] = v[O[m]]);
+          }
+        }
+        return h;
+      };
+    },
+    /* 11 */
+    /***/
+    function(e, o) {
+      var r = "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED";
+      e.exports = r;
+    },
+    /* 12 */
+    /***/
+    function(e, o, r) {
+      (function(a) {
+        if (a.env.NODE_ENV !== "production")
+          var s = r(8), E = r(9), i = r(11), y = {};
+        function g(v, h, O, c, x) {
+          if (a.env.NODE_ENV !== "production") {
+            for (var m in v)
+              if (v.hasOwnProperty(m)) {
+                var k;
+                try {
+                  s(typeof v[m] == "function", "%s: %s type `%s` is invalid; it must be a function, usually from the `prop-types` package, but received `%s`.", c || "React class", O, m, typeof v[m]), k = v[m](h, m, c, O, null, i);
+                } catch (F) {
+                  k = F;
+                }
+                if (E(!k || k instanceof Error, "%s: type specification of %s `%s` is invalid; the type checker function must return `null` or an `Error` but returned a %s. You may have forgotten to pass an argument to the type checker creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and shape all require an argument).", c || "React class", O, m, typeof k), k instanceof Error && !(k.message in y)) {
+                  y[k.message] = !0;
+                  var I = x ? x() : "";
+                  E(!1, "Failed %s type: %s%s", O, k.message, I ?? "");
+                }
+              }
+          }
+        }
+        e.exports = g;
+      }).call(o, r(5));
+    },
+    /* 13 */
+    /***/
+    function(e, o, r) {
+      var a = r(7), s = r(8), E = r(11);
+      e.exports = function() {
+        function i(v, h, O, c, x, m) {
+          m !== E && s(
+            !1,
+            "Calling PropTypes validators directly is not supported by the `prop-types` package. Use PropTypes.checkPropTypes() to call them. Read more at http://fb.me/use-check-prop-types"
+          );
+        }
+        i.isRequired = i;
+        function y() {
+          return i;
+        }
+        var g = {
+          array: i,
+          bool: i,
+          func: i,
+          number: i,
+          object: i,
+          string: i,
+          symbol: i,
+          any: i,
+          arrayOf: y,
+          element: i,
+          instanceOf: y,
+          node: i,
+          objectOf: y,
+          oneOf: y,
+          oneOfType: y,
+          shape: y,
+          exact: y
+        };
+        return g.checkPropTypes = a, g.PropTypes = g, g;
+      };
+    },
+    /* 14 */
+    /***/
+    function(e, o) {
+      e.exports = Je;
+    },
+    /* 15 */
+    /***/
+    function(e, o) {
+      var r = function(E, i) {
+        return E === i;
+      };
+      function a(s) {
+        var E = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : r, i = void 0, y = [], g = void 0, v = !1, h = function(x, m) {
+          return E(x, y[m]);
+        }, O = function() {
+          for (var x = arguments.length, m = Array(x), k = 0; k < x; k++)
+            m[k] = arguments[k];
+          return v && i === this && m.length === y.length && m.every(h) || (v = !0, i = this, y = m, g = s.apply(this, m)), g;
+        };
+        return O;
+      }
+      e.exports = a;
+    }
+    /******/
+  ]);
+})(_t);
+var Kt = _t.exports;
+Object.defineProperty(Ie, "__esModule", {
+  value: !0
+});
+Ie.ReactDaDataBox = void 0;
+var er = /* @__PURE__ */ function() {
+  function d(e, o) {
+    for (var r = 0; r < o.length; r++) {
+      var a = o[r];
+      a.enumerable = a.enumerable || !1, a.configurable = !0, "value" in a && (a.writable = !0), Object.defineProperty(e, a.key, a);
+    }
+  }
+  return function(e, o, r) {
+    return o && d(e.prototype, o), r && d(e, r), e;
+  };
+}(), Ne = Object.assign || function(d) {
+  for (var e = 1; e < arguments.length; e++) {
+    var o = arguments[e];
+    for (var r in o)
+      Object.prototype.hasOwnProperty.call(o, r) && (d[r] = o[r]);
+  }
+  return d;
+}, tr = typeof Symbol == "function" && typeof Symbol.iterator == "symbol" ? function(d) {
+  return typeof d;
+} : function(d) {
+  return d && typeof Symbol == "function" && d.constructor === Symbol && d !== Symbol.prototype ? "symbol" : typeof d;
+}, rr = Je, V = or(rr), nr = Qt, H = Pt(nr), ar = Kt, ir = Pt(ar);
+function Pt(d) {
+  return d && d.__esModule ? d : { default: d };
+}
+function or(d) {
+  if (d && d.__esModule)
+    return d;
+  var e = {};
+  if (d != null)
+    for (var o in d)
+      Object.prototype.hasOwnProperty.call(d, o) && (e[o] = d[o]);
+  return e.default = d, e;
+}
+function sr(d, e) {
+  if (!(d instanceof e))
+    throw new TypeError("Cannot call a class as a function");
+}
+function xt(d, e) {
+  if (!d)
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  return e && (typeof e == "object" || typeof e == "function") ? e : d;
+}
+function ur(d, e) {
+  if (typeof e != "function" && e !== null)
+    throw new TypeError("Super expression must either be null or a function, not " + typeof e);
+  d.prototype = Object.create(e && e.prototype, { constructor: { value: d, enumerable: !1, writable: !0, configurable: !0 } }), e && (Object.setPrototypeOf ? Object.setPrototypeOf(d, e) : d.__proto__ = e);
+}
+var cr = ["г", "респ", "ул", "р-н", "село", "деревня", "поселок", "пр-д", "пл", "к", "кв", "обл", "д"], lr = {
+  data: {},
+  unrestricted_value: "",
+  value: ""
+}, ke = {
+  api: "suggestions/api/4_1/rs/suggest",
+  host: "https://suggestions.dadata.ru"
+}, St = {
+  "react-dadata__custom-action": "react-dadata__suggestion react-dadata__custom-action",
+  "react-dadata__suggestion": "react-dadata__suggestion",
+  "react-dadata__suggestion-note": "react-dadata__suggestion-note",
+  "react-dadata__suggestions": "react-dadata__suggestions"
+}, Ae = function(e) {
+  var o = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, r = arguments[2];
+  return o[e] && tr(o[e]) === "object" ? {
+    className: ((St[e] || e) + " " + (r || "")).trim(),
+    style: o[e]
+  } : {
+    className: ((St[e] || e) + " " + (r || "") + " " + (o[e] || "")).trim()
+  };
+}, xe = function(e) {
+  return e.endsWith("/") ? e.slice(0, -1) : e;
+}, fr = function(e) {
+  if (typeof e == "string") {
+    if (/^http[s]?:/g.test(e) || e.startsWith("/"))
+      return xe(e + "/" + ke.api);
+  } else if (e instanceof Object) {
+    var o = Ne({}, ke, e);
+    return xe(o.host) + "/" + xe(o.api);
+  }
+  return xe(ke.host + "/" + ke.api);
+}, dr = function(e) {
+  var o = e.replace(",", "").split(" "), r = o.filter(function(a) {
+    return cr.indexOf(a) < 0;
+  });
+  return r;
+}, jt = function() {
+  return Math.random().toString(16).slice(2);
+}, pr = function(e) {
+  var o = e.data, r = o === void 0 ? {} : o, a = e.type;
+  return V.createElement(
+    "div",
+    { className: "react-dadata__suggestion-info" },
+    V.createElement(
+      "span",
+      null,
+      [a === "party" ? r.inn || null : r.bic || null, r.address && r.address.value || null].join(" ")
+    )
+  );
+}, hr = function(e) {
+  return V.createElement(
+    "div",
+    Ae("react-dadata__suggestion-note", e),
+    V.createElement(
+      "span",
+      { className: "suggestion-note_arrow" },
+      V.createElement(
+        "svg",
+        { width: "34", height: "16", viewBox: "0 0 44 21", fill: "none", xmlns: "http://www.w3.org/2000/svg" },
+        V.createElement("path", {
+          d: "M25.9 20.1H41.2C42.1 20.1 42.9 19.4 42.9 18.4V3.1C42.9 2.2 42.1 1.4 41.2 1.4H25.9C24.9 1.4 24.2 2.2 24.2 3.1V18.4C24.2 19.4 25 20.1 25.9 20.1Z",
+          stroke: "#424242",
+          strokeWidth: "1.122",
+          strokeMiterlimit: "10"
+        }),
+        V.createElement("path", {
+          d: "M33.4295 6.62049C33.4295 7.32049 33.4295 8.0205 33.4295 8.7205C33.4295 10.9205 33.4295 13.2205 33.4295 15.5205C33.4295 15.6205 33.4295 15.6205 33.4295 15.7205C33.4295 15.8205 33.5295 15.9205 33.6295 15.9205C33.7295 15.9205 33.8295 15.8205 33.8295 15.7205C33.8295 15.6205 33.8295 15.6205 33.8295 15.5205C33.8295 12.6205 33.8295 9.82049 33.8295 6.92049C33.8295 6.82049 33.8295 6.8205 33.8295 6.7205C33.9295 6.8205 33.9295 6.8205 34.0295 6.8205C34.4295 7.2205 34.9295 7.72049 35.3295 8.12049C35.4295 8.22049 35.5295 8.2205 35.6295 8.2205C35.7295 8.2205 35.8295 8.12049 35.8295 8.02049C35.8295 7.92049 35.8295 7.8205 35.7295 7.7205C35.4295 7.4205 35.1295 7.1205 34.8295 6.8205C34.5295 6.5205 34.2295 6.2205 33.8295 5.8205C33.6295 5.6205 33.5295 5.6205 33.4295 5.8205C32.8295 6.4205 32.2295 7.0205 31.5295 7.7205C31.3295 7.9205 31.4295 8.12049 31.6295 8.12049C31.7295 8.12049 31.8295 8.02049 31.9295 8.02049C32.3295 7.62049 32.8295 7.1205 33.2295 6.7205C33.2295 6.7205 33.3295 6.72049 33.4295 6.62049Z",
+          fill: "#424242",
+          stroke: "#424242",
+          strokeWidth: "0.8",
+          strokeMiterlimit: "10"
+        }),
+        V.createElement("path", {
+          d: "M0.699997 3.1V18.4C0.699997 19.4 1.5 20.1 2.4 20.1H17.7C18.6 20.1 19.4 19.4 19.4 18.4V3.1C19.4 2.1 18.6 1.4 17.7 1.4H2.4C1.4 1.5 0.699997 2.2 0.699997 3.1Z",
+          stroke: "#424242",
+          strokeWidth: "1.122",
+          strokeMiterlimit: "10"
+        }),
+        V.createElement("path", {
+          d: "M10.3 15C10.3 14.3 10.3 13.6 10.3 12.9C10.3 10.7 10.3 8.4 10.3 6.1C10.3 6 10.3 6 10.3 5.9C10.3 5.8 10.2 5.7 10.1 5.7C9.99999 5.7 9.89999 5.8 9.89999 5.9C9.89999 6 9.89999 6 9.89999 6.1C9.89999 9 9.89999 11.8 9.89999 14.7C9.89999 14.8 9.89999 14.8 9.89999 14.9C9.79999 14.8 9.79999 14.8 9.69999 14.8C9.29999 14.4 8.79999 13.9 8.39999 13.5C8.29999 13.4 8.19999 13.4 8.09999 13.4C7.99999 13.4 7.89999 13.5 7.89999 13.6C7.89999 13.7 7.89999 13.8 7.99999 13.9C8.29999 14.2 8.59999 14.5 8.89999 14.8C9.19999 15.1 9.49999 15.4 9.89999 15.8C10.1 16 10.2 16 10.3 15.8C10.9 15.2 11.5 14.6 12.2 13.9C12.4 13.7 12.3 13.5 12.1 13.5C12 13.5 11.9 13.6 11.8 13.6C11.4 14 10.9 14.5 10.5 14.9C10.4 14.9 10.3 14.9 10.3 15Z",
+          fill: "#424242",
+          stroke: "#424242",
+          strokeWidth: "0.8",
+          strokeMiterlimit: "10"
+        })
+      )
+    ),
+    V.createElement(
+      "span",
+      null,
+      "навигация"
+    ),
+    V.createElement(
+      "span",
+      { className: "suggestion-note_arrow" },
+      V.createElement(
+        "svg",
+        { width: "18", height: "16", viewBox: "0 0 21 21", fill: "none", xmlns: "http://www.w3.org/2000/svg" },
+        V.createElement("path", {
+          d: "M2.9 20.1H18.2C19.1 20.1 19.9 19.4 19.9 18.4V3.09999C19.9 2.19999 19.1 1.39999 18.2 1.39999H2.9C1.9 1.39999 1.2 2.19999 1.2 3.09999V18.4C1.2 19.4 2 20.1 2.9 20.1Z",
+          stroke: "#424242",
+          strokeWidth: "1.122",
+          strokeMiterlimit: "10"
+        }),
+        V.createElement("path", {
+          d: "M14.8 10.6C14.1 10.6 13.4 10.6 12.7 10.6C10.5 10.6 8.2 10.6 5.9 10.6C5.8 10.6 5.8 10.6 5.7 10.6C5.6 10.6 5.5 10.7 5.5 10.8C5.5 10.9 5.6 11 5.7 11C5.8 11 5.8 11 5.9 11C8.8 11 11.6 11 14.5 11C14.6 11 14.6 11 14.7 11C14.6 11.1 14.6 11.1 14.6 11.2C14.2 11.6 13.7 12.1 13.3 12.5C13.2 12.6 13.2 12.7 13.2 12.8C13.2 12.9 13.3 13 13.4 13C13.5 13 13.6 13 13.7 12.9C14 12.6 14.3 12.3 14.6 12C14.9 11.7 15.2 11.4 15.6 11C15.8 10.8 15.8 10.7 15.6 10.6C15 9.99999 14.4 9.39999 13.7 8.69999C13.5 8.49999 13.3 8.59999 13.3 8.79999C13.3 8.89999 13.4 8.99999 13.4 9.09999C13.8 9.49999 14.3 9.99999 14.7 10.4C14.7 10.4 14.7 10.5 14.8 10.6Z",
+          fill: "#424242",
+          stroke: "#424242",
+          strokeWidth: "0.8",
+          strokeMiterlimit: "10"
+        })
+      )
+    ),
+    V.createElement(
+      "span",
+      null,
+      "подстановка"
+    )
+  );
+}, vr = function(e, o, r) {
+  var a = e.customActions, s = e.customStyles, E = e.suggestions;
+  if (!a) return [];
+  var i = a instanceof Function ? a(E) : a;
+  return i = i instanceof Array ? i : i ? [i] : !1, i && i.length ? [V.createElement("hr", { key: "custom-actions-line", className: "actions-delimiter" })].concat(i.map(function(y) {
+    return V.createElement(
+      "div",
+      Ne({
+        key: jt(),
+        onMouseDown: o,
+        onClick: r
+      }, Ae("react-dadata__custom-action", s)),
+      y
+    );
+  })) : !1;
+}, mr = function(e) {
+  var o = e.actions, r = o === void 0 ? [] : o, a = e.customStyles, s = e.onSuggestionClick, E = e.query, i = e.showNote, y = i === void 0 ? !0 : i, g = e.suggestionIndex, v = e.suggestions, h = e.type;
+  return !!(v.length || r.length) && V.createElement(
+    "div",
+    Ae("react-dadata__suggestions", a),
+    y && V.createElement(hr, null),
+    v.map(function(O, c) {
+      var x = O.value, m = O.data;
+      return V.createElement(
+        "div",
+        Ne({
+          key: jt(),
+          onMouseDown: function() {
+            s(c);
+          }
+        }, Ae("react-dadata__suggestion", a, c === g && "react-dadata__suggestion--current")),
+        V.createElement(ir.default, {
+          highlightClassName: "react-dadata--highlighted",
+          searchWords: dr(E),
+          textToHighlight: x,
+          autoEscape: !0
+        }),
+        (h === "party" || h === "bank") && V.createElement(pr, { data: m, type: h })
+      );
+    }),
+    r
+  );
+}, Se = function(d) {
+  ur(e, d);
+  function e() {
+    var o, r, a, s;
+    sr(this, e);
+    for (var E = arguments.length, i = Array(E), y = 0; y < E; y++)
+      i[y] = arguments[y];
+    return s = (r = (a = xt(this, (o = e.__proto__ || Object.getPrototypeOf(e)).call.apply(o, [this].concat(i))), a), yr.call(a), r), xt(a, s);
+  }
+  return er(e, [{
+    key: "componentWillUnmount",
+    value: function() {
+      clearTimeout(this.debounceTimer), this.xhr.abort();
+    }
+  }, {
+    key: "render",
+    value: function() {
+      var r = this.state, a = r.inputFocused, s = r.query, E = r.showSuggestions, i = r.suggestionIndex, y = r.suggestions, g = r.type, v = this.props, h = v.allowClear, O = v.autocomplete, c = v.className, x = v.customActions, m = v.customInput, k = v.customStyles, I = v.forceOpenList, F = v.placeholder, C = v.showNote, M = v.style, S = a && E, Q = {
+        autoComplete: O === "on" && O || "off",
+        className: "react-dadata__input" + (h ? " react-dadata__input-clearable" : ""),
+        onBlur: this.onInputBlur,
+        onChange: this.onInputChange,
+        onFocus: this.onInputFocus,
+        onKeyDown: this.onKeyPress,
+        placeholder: F,
+        value: s
+      };
+      return V.createElement(
+        "div",
+        { className: "react-dadata react-dadata__container " + c, style: M },
+        m(Q),
+        h && s && V.createElement(
+          "span",
+          { className: "react-dadata__input-suffix", onClick: this.clear },
+          V.createElement("i", { className: "react-dadata__icon react-dadata__icon-clear" })
+        ),
+        (S || I) && V.createElement(mr, {
+          actions: x && vr({
+            customActions: x,
+            customStyles: k,
+            suggestions: y
+          }, this.muteEventHandler, this.onInputBlur),
+          customStyles: k,
+          suggestions: y,
+          suggestionIndex: i,
+          query: s,
+          type: g,
+          showNote: C,
+          onSuggestionClick: this.onSuggestionClick
+        })
+      );
+    }
+  }]), e;
+}(V.PureComponent);
+Se.displayName = "ReactDaDataBox";
+var yr = function() {
+  var e = this;
+  this.state = {
+    inputFocused: !1,
+    isValid: !1,
+    query: this.props.query || "",
+    showSuggestions: !0,
+    suggestionIndex: 0,
+    suggestions: [],
+    type: this.props.type || "address"
+  }, this.componentDidMount = function() {
+    e.xhr = new XMLHttpRequest(), (e.props.query || e.props.silentQuery) && e.fetchSuggestions(null, function() {
+      if (e.props.silentInit) {
+        var o = e.props.silentInit(e.state.suggestions);
+        o !== void 0 && typeof o == "number" && o < e.state.suggestions.length && e.selectSuggestion(o);
+      }
+    });
+  }, this.componentDidUpdate = function(o) {
+    e.props.query !== o.query && e.setState({ query: e.props.query }, e.fetchSuggestions);
+  }, this.onInputFocus = function() {
+    !e.state.value && e.props.silentQuery ? e.fetchSuggestions({ inputFocused: !0, showSuggestions: !0 }) : e.setState({ inputFocused: !0 });
+  }, this.onInputBlur = function(o) {
+    e.setState({ inputFocused: !1 }), o && e.props.onBlur && (o.preventDefault(), o.stopPropagation(), e.props.onBlur(o, e.state.query));
+  }, this.debounce = function(o) {
+    var r = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 350;
+    return function() {
+      for (var a = arguments.length, s = Array(a), E = 0; E < a; E++)
+        s[E] = arguments[E];
+      e.debounceTimer && clearTimeout(e.debounceTimer), e.debounceTimer = setTimeout(function() {
+        o.apply(void 0, s);
+      }, r);
+    };
+  }, this.onInputChange = function(o) {
+    var r = o.target.value;
+    e.setState({ query: r, showSuggestions: !0 }, function() {
+      e.debounce(e.fetchSuggestions, e.props.debounce)({ inputFocused: !0, showSuggestions: !0 });
+    }), !r && e.clear();
+  }, this.onKeyPress = function(o) {
+    var r = e.state, a = r.suggestionIndex, s = r.suggestions;
+    o.which === 40 && a < s.length - 1 ? e.setState(function(E) {
+      return { suggestionIndex: E.suggestionIndex + 1 };
+    }) : o.which === 38 && a > 0 ? e.setState(function(E) {
+      return { suggestionIndex: E.suggestionIndex - 1 };
+    }) : o.which === 39 && a >= 0 ? e.selectSuggestion(e.state.suggestionIndex, !0) : o.which === 13 && a >= 0 && (o.preventDefault(), o.stopPropagation(), e.selectSuggestion(e.state.suggestionIndex));
+  }, this.fetchSuggestions = function() {
+    var o = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {}, r = arguments[1];
+    e.xhr.abort();
+    var a = e.state.type, s = e.props, E = s.city, i = s.customEndpoint, y = {
+      query: e.state.query || e.props.silentQuery,
+      count: e.props.count || 10
+    };
+    E && a === "address" && (y.from_bound = { value: "city" }, y.to_bound = { value: "settlement" }, y.value = "settlement"), e.props.payloadModifier && (y = e.props.payloadModifier instanceof Function ? e.props.payloadModifier(y) : e.props.payloadModifier instanceof Object ? Object.assign(y, e.props.payloadModifier) : y), e.xhr.open("POST", xe(fr(i)) + "/" + a), e.xhr.setRequestHeader("Accept", "application/json"), e.xhr.setRequestHeader("Authorization", "Token " + e.props.token), e.xhr.setRequestHeader("Content-Type", "application/json"), e.xhr.send(JSON.stringify(y)), e.xhr.onreadystatechange = function() {
+      if (e.xhr.readyState === 4 && e.xhr.status === 200) {
+        var g = JSON.parse(e.xhr.response), v = g.suggestions, h = o || {};
+        v && v.length ? e.setState(Ne({}, h, {
+          suggestions: v,
+          suggestionIndex: 0,
+          showSuggestions: e.state.inputFocused || h.inputFocused ? !!h.showSuggestions : !1
+        }), r) : e.props.onIdleOut && e.props.onIdleOut(e.state.query);
+      }
+    };
+  }, this.onSuggestionClick = function(o) {
+    e.state.suggestions[o] && e.selectSuggestion(o);
+  }, this.clear = function() {
+    e.setState({
+      query: "",
+      showSuggestions: !1
+    }), e.props.onChange && e.props.onChange(lr);
+  }, this.selectSuggestion = function(o) {
+    var r = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : !1, a = e.state.suggestions, s = a[o].value;
+    e.setState({
+      query: s,
+      showSuggestions: r
+    }), e.props.onChange && e.props.onChange(a[o]);
+  }, this.muteEventHandler = function(o) {
+    o.preventDefault(), o.stopPropagation();
+  };
+};
+Se.propTypes = {
+  allowClear: H.default.bool,
+  autocomplete: H.default.bool,
+  city: H.default.bool,
+  className: H.default.string,
+  count: H.default.number,
+  customActions: H.default.oneOfType([H.default.node, H.default.func]),
+  customEndpoint: H.default.oneOfType([H.default.object, H.default.shape, H.default.string]),
+  customInput: H.default.func,
+  customStyles: H.default.object,
+  debounce: H.default.number,
+  forceOpenList: H.default.bool,
+  onChange: H.default.func,
+  onBlur: H.default.func,
+  onIdleOut: H.default.func,
+  payloadModifier: H.default.oneOfType([H.default.object, H.default.shape, H.default.func]),
+  placeholder: H.default.string,
+  query: H.default.string,
+  showNote: H.default.bool,
+  silentInit: H.default.func,
+  silentQuery: H.default.string,
+  style: H.default.objectOf(H.default.string),
+  token: H.default.string.isRequired,
+  type: H.default.string
+};
+Se.defaultProps = {
+  type: "address",
+  customInput: function(e) {
+    return V.createElement("input", e);
+  }
+};
+Ie.ReactDaDataBox = Se;
+var gr = Ie.default = Se;
+const Er = {
+  center: [37.588144, 55.733842],
+  zoom: 9
+}, Tr = {
+  code: "initial-loading",
+  type: "info",
+  text: "Загружаем варианты доставки...",
+  reloadRecommended: !1
+}, Ot = "EShopLogisticDeliveryData", wr = ({ DADATA_TOKEN: d, ESHOPLOGISTIC_TOKEN: e, YANDEX_API_KEY: o, orderWeight: r, onDeliveryConfirm: a }) => {
+  function s() {
+    try {
+      const u = localStorage.getItem(Ot);
+      return u ? JSON.parse(u) : {};
+    } catch {
+      return {};
+    }
+  }
+  const E = s(), [i, y] = re({}), [g, v] = re({}), [h, O] = re(null), [c, x] = re(!1), [m, k] = re(null), [I, F] = re(!1), [C, M] = re(null), [S, Q] = re(null), [X, he] = re(E.deliveryRoom || ""), [K, ie] = re(E.deliveryName || ""), [ee, fe] = re(E.deliveryPhone || ""), [ne, de] = re(E.deliveryComment || null), [ce, Z] = re({}), [ae, te] = re({}), [pe, b] = re(!1), [t, n] = re(null), [l, T] = re(!0), [_, R] = re(Tr), [w, A] = re(!1), [P, j] = re(!1), L = me(null), f = me(null), z = me(null), oe = me(!1), ve = me(null), ye = me(!1), Oe = me(!1), Ge = me(null);
+  function se(u, p, N, Y = !1) {
+    R(($) => ($ == null ? void 0 : $.code) === u && ($ == null ? void 0 : $.type) === p && ($ == null ? void 0 : $.text) === N && ($ == null ? void 0 : $.reloadRecommended) === Y ? $ : { code: u, type: p, text: N, reloadRecommended: Y });
+  }
+  function ge(u, p, N = !1) {
+    se(u, "error", p, N);
+  }
+  function Ee(u = null) {
+    R((p) => !p || u && p.code !== u ? p : null);
+  }
+  function Ce(u) {
+    return u == null ? "" : typeof u == "object" ? JSON.stringify(u) : String(u);
+  }
+  function kt(u) {
+    const p = u.replace(/\D/g, "").slice(0, 11);
+    if (!p.length)
+      return "";
+    let N = p;
+    return p.length > 4 && (N = `${p.slice(0, 4)} ${p.slice(4)}`), p.length > 7 && (N = `${p.slice(0, 4)} ${p.slice(4, 7)}-${p.slice(7)}`), p.length > 9 && (N = `${p.slice(0, 4)} ${p.slice(4, 7)}-${p.slice(7, 9)}-${p.slice(9)}`), N;
+  }
+  function At(u) {
+    return u != null && u.data ? {
+      value: u.value || u.source,
+      fias: u.data.city_fias_id || u.data.settlement_fias_id || u.data.region_fias_id,
+      lon: Number(u.data.geo_lon),
+      lat: Number(u.data.geo_lat)
+    } : null;
+  }
+  const Ze = (u) => {
+    const p = At(u);
+    if (!p) {
+      O(null);
+      return;
+    }
+    if (Ee("invalid-method"), Ee("map-click-error"), I) {
+      const N = {
+        address: u.value,
+        lon: p.lon,
+        lat: p.lat
+      };
+      ye.current = !0, M(N), Q(N), O({
+        ...p,
+        value: u.value || p.value
+      }), se("address-selected", "success", "Адрес выбран. Проверьте данные и подтвердите доставку.");
+    } else
+      O(p), se("city-selected", "info", "Город выбран. Загружаем доступные способы доставки...");
+  };
+  async function It(u) {
+    var p, N, Y, $, D, U, G;
+    try {
+      const ue = await fetch(
+        "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address",
+        {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: "Token " + d
+          },
+          body: JSON.stringify({
+            query: u,
+            count: 1
+          })
+        }
+      );
+      if (!ue.ok)
+        return console.error("Ошибка получения FIAS по адресу:", ue.status, u), null;
+      const W = (p = (await ue.json()).suggestions) == null ? void 0 : p[0];
+      return {
+        fias: ((N = W == null ? void 0 : W.data) == null ? void 0 : N.city_fias_id) || ((Y = W == null ? void 0 : W.data) == null ? void 0 : Y.settlement_fias_id) || (($ = W == null ? void 0 : W.data) == null ? void 0 : $.region_fias_id) || null,
+        value: ((D = W == null ? void 0 : W.data) == null ? void 0 : D.city_with_type) || ((U = W == null ? void 0 : W.data) == null ? void 0 : U.settlement_with_type) || ((G = W == null ? void 0 : W.data) == null ? void 0 : G.region_with_type) || (W == null ? void 0 : W.value) || u,
+        country: W.data.country_iso_code,
+        city: W.data.city_with_type,
+        region: W.data.region_with_type,
+        district: W.data.city_district,
+        street: W.data.street_with_type,
+        house: W.data.house
+      };
+    } catch (ue) {
+      return console.error("Ошибка получения FIAS по адресу:", ue), null;
+    }
+  }
+  async function Nt(u, p) {
+    var U, G, ue;
+    const N = await fetch(
+      `https://geocode-maps.yandex.ru/1.x/?apikey=${o}&geocode=${u},${p}&format=json`
+    );
+    if (!N.ok)
+      throw new Error("Не удалось определить адрес по точке на карте.");
+    const $ = (G = (U = (await N.json()).response.GeoObjectCollection.featureMember) == null ? void 0 : U[0]) == null ? void 0 : G.GeoObject, D = (ue = $ == null ? void 0 : $.metaDataProperty) == null ? void 0 : ue.GeocoderMetaData;
+    return {
+      address: (D == null ? void 0 : D.text) || null
+    };
+  }
+  async function Mt(u) {
+    const [p, N] = u;
+    try {
+      Ee("map-click-error"), se("map-click-loading", "info", "Определяем адрес по выбранной точке на карте...");
+      const Y = await Nt(p, N), $ = Y == null ? void 0 : Y.address;
+      if (!$) {
+        ge(
+          "map-click-error",
+          "Не удалось определить адрес по выбранной точке. Попробуйте выбрать другое место."
+        );
+        return;
+      }
+      const D = await It($), U = D == null ? void 0 : D.fias, G = D == null ? void 0 : D.value, ue = {
+        address: $,
+        lon: p,
+        lat: N,
+        country: D.country,
+        city: D.city,
+        region: D.region,
+        district: D.district,
+        street: D.street,
+        house: D.house
+      };
+      ye.current = !0, M(ue), Q(ue), O({
+        value: G || $,
+        fias: U || (h == null ? void 0 : h.fias) || null,
+        lon: p,
+        lat: N
+      }), se("address-selected", "success", "Адрес определён. Проверьте его и подтвердите доставку.");
+    } catch (Y) {
+      console.error("Ошибка выбора адреса на карте:", Y), ge(
+        "map-click-error",
+        "Не удалось получить адрес по точке на карте. Попробуйте ещё раз. Если ошибка повторяется, перезагрузите страницу.",
+        !0
+      );
+    }
+  }
+  function Me() {
+    ve.current && f.current && (f.current.removeChild(ve.current), ve.current = null);
+  }
+  function $t(u) {
+    if (!f.current || !window.ymaps3 || !u || !Oe.current)
+      return;
+    const { YMapMarker: p } = window.ymaps3;
+    Me();
+    const N = document.createElement("div");
+    N.className = "delivery-address-marker", ve.current = new p(
+      {
+        coordinates: [u.lon, u.lat],
+        source: "delivery-address-source"
+      },
+      N
+    ), f.current.addChild(ve.current);
+  }
+  async function $e(u, p = {}, N = !1) {
+    const Y = u.split("/"), $ = Y[Y.length - 1];
+    try {
+      const D = await fetch("https://api.esplc.ru" + u, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: e, ...p })
+      });
+      if (te((G) => ({
+        ...G,
+        [N]: !1
+      })), !D.ok)
+        return console.error(`Ошибка ${$}: ${D.status}`, p), N && y((G) => ({
+          ...G,
+          [$]: {
+            ...G[$],
+            [N]: {}
+          }
+        })), ge(
+          `${$}-error`,
+          "Не удалось загрузить часть данных по доставке. Попробуйте выбрать другой способ или перезагрузить страницу.",
+          !0
+        ), te((G) => ({
+          ...G,
+          [N]: !0
+        })), null;
+      const U = await D.json();
+      return te((G) => ({
+        ...G,
+        [N]: !0
+      })), y(N ? (G) => ({
+        ...G,
+        [$]: {
+          ...G[$],
+          [N]: U
+        }
+      }) : (G) => ({
+        ...G,
+        [$]: U
+      })), U;
+    } catch (D) {
+      return console.error(`Network error ${u}:`, D), N && y((U) => ({
+        ...U,
+        [$]: {
+          ...U[$],
+          [N]: {}
+        }
+      })), ge(
+        `${$}-network-error`,
+        "Ошибка сети при загрузке доставки. Проверьте интернет и, если проблема не исчезнет, перезагрузите страницу.",
+        !0
+      ), null;
+    }
+  }
+  function Lt(u) {
+    const { YMapMarker: p } = window.ymaps3, N = u.properties.terminal, Y = document.createElement("img");
+    return Y.className = "ymap-marker", Y.src = N.image, Y.onclick = ($) => {
+      const D = {
+        address: N.address,
+        lon: Number(N.lon),
+        lat: Number(N.lat)
+      };
+      k(N), M(D), Ee("invalid-method"), se("terminal-selected", "success", "Пункт выдачи выбран. Проверьте данные и подтвердите доставку."), document.querySelectorAll(".ymap-marker").forEach((U) => {
+        U.classList.remove("active");
+      }), $.currentTarget.classList.add("active");
+    }, new p(
+      {
+        coordinates: u.geometry.coordinates,
+        source: "clusterer-source"
+      },
+      Y
+    );
+  }
+  function qt(u, p) {
+    const { YMapMarker: N } = window.ymaps3, Y = document.createElement("div");
+    return Y.className = "ymap-cluster", Y.textContent = p.length, new N(
+      {
+        coordinates: u,
+        source: "clusterer-source"
+      },
+      Y
+    );
+  }
+  function Ft(u) {
+    return u ? Object.entries(u.data.terminals || {}).map(([p, N]) => ({
+      id: `${N.service}-${p}`,
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [Number(N.lon), Number(N.lat)]
+      },
+      properties: {
+        terminal: N,
+        service: N.service
+      }
+    })) : [];
+  }
+  function Xe(u, p, N) {
+    document.querySelectorAll(".deliveryMethod").forEach((D) => D.classList.remove("active")), u.currentTarget.classList.add("active");
+    const Y = S, $ = (c == null ? void 0 : c.name) !== p || (c == null ? void 0 : c.type) !== N;
+    switch ($ && (M(null), n(null), a == null || a(null)), N) {
+      case "terminal":
+        F(!1), ye.current = !1, Me(), k(null), se("terminal-mode", "info", "Выберите удобный пункт выдачи на карте.");
+        break;
+      case "door":
+        F(!0), k(null), ye.current = !1, M(!$ && Y ? Y : null), se("door-mode", "info", "Выберите адрес на карте или введите его в строке поиска.");
+        break;
+    }
+    x({ name: p, type: N });
+  }
+  async function Qe() {
+    if (!c)
+      return;
+    let u = {};
+    switch (u.service = c.name, u.type = c.type, c.type) {
+      case "terminal":
+        if (!m)
+          return;
+        u.isPostamat = m.is_postamat, u.address = {
+          address: m.address
+        }, u.code = m.code, u.price = m.price.value, u.unitPrice = m.price.unit, u.time = m.time.value, u.unitTime = m.time.unit, u.payment = m.payment.methods;
+        break;
+      case "door": {
+        if (!C)
+          return;
+        let p = null;
+        if (ye.current && (console.error("recalculation"), p = await $e(
+          "/delivery/calculation",
+          {
+            to: h.fias,
+            weight: r,
+            service: c.name,
+            address: C.address
+          },
+          c.name
+        ), !p))
+          return;
+        u.address = C, p ? (u.price = p.data.door.price.value, u.unitPrice = p.data.door.price.unit, u.time = p.data.door.time.value, u.unitTime = p.data.door.time.unit) : (u.price = i.calculation[c.name].data.door.price.value, u.unitPrice = i.calculation[c.name].data.door.price.unit, u.time = i.calculation[c.name].data.door.time.value, u.unitTime = i.calculation[c.name].data.door.time.unit);
+        break;
+      }
+    }
+    n(u), se("delivery-confirmed", "success", "Адрес доставки подтверждён.");
+  }
+  le(() => {
+    oe.current = I;
+  }, [I]), le(() => {
+    if (!P || !C || !I)
+      return;
+    const u = Number(C.lon), p = Number(C.lat);
+    f.current && Number.isFinite(u) && Number.isFinite(p) && f.current.setLocation({
+      center: [u, p]
+    }), $t(C.address);
+  }, [C, P, I]), le(() => {
+    (async () => {
+      try {
+        T(!0), Ee(), se("initial-loading", "info", "Загружаем варианты доставки..."), await $e("/client/state");
+        const p = await fetch("https://api.ipify.org?format=json");
+        if (!p.ok)
+          throw new Error("Не удалось определить IP адрес.");
+        const N = await p.json(), Y = await fetch(
+          "https://suggestions.dadata.ru/suggestions/api/4_1/rs/iplocate/address",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: "Token " + d
+            },
+            body: JSON.stringify({ ip: N.ip })
+          }
+        );
+        if (!Y.ok)
+          throw new Error("Не удалось определить город автоматически.");
+        const $ = await Y.json();
+        Ze($.location), M(null), Q(null);
+      } catch (p) {
+        console.error("Ошибка начальной загрузки:", p), ge(
+          "initial-load-error",
+          "Не удалось полностью загрузить данные доставки. Вы можете попробовать выбрать город вручную. Если ошибка повторяется, перезагрузите страницу.",
+          !0
+        );
+      }
+    })();
+  }, []), le(() => {
+    i.state && v(i.state.data.services);
+  }, [i.state]), le(() => {
+    !(h != null && h.fias) || !(h != null && h.value) || !Object.keys(g).length || Ge.current !== h.fias && (Ge.current = h.fias, se("calculation-loading", "info", "Рассчитываем стоимость и сроки доставки..."), Object.keys(g).forEach((u) => {
+      $e(
+        "/delivery/calculation",
+        { to: h.fias, weight: r, service: u, address: h.value },
+        u
+      );
+    }));
+  }, [h, g]), le(() => {
+    var N, Y;
+    if (!c || !i.calculation)
+      return;
+    const u = i.calculation[c.name];
+    (c.type === "terminal" ? (N = u == null ? void 0 : u.data) != null && N.terminal : (Y = u == null ? void 0 : u.data) != null && Y.door) || (document.querySelectorAll(".deliveryMethod").forEach(($) => $.classList.remove("active")), x(!1), k(null), I || Me(), se(
+      "invalid-method",
+      "info",
+      "Выбранный способ доставки больше недоступен для текущего адреса. Пожалуйста, выберите другой вариант."
+    ));
+  }, [i.calculation, c, I]), le(() => {
+    if (!w || !f.current || !h)
+      return;
+    const u = Number(h.lon), p = Number(h.lat);
+    !Number.isFinite(u) || !Number.isFinite(p) || w && i.state && f.current.setLocation({
+      center: [u, p]
+    });
+  }, [h, w, i.state]), le(() => {
+    if (!w || !P || !i.calculation || !f.current || !window.ymaps3 || !c)
+      return;
+    const u = async () => {
+      var U;
+      k(null);
+      const { YMapClusterer: N, clusterByGrid: Y } = await window.ymaps3.import(
+        "@yandex/ymaps3-clusterer@0.0.1"
+      ), $ = i.calculation[c.name];
+      if (!((U = $ == null ? void 0 : $.data) != null && U.terminals)) {
+        se(
+          "terminal-points-missing",
+          "info",
+          "Для выбранного способа нет точек выдачи. Попробуйте другой вариант доставки."
+        );
+        return;
+      }
+      const D = Ft($);
+      z.current && (f.current.removeChild(z.current), z.current = null), z.current = new N({
+        method: Y({ gridSize: 128 }),
+        features: D,
+        marker: Lt,
+        cluster: qt
+      }), f.current.addChild(z.current);
+    }, p = async () => {
+      k(null), z.current && (f.current.removeChild(z.current), z.current = null);
+    };
+    c.type === "terminal" && u(), c.type === "door" && p();
+  }, [w, P, c, i.calculation]), le(() => {
+    i.state && (T(!1), se("state-loaded", "success", "Данные доставки загружены. Выберите подходящий способ."));
+  }, [i.state]), le(() => {
+    if (l)
+      return;
+    j(!1), Oe.current = !1;
+    let u = !1;
+    const p = () => new Promise((Y, $) => {
+      if (window.ymaps3) {
+        Y();
+        return;
+      }
+      const D = document.querySelector('script[src^="https://api-maps.yandex.ru/v3/"]');
+      if (D) {
+        D.addEventListener("load", Y, { once: !0 }), D.addEventListener("error", $, { once: !0 });
+        return;
+      }
+      const U = document.createElement("script");
+      U.src = `https://api-maps.yandex.ru/v3/?apikey=${o}&lang=ru_RU`, U.async = !0, U.onload = Y, U.onerror = $, document.head.appendChild(U);
+    });
+    return (async () => {
+      try {
+        if (se("map-loading", "info", "Загружаем карту..."), await p(), await window.ymaps3.ready, ymaps3.import.registerCdn(
+          "https://cdn.jsdelivr.net/npm/{package}",
+          "@yandex/ymaps3-default-ui-theme@latest"
+        ), u || !L.current)
+          return;
+        const {
+          YMap: Y,
+          YMapDefaultSchemeLayer: $,
+          YMapDefaultFeaturesLayer: D,
+          YMapFeatureDataSource: U,
+          YMapLayer: G,
+          YMapListener: ue
+        } = window.ymaps3, { YMapControls: Te } = window.ymaps3, { YMapZoomControl: W } = await window.ymaps3.import("@yandex/ymaps3-default-ui-theme");
+        f.current = new Y(L.current, {
+          location: Er
+        });
+        const Re = new Te(
+          { position: "right", orientation: "vertical" },
+          [new W({ easing: "linear" })]
+        ), _e = new ue({
+          layer: "any",
+          onClick: (Le, Pe) => {
+            oe.current && Mt(Pe.coordinates);
+          }
+        });
+        f.current.addChild(new $()).addChild(new D()).addChild(new U({ id: "clusterer-source" })).addChild(new G({ source: "clusterer-source", type: "markers", zIndex: 1800 })).addChild(new U({ id: "delivery-address-source" })).addChild(
+          new G({ source: "delivery-address-source", type: "markers", zIndex: 1900 })
+        ).addChild(Re).addChild(_e), Oe.current = !0, j(!0), A(!0), se("map-ready", "success", "Карта загружена. Теперь можно выбрать способ и адрес доставки.");
+      } catch (Y) {
+        console.error("Ошибка загрузки Яндекс.Карт:", Y), ge(
+          "map-load-error",
+          "Не удалось загрузить карту. Попробуйте перезагрузить страницу. Если карта не нужна, вы всё равно можете выбрать город через поиск.",
+          !0
+        );
+      }
+    })(), () => {
+      u = !0, j(!1), Oe.current = !1, ve.current = null, f.current && f.current.destroy();
+    };
+  }, [l]), le(() => {
+    const u = m || I && C;
+    if (u) {
+      b(u);
+      return;
+    }
+    b(!1);
+  }, [m, I, C]), le(() => {
+    if (n(null), (c == null ? void 0 : c.type) === "door") {
+      if (!ye.current || !I || !C)
+        return;
+      Qe(), ye.current = !1;
+      return;
+    }
+    (c == null ? void 0 : c.type) === "terminal" && m && Qe();
+  }, [C, I, c, m]);
+  async function Yt() {
+    if (!t)
+      return;
+    const u = {};
+    t.type === "door" && !(X != null && X.trim()) && (u.deliveryRoom = !0), K != null && K.trim() || (u.deliveryName = !0);
+    const p = (ee || "").replace(/\D/g, "");
+    if ((!(ee != null && ee.trim()) || p.length !== 11) && (u.deliveryPhone = !0), Z(u), Object.keys(u).length > 0) {
+      ge("delivery-required-fields", "Заполните обязательные поля доставки.");
+      return;
+    }
+    Ee("delivery-required-fields");
+    const N = {
+      ...t,
+      room: (X == null ? void 0 : X.trim()) || "",
+      name: K.trim(),
+      phone: ee.trim(),
+      comment: ne,
+      checked: !0
+    };
+    a == null || a(N);
+  }
+  return le(() => {
+    t && Yt();
+  }, [t, X, K, ee, ne]), le(() => {
+    const u = {};
+    u.deliveryRoom = !X, u.deliveryName = !K, u.deliveryPhone = !ee, Z(u);
+  }, [X, K, ee, c]), le(() => {
+    localStorage.setItem(
+      Ot,
+      JSON.stringify({
+        deliveryRoom: X,
+        deliveryName: K,
+        deliveryPhone: ee,
+        deliveryComment: ne
+      })
+    );
+  }, [X, K, ee, ne]), /* @__PURE__ */ q.jsxs("div", { className: "EShopLogistic", children: [
+    l && /* @__PURE__ */ q.jsx("div", { className: "deliveryLoading", children: "Загрузка..." }),
+    !l && /* @__PURE__ */ q.jsxs(q.Fragment, { children: [
+      /* @__PURE__ */ q.jsx(
+        gr,
+        {
+          token: d,
+          type: "address",
+          onChange: Ze,
+          placeholder: "Введите город / Адрес доставки...",
+          query: (C == null ? void 0 : C.address) || (h == null ? void 0 : h.value) || ""
+        }
+      ),
+      i.calculation && /* @__PURE__ */ q.jsxs("div", { className: "deliverySettings", children: [
+        /* @__PURE__ */ q.jsx("ul", { className: "deliveryCalculation", children: Object.entries(i.calculation).map(([u, p]) => {
+          var N, Y, $, D, U, G, ue, Te, W, Re, _e, Le, Pe, Ke, et, tt, rt, nt, at, it, ot, st, ut, ct, lt, ft;
+          return /* @__PURE__ */ q.jsxs(Dt, { children: [
+            ((N = p == null ? void 0 : p.data) == null ? void 0 : N.terminal) && /* @__PURE__ */ q.jsx(
+              "li",
+              {
+                className: "deliveryMethod",
+                onClick: (qe) => {
+                  Xe(qe, u, "terminal");
+                },
+                children: /* @__PURE__ */ q.jsxs("span", { children: [
+                  i.state.data.services[u].name,
+                  " до пункта выдачи: ",
+                  (D = ($ = (Y = p == null ? void 0 : p.data) == null ? void 0 : Y.terminal) == null ? void 0 : $.price) == null ? void 0 : D.value,
+                  " ",
+                  (ue = (G = (U = p == null ? void 0 : p.data) == null ? void 0 : U.terminal) == null ? void 0 : G.price) == null ? void 0 : ue.unit,
+                  " - ",
+                  (Re = (W = (Te = p == null ? void 0 : p.data) == null ? void 0 : Te.terminal) == null ? void 0 : W.time) == null ? void 0 : Re.value,
+                  " ",
+                  (Pe = (Le = (_e = p == null ? void 0 : p.data) == null ? void 0 : _e.terminal) == null ? void 0 : Le.time) == null ? void 0 : Pe.unit
+                ] })
+              }
+            ),
+            ((Ke = p == null ? void 0 : p.data) == null ? void 0 : Ke.door) && /* @__PURE__ */ q.jsx(
+              "li",
+              {
+                className: "deliveryMethod",
+                onClick: (qe) => {
+                  Xe(qe, u, "door");
+                },
+                children: /* @__PURE__ */ q.jsxs("span", { children: [
+                  i.state.data.services[u].name,
+                  " курьером: ",
+                  (rt = (tt = (et = p == null ? void 0 : p.data) == null ? void 0 : et.door) == null ? void 0 : tt.price) == null ? void 0 : rt.value,
+                  " ",
+                  (it = (at = (nt = p == null ? void 0 : p.data) == null ? void 0 : nt.door) == null ? void 0 : at.price) == null ? void 0 : it.unit,
+                  " - ",
+                  (ut = (st = (ot = p == null ? void 0 : p.data) == null ? void 0 : ot.door) == null ? void 0 : st.time) == null ? void 0 : ut.value,
+                  " ",
+                  (ft = (lt = (ct = p == null ? void 0 : p.data) == null ? void 0 : ct.door) == null ? void 0 : lt.time) == null ? void 0 : ft.unit
+                ] })
+              }
+            )
+          ] }, u);
+        }) }),
+        /* @__PURE__ */ q.jsx("div", { children: Object.values(ae).some((u) => u === !1) && /* @__PURE__ */ q.jsx("div", { children: "Loading..." }) })
+      ] }),
+      /* @__PURE__ */ q.jsxs("div", { className: "deliveryInfo", children: [
+        /* @__PURE__ */ q.jsx("div", { id: "ymap", ref: L }),
+        /* @__PURE__ */ q.jsxs("ul", { className: "pointInfo", children: [
+          m && /* @__PURE__ */ q.jsxs(q.Fragment, { children: [
+            /* @__PURE__ */ q.jsx("li", { children: /* @__PURE__ */ q.jsx("img", { src: m.image, alt: m.service }) }),
+            /* @__PURE__ */ q.jsx("li", { children: m.is_postamat ? "Постамат" : "Пункт выдачи" }),
+            /* @__PURE__ */ q.jsx("li", { children: Ce(m.address) }),
+            /* @__PURE__ */ q.jsx("li", { children: Ce(m.workTime) }),
+            /* @__PURE__ */ q.jsxs("li", { children: [
+              "Номер: ",
+              Array.isArray(m.phones) ? m.phones.join(", ") : Ce(m.phones)
+            ] }),
+            /* @__PURE__ */ q.jsx("q", { children: Ce(m.note) })
+          ] }),
+          !m && C && c && g[c.name] && /* @__PURE__ */ q.jsxs(q.Fragment, { children: [
+            /* @__PURE__ */ q.jsx("li", { children: /* @__PURE__ */ q.jsx("img", { src: g[c.name].logo, alt: c.name }) }),
+            /* @__PURE__ */ q.jsx("li", { children: g[c.name].name }),
+            /* @__PURE__ */ q.jsx("li", { children: C.address })
+          ] })
+        ] })
+      ] }),
+      t && /* @__PURE__ */ q.jsxs("div", { className: "prooveDelivery", children: [
+        /* @__PURE__ */ q.jsx("img", { src: g[t.service].logo, alt: t.service }),
+        /* @__PURE__ */ q.jsxs("div", { className: "heading", children: [
+          t.type == "terminal" ? t.isPostamat == !0 ? "Постамат" : "Пункт выдачи" : "Курьер",
+          " ",
+          g[t.service].name
+        ] }),
+        /* @__PURE__ */ q.jsx("div", { className: "address", children: t.address.address }),
+        c.type == "door" && /* @__PURE__ */ q.jsxs("div", { children: [
+          /* @__PURE__ */ q.jsx("span", { className: "red", children: "*" }),
+          "Квартира: ",
+          " ",
+          /* @__PURE__ */ q.jsx(
+            "input",
+            {
+              className: `room ${ce.deliveryRoom ? "inputError" : ""}`,
+              type: "text",
+              placeholder: "№",
+              value: X || "",
+              onChange: (u) => {
+                he(u.target.value), Z((p) => ({ ...p, deliveryRoom: !1 }));
+              }
+            }
+          )
+        ] }),
+        /* @__PURE__ */ q.jsxs("div", { children: [
+          /* @__PURE__ */ q.jsx("span", { className: "red", children: "*" }),
+          "Имя: ",
+          " ",
+          /* @__PURE__ */ q.jsx(
+            "input",
+            {
+              className: `name ${ce.deliveryName ? "inputError" : ""}`,
+              type: "text",
+              placeholder: "Сайтама",
+              value: K || "",
+              onChange: (u) => {
+                ie(u.target.value), Z((p) => ({ ...p, deliveryName: !1 }));
+              }
+            }
+          )
+        ] }),
+        /* @__PURE__ */ q.jsxs("div", { children: [
+          /* @__PURE__ */ q.jsx("span", { className: "red", children: "*" }),
+          "Телефон: ",
+          " ",
+          /* @__PURE__ */ q.jsx(
+            "input",
+            {
+              className: `phone ${ce.deliveryPhone ? "inputError" : ""}`,
+              type: "text",
+              inputMode: "tel",
+              placeholder: "+7 (900) 800-70-60",
+              value: ee || "",
+              onChange: (u) => {
+                fe(kt(u.target.value)), Z((p) => ({ ...p, deliveryPhone: !1 }));
+              }
+            }
+          )
+        ] }),
+        /* @__PURE__ */ q.jsxs("div", { children: [
+          "Комментарий:",
+          /* @__PURE__ */ q.jsx(
+            "input",
+            {
+              className: "comment",
+              type: "text",
+              value: ne || "",
+              onChange: (u) => de(u.target.value),
+              placeholder: "Комментарий к доставке (укажите особенности адреса)"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ q.jsx("div", { className: "time", children: t.time + " " + t.unitTime }),
+        /* @__PURE__ */ q.jsx("div", { className: "price", children: t.price + " " + t.unitPrice })
+      ] }),
+      (_ == null ? void 0 : _.text) && /* @__PURE__ */ q.jsxs("div", { className: `deliveryStatus deliveryStatus--${_.type}`, children: [
+        /* @__PURE__ */ q.jsx("div", { children: _.text }),
+        _.reloadRecommended && /* @__PURE__ */ q.jsx("div", { className: "deliveryStatusHint", children: "Если проблема повторяется, попробуйте перезагрузить страницу." })
+      ] })
+    ] })
+  ] });
+};
+async function xr(d, e, o, r, a = {}) {
+  if (!d)
+    throw new Error("ESHOPLOGISTIC_TOKEN is required to create an EShopLogistic delivery order.");
+  let s = r.pick_up == !0 ? {
+    pick_up: r.pick_up,
+    address: r.address
+  } : {
+    pick_up: r.pick_up
+  }, E = e.type == "terminal" ? {
+    terminal: e.code
+  } : {
+    address: {
+      country: e.address.country,
+      // string 	Код страны.
+      // Варианты: RU, UZ, AZ, KZ, AB, TM, BY, UA, TJ, KG, AM, MD 
+      region: e.address.region,
+      // string 	Регион. Например: Московская область
+      city: e.address.city,
+      // string 	Населённый пункт
+      district: e.address.district,
+      // string 	Район
+      street: e.address.street,
+      // string 	Улица
+      house: e.address.house,
+      // string 	Номер строения
+      room: e.room
+      // string 	Квартира / офис / помещение
+    }
+  }, i = {
+    id: o.id,
+    comment: e.comment
+    // string 	Комментарий
+  }, y;
+  switch (e.service) {
+    case "sdek":
+      i.type = o.type, o.combine_places_apply == !0 && (i.combine_places = {}, i.combine_places.apply = !0, i.combine_places.weight = o.total_weight, i.combine_places.dimensions = o.dimensions), e.type == "terminal" ? y = 136 : e.type == "door" && (y = 137);
+      break;
+  }
+  let g = {
+    key: d,
+    action: "create",
+    cms: "custom",
+    service: e.service,
+    order: i,
+    sender: {
+      name: r.senderName,
+      phone: r.senderPhone,
+      company: r.senderCompany
+    },
+    receiver: {
+      name: e.name,
+      phone: e.phone
+    },
+    places: o.places,
+    delivery: {
+      type: e.type,
+      tariff: y,
+      location_from: s,
+      location_to: E,
+      payment: o.payment,
+      cost: e.price
+    }
+  }, v = await fetch("https://api.esplc.ru/delivery/order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(g)
+  });
+  if (!v.ok)
+    throw new Error(`EShopLogistic order creation failed with status ${v.status}`);
+  return await v.json();
+}
+export {
+  wr as EShopLogistic,
+  xr as createOrder
+};
