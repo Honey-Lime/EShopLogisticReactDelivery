@@ -16,7 +16,7 @@ const INITIAL_STATUS = {
 
 const DELIVERY_CONTACT_STORAGE_KEY = "EShopLogisticDeliveryData";
 
-const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, needCreateOrder, orderWeight, onDeliveryConfirm }) => {
+const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orderWeight, onDeliveryConfirm }) => {
   // Этап 1. Загружаем справочники и базовые данные для расчёта доставки.
   // Основные данные API и справочники служб доставки.
   function getSavedDeliveryContact() {

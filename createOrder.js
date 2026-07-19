@@ -1,15 +1,18 @@
-async function createDeliveryOrder(deliveryData, orderData, otherData)
+export async function createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, otherData, options = {})
 {
-  const ESHOPLOGISTIC_TOKEN = "df616893f983b20fed6ac71e5f6cb9f2";
+
+  if (!ESHOPLOGISTIC_TOKEN) {
+    throw new Error("ESHOPLOGISTIC_TOKEN is required to create an EShopLogistic delivery order.");
+  }
 
   let location_from = 
-  otherData.delivery.location_from.pick_up == true 
+  otherData.pick_up == true 
   ? { 
-    pick_up: otherData.delivery.location_from.pick_up,
-    address: otherData.delivery.location_from.address
+    pick_up: otherData.pick_up,
+    address: otherData.address
   }
   : {
-    pick_up: otherData.delivery.location_from.pick_up
+    pick_up: otherData.pick_up
   };
 
   let location_to = 
@@ -65,7 +68,11 @@ async function createDeliveryOrder(deliveryData, orderData, otherData)
     cms: "custom",
     service: deliveryData.service,
     order: order,
-    sender: otherData.sender,
+    sender: {
+      name: otherData.senderName,
+      phone: otherData.senderPhone,
+      company: otherData.senderCompany,
+    },
     receiver: {
       name: deliveryData.name,
       phone: deliveryData.phone
@@ -74,21 +81,25 @@ async function createDeliveryOrder(deliveryData, orderData, otherData)
     delivery: {
       type: deliveryData.type,
       tariff: tariff,
-      location_from: {
-        pick_up: otherData.delivery.location_from.pick_up
-      },
+      location_from: location_from,
       location_to: location_to,
       payment: orderData.payment,
       cost: deliveryData.price
     }
   };
   
-  console.log(data);
   let response = await fetch("https://api.esplc.ru/delivery/order", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
+
+  if (!response.ok) {
+    throw new Error(`EShopLogistic order creation failed with status ${response.status}`);
+  }
+
   let result = await response.json();
-  console.log("eshopResult", result);
+  return result;
 }
+
+export { createOrder };
