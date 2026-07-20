@@ -1,6 +1,6 @@
 {
   "name": "eshoplogistic-react",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "React-компонент выбора доставки EShopLogistic и серверная функция создания заказа.",
   "type": "module",
   "main": "./index.cjs",
