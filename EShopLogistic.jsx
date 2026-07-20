@@ -1,5 +1,7 @@
 import { useState, useEffect, Fragment, useRef } from "react";
-import ReactDadataBox from "react-dadata-box";
+// import ReactDadataBox from "react-dadata-box";
+import { AddressSuggestions } from 'react-dadata';
+import 'react-dadata/dist/react-dadata.css';
 import "./EShopLogistic.css";
 
 const DEFAULT_MAP_LOCATION = {
@@ -1249,7 +1251,7 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
 
       {!loading && (
         <>
-          <ReactDadataBox
+          <AddressSuggestions
             token={DADATA_TOKEN}
             type="address"
             onChange={handleCitySelect}

@@ -29,12 +29,12 @@
   "sideEffects": [
     "*.css"
   ],
+  "scripts": {
+    "dev": "vite"
+  },
   "peerDependencies": {
     "react": "18.3.1",
     "react-dom": "18.3.1"
-  },
-  "dependencies": {
-    "react-dadata-box": "^1.3.9"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -48,5 +48,8 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.0",
     "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "react-dadata": "^2.28.0-beta.0"
   }
 }
