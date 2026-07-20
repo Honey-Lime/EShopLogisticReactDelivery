@@ -1,4 +1,4 @@
-export async function createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, otherData, options = {})
+async function createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, companyData, options = {})
 {
 
   if (!ESHOPLOGISTIC_TOKEN) {
@@ -6,13 +6,13 @@ export async function createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, 
   }
 
   let location_from = 
-  otherData.pick_up == true 
+  companyData.pick_up == true 
   ? { 
-    pick_up: otherData.pick_up,
-    address: otherData.address
+    pick_up: companyData.pick_up,
+    address: companyData.address
   }
   : {
-    pick_up: otherData.pick_up
+    pick_up: companyData.pick_up
   };
 
   let location_to = 
@@ -57,6 +57,9 @@ export async function createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, 
         tariff = 137;
       }
       break;
+      
+    // case "yandex":
+    //   location_from.platform_id = false;
   
     default:
       break;
@@ -69,9 +72,9 @@ export async function createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, 
     service: deliveryData.service,
     order: order,
     sender: {
-      name: otherData.senderName,
-      phone: otherData.senderPhone,
-      company: otherData.senderCompany,
+      name: companyData.senderName,
+      phone: companyData.senderPhone,
+      company: companyData.senderCompany,
     },
     receiver: {
       name: deliveryData.name,
@@ -93,11 +96,17 @@ export async function createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, 
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-
+  let result = await response.json();
+  
   if (!response.ok) {
+    console.log(result);
     throw new Error(`EShopLogistic order creation failed with status ${response.status}`);
   }
 
-  let result = await response.json();
   return result;
+
 }
+
+module.exports = {
+  createOrder
+};

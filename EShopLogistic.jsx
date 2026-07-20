@@ -221,7 +221,7 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
 
     if (addressPickMode) {
       const nextAddress = {
-        address: suggestion.value,
+        value: suggestion.value,
         lon: cityData.lon,
         lat: cityData.lat,
       };
@@ -362,7 +362,7 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
       const nextLocationValue = locationData?.value;
 
       const nextAddress = {
-        address,
+        value: address,
         lon,
         lat,
         country: 
@@ -534,7 +534,7 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
 
     markerElement.onclick = (event) => {
       const terminalAddress = {
-        address: terminal.address,
+        value: terminal.address,
         lon: Number(terminal.lon),
         lat: Number(terminal.lat),
       };
@@ -689,17 +689,22 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
         out.unitTime = selectedTerminal.time.unit;
         out.payment = selectedTerminal.payment.methods;
 
+        console.log("selectedTerminal", selectedTerminal);
+
         break;
 
       case "door": {
         if (!deliveryAddress) {
+          // console.error('❌ Не указан адрес');
           return;
         }
 
         let recalculation = null;
 
         if (manualAddressChangeRef.current) {
-          console.error('recalculation');
+          console.log('recalculation');
+          
+          console.log("Адрес доставки", deliveryAddress.value);
           
           recalculation = await customFetch(
             "/delivery/calculation",
@@ -707,12 +712,15 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
               to: selectedCity.fias,
               weight: orderWeight,
               service: selectedMethod.name,
-              address: deliveryAddress.address,
+              address: deliveryAddress.value,
             },
             selectedMethod.name
           );
 
+          console.log('📦 Результат пересчёта:', recalculation);
+
           if (!recalculation) {
+            console.error('❌ Пересчёт не удался');
             return;
           }
         }
@@ -781,7 +789,7 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
       });
     }
 
-    renderDeliveryAddressMarker(deliveryAddress.address);
+    renderDeliveryAddressMarker(deliveryAddress);
   }, [deliveryAddress, mapReady, addressPickMode]);
 
   // Этап 4.3. При открытии виджета загружаем базовые данные и пробуем определить город.
@@ -1252,10 +1260,10 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
         <>
           <AddressSuggestions
             token={DADATA_TOKEN}
-            type="address"
             onChange={handleCitySelect}
-            placeholder="Введите город / Адрес доставки..."
-            value={deliveryAddress?.address || selectedCity?.value || ""}
+            inputProps={{ placeholder: "Выберите адрес доставки" }}
+            value={deliveryAddress || selectedCity || ""}
+            delay={300}
           />
 
           {data.calculation && (
@@ -1337,7 +1345,7 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
                     <img src={services[selectedMethod.name].logo} alt={selectedMethod.name} />
                   </li>
                   <li>{services[selectedMethod.name].name}</li>
-                  <li>{deliveryAddress.address}</li>
+                  <li>{deliveryAddress.value}</li>
                 </>
               )}
             </ul>
@@ -1349,7 +1357,7 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
             <div className="prooveDelivery">
               <img src={services[output.service].logo} alt={output.service} />
               <div className="heading">{output.type == 'terminal' ? (output.isPostamat == true ? 'Постамат' : 'Пункт выдачи') : 'Курьер' } {services[output.service].name}</div>
-              <div className="address">{output.address.address}</div>
+              <div className="address">{deliveryAddress.value}</div>
               {selectedMethod.type == 'door' && (
                 <div>
                   <span className="red">*</span>Квартира: {" "}
@@ -1420,5 +1428,4 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
     </div>
   );
 };
-
-export default EShopLogistic;
+export { EShopLogistic };
