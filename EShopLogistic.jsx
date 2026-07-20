@@ -1,5 +1,4 @@
 import { useState, useEffect, Fragment, useRef } from "react";
-// import ReactDadataBox from "react-dadata-box";
 import { AddressSuggestions } from 'react-dadata';
 import 'react-dadata/dist/react-dadata.css';
 import "./EShopLogistic.css";
@@ -1256,7 +1255,7 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
             type="address"
             onChange={handleCitySelect}
             placeholder="Введите город / Адрес доставки..."
-            query={deliveryAddress?.address || selectedCity?.value || ""}
+            value={deliveryAddress?.address || selectedCity?.value || ""}
           />
 
           {data.calculation && (
