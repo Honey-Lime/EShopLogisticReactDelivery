@@ -68,14 +68,13 @@ export function DeliveryBlock() {
 # Использование Backend
 
 ```js
-const { createOrder } = require("./utils/CreateOrder");
+const { createEShopDeliveryOrder } = require("./utils/createEShopDeliveryOrder");
 
 const ESHOPLOGISTIC_TOKEN = "ваш-eshop-токен";
 
 app.post('/api/test', async(req, res) => {
   const { id, deliveryData } = req.body;
 
-  const ESHOPLOGISTIC_TOKEN = "ваш-eshop-токен";
   let companyData = {
     senderName: "ваше имя",              // string 	Имя
     senderPhone: "ваш номер",            // string 	Телефон
@@ -92,14 +91,15 @@ app.post('/api/test', async(req, res) => {
   };
 
   let orderData = {
-    id: id,                     // string 	Идентификатор заказа на сайте.                 
+    id: id,                     // string 	Идентификатор заказа на сайте.  
+    places: [],                 // array Нужно заполнить информацией о заказах               
     type: 1,                    // integer 	Тип заказа. Доступно 2 варианта: «1» - Интернет-магазин, «2» - Доставка.
     combine_places_apply: true, // boolean 	
                                 // Объединить все грузовые места в одно.
                                 // При этом внутри грузового места формируется список позиций для страховки.
                                 // По умолчанию = false.
     total_weight: 0,            // double 	Вес, в кг.
-    dimensions: "",             // string 	Габариты. Формат: строка вида «Д*Ш*В», в сантиметрах. Например: 15*25*10 .
+    dimensions: "15*25*10",             // string 	Габариты. Формат: строка вида «Д*Ш*В», в сантиметрах. Например: 15*25*10 .
     payment: "already_paid",    // string 	Способ оплаты
                                 // Возможные варианты:
                                 // already_paid - заказ уже оплачен,
@@ -118,9 +118,9 @@ app.post('/api/test', async(req, res) => {
       }],
   };
 
-  createOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, companyData);
+  const deliveryId = await createEShopDeliveryOrder(ESHOPLOGISTIC_TOKEN, deliveryData, orderData, companyData);
 
-  res.status(200).send('OK');
+  res.status(200).send({deliveryId: deliveryId});
 });
 ```
 
