@@ -117,7 +117,7 @@ textarea.comment {
   color: #070707;
 }
 
-#ymap {
+.ymap {
   width: 70%;
   height: 40vh;
   margin: 10px 5px 10px 0;
@@ -188,7 +188,7 @@ textarea.comment {
 
 @media (max-width: 420px)
 {
-  #ymap
+  .ymap
   {
     width: 60%;
     margin-right: 0;

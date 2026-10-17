@@ -1,1049 +1,589 @@
-import { useState, useEffect, Fragment, useRef } from "react";
-import { AddressSuggestions } from 'react-dadata';
-import 'react-dadata/dist/react-dadata.css';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AddressSuggestions } from "react-dadata";
+import "react-dadata/dist/react-dadata.css";
 import "./EShopLogistic.css";
 
-const DEFAULT_MAP_LOCATION = {
+// ============================================================
+// API: запросы к EShopLogistic, DaData и Яндекс Геокодеру
+// ============================================================
+
+// Сетевые запросы к внешним сервисам: EShopLogistic, DaData, Яндекс Геокодер.
+// Все функции бросают исключение при ошибке, обработка — на стороне вызывающего кода.
+
+const ESHOP_API_URL = "https://api.esplc.ru";
+const DADATA_API_URL = "https://suggestions.dadata.ru/suggestions/api/4_1/rs";
+const YANDEX_GEOCODER_URL = "https://geocode-maps.yandex.ru/1.x/";
+const IPIFY_URL = "https://api.ipify.org?format=json";
+
+async function postJson(url, body, headers = {}) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      ...headers,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Запрос ${url} завершился с ошибкой ${response.status}`);
+  }
+
+  return response.json();
+}
+
+function dadataHeaders(token) {
+  return { Authorization: `Token ${token}` };
+}
+
+// Справочник служб доставки, доступных для ключа магазина.
+async function fetchClientState(token) {
+  const json = await postJson(`${ESHOP_API_URL}/client/state`, { key: token });
+  return json?.data?.services ?? {};
+}
+
+// Расчёт стоимости и сроков доставки одной службой.
+function fetchCalculation(token, { service, to, weight, address }) {
+  return postJson(`${ESHOP_API_URL}/delivery/calculation`, {
+    key: token,
+    service,
+    to,
+    weight,
+    address,
+  });
+}
+
+// Первая подсказка DaData по текстовому адресу (или null, если ничего не нашлось).
+async function suggestAddress(token, query) {
+  const json = await postJson(
+    `${DADATA_API_URL}/suggest/address`,
+    { query, count: 1 },
+    dadataHeaders(token)
+  );
+
+  return json?.suggestions?.[0] ?? null;
+}
+
+// Примерное местоположение пользователя по IP (подсказка DaData или null).
+async function detectLocationByIp(token) {
+  const ipResponse = await fetch(IPIFY_URL);
+
+  if (!ipResponse.ok) {
+    throw new Error("Не удалось определить IP адрес.");
+  }
+
+  const { ip } = await ipResponse.json();
+  const json = await postJson(`${DADATA_API_URL}/iplocate/address`, { ip }, dadataHeaders(token));
+
+  return json?.location ?? null;
+}
+
+// Текстовый адрес по координатам точки на карте (или null).
+async function reverseGeocode(apiKey, [lon, lat]) {
+  const params = new URLSearchParams({
+    apikey: apiKey,
+    geocode: `${lon},${lat}`,
+    format: "json",
+  });
+
+  const response = await fetch(`${YANDEX_GEOCODER_URL}?${params}`);
+
+  if (!response.ok) {
+    throw new Error("Не удалось определить адрес по точке на карте.");
+  }
+
+  const json = await response.json();
+  const geoObject = json?.response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject;
+
+  return geoObject?.metaDataProperty?.GeocoderMetaData?.text ?? null;
+}
+
+// ============================================================
+// Утилиты: разбор ответов API, форматирование и валидация
+// ============================================================
+
+// Чистые функции: разбор ответов API, форматирование и валидация.
+
+const DELIVERY_TYPES = [
+  { type: "terminal", label: "до пункта выдачи" },
+  { type: "door", label: "курьером" },
+];
+
+// Безопасно преобразуем значение к строке для вывода в UI.
+function renderValue(value) {
+  if (value == null) return "";
+  if (typeof value === "object") return JSON.stringify(value);
+  return String(value);
+}
+
+function hasCoordinates(point) {
+  return Number.isFinite(point?.lon) && Number.isFinite(point?.lat);
+}
+
+// ---------- DaData ----------
+
+function getFias(data) {
+  return data?.city_fias_id || data?.settlement_fias_id || data?.region_fias_id || null;
+}
+
+// Город/населённый пункт из подсказки DaData — используется для расчёта доставки.
+function cityFromSuggestion(suggestion) {
+  const data = suggestion?.data;
+  const fias = getFias(data);
+
+  if (!fias) {
+    return null;
+  }
+
+  return {
+    value: data.city_with_type || data.settlement_with_type || data.region_with_type || suggestion.value,
+    fias,
+    lon: Number(data.geo_lon),
+    lat: Number(data.geo_lat),
+  };
+}
+
+// Полный адрес курьерской доставки из подсказки DaData.
+// Поля country/region/city/... нужны серверной функции createEShopDeliveryOrder.
+function addressFromSuggestion(suggestion, overrides = {}) {
+  const data = suggestion?.data ?? {};
+
+  return {
+    value: suggestion?.value ?? "",
+    fias: getFias(data),
+    lon: Number(data.geo_lon),
+    lat: Number(data.geo_lat),
+    country: data.country_iso_code ?? null,
+    region: data.region_with_type ?? null,
+    city: data.city_with_type || data.settlement_with_type || null,
+    district: data.city_district ?? null,
+    street: data.street_with_type ?? null,
+    house: data.house ?? null,
+    ...overrides,
+  };
+}
+
+// ---------- EShopLogistic ----------
+
+// Предложение службы для типа доставки ("terminal" | "door") или null.
+function getDeliveryOffer(calculation, type) {
+  return calculation?.data?.[type] ?? null;
+}
+
+function formatOffer(offer) {
+  return `${offer?.price?.value} ${offer?.price?.unit} - ${offer?.time?.value} ${offer?.time?.unit}`;
+}
+
+function getTerminals(calculation) {
+  return Object.values(calculation?.data?.terminals ?? {});
+}
+
+// Гео-объекты терминалов для кластеризатора Яндекс.Карт.
+function buildTerminalFeatures(terminals) {
+  return terminals.map((terminal, index) => ({
+    id: `${terminal.service}-${terminal.code ?? index}`,
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: [Number(terminal.lon), Number(terminal.lat)],
+    },
+    properties: { terminal },
+  }));
+}
+
+// Черновик доставки до пункта выдачи.
+function buildTerminalDraft(service, terminal) {
+  return {
+    service,
+    type: "terminal",
+    isPostamat: terminal.is_postamat,
+    address: { value: terminal.address },
+    code: terminal.code,
+    price: terminal.price?.value,
+    unitPrice: terminal.price?.unit,
+    time: terminal.time?.value,
+    unitTime: terminal.time?.unit,
+    payment: terminal.payment?.methods,
+  };
+}
+
+// Черновик курьерской доставки по адресу с пересчитанной стоимостью.
+function buildDoorDraft(service, address, offer) {
+  return {
+    service,
+    type: "door",
+    address,
+    price: offer.price?.value,
+    unitPrice: offer.price?.unit,
+    time: offer.time?.value,
+    unitTime: offer.time?.unit,
+  };
+}
+
+// ---------- Контакты получателя ----------
+
+function getPhoneDigits(value) {
+  return (value || "").replace(/\D/g, "");
+}
+
+// Маска "+7 (900) 800-70-60". Разделители добавляются только перед следующей цифрой,
+// поэтому Backspace не «застревает» на скобках и дефисах.
+function formatPhone(value) {
+  let digits = getPhoneDigits(value);
+
+  if (!digits) {
+    return "";
+  }
+
+  if (digits[0] === "8") {
+    digits = `7${digits.slice(1)}`;
+  } else if (digits[0] !== "7") {
+    digits = `7${digits}`;
+  }
+
+  digits = digits.slice(0, 11);
+
+  let formatted = `+${digits[0]}`;
+  if (digits.length > 1) formatted += ` (${digits.slice(1, 4)}`;
+  if (digits.length > 4) formatted += `) ${digits.slice(4, 7)}`;
+  if (digits.length > 7) formatted += `-${digits.slice(7, 9)}`;
+  if (digits.length > 9) formatted += `-${digits.slice(9, 11)}`;
+
+  return formatted;
+}
+
+// Возвращает объект с ключами невалидных полей: { room?, name?, phone? }.
+function validateContacts(contacts, deliveryType) {
+  const errors = {};
+
+  if (deliveryType === "door" && !contacts.room.trim()) {
+    errors.room = true;
+  }
+
+  if (!contacts.name.trim()) {
+    errors.name = true;
+  }
+
+  if (getPhoneDigits(contacts.phone).length !== 11) {
+    errors.phone = true;
+  }
+
+  return errors;
+}
+
+// ============================================================
+// Хук useLatest
+// ============================================================
+
+// Ref с актуальным значением. Нужен для колбэков, которые создаются один раз
+// (обработчики карты), чтобы они не работали со «старым» состоянием.
+function useLatest(value) {
+  const ref = useRef(value);
+  ref.current = value;
+  return ref;
+}
+
+// ============================================================
+// Хук useDeliveryCalculation
+// ============================================================
+
+// Загружает справочник служб и рассчитывает доставку всеми службами в выбранный город.
+// calculations: { [service]: ответ API | null (ошибка) }; отсутствие ключа — расчёт ещё идёт.
+function useDeliveryCalculation({ token, orderWeight, city }) {
+  const [services, setServices] = useState(null);
+  const [stateError, setStateError] = useState(false);
+  const [calculations, setCalculations] = useState({});
+  const [calculationFailed, setCalculationFailed] = useState(false);
+
+  const cityFias = city?.fias ?? null;
+  const cityNameRef = useLatest(city?.value);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setStateError(false);
+    fetchClientState(token)
+      .then((nextServices) => {
+        if (!cancelled) setServices(nextServices);
+      })
+      .catch((error) => {
+        console.error("Ошибка загрузки служб доставки:", error);
+        if (!cancelled) setStateError(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  // Пересчитываем при смене города или веса заказа. Ответы по старому городу
+  // отбрасываются, чтобы не смешивать цены разных городов.
+  useEffect(() => {
+    if (!services || !cityFias) {
+      return;
+    }
+
+    let cancelled = false;
+
+    setCalculations({});
+    setCalculationFailed(false);
+
+    Object.keys(services).forEach((service) => {
+      fetchCalculation(token, {
+        service,
+        to: cityFias,
+        weight: orderWeight,
+        address: cityNameRef.current,
+      })
+        .catch((error) => {
+          console.error(`Ошибка расчёта доставки ${service}:`, error);
+          if (!cancelled) setCalculationFailed(true);
+          return null;
+        })
+        .then((result) => {
+          if (!cancelled) {
+            setCalculations((prev) => ({ ...prev, [service]: result }));
+          }
+        });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, services, cityFias, orderWeight]);
+
+  const isCalculating =
+    Boolean(services && cityFias) && Object.keys(services).some((service) => !(service in calculations));
+
+  return {
+    services,
+    isLoading: !services && !stateError,
+    stateError,
+    calculations,
+    isCalculating,
+    calculationFailed,
+  };
+}
+
+// ============================================================
+// Хук useDoorQuote
+// ============================================================
+
+const EMPTY_QUOTE = { offer: null, isLoading: false, error: false, unavailable: false };
+
+// Пересчитывает стоимость курьерской доставки для конкретного адреса.
+// Ответ на устаревший запрос (адрес/служба уже сменились) игнорируется.
+function useDoorQuote({ token, orderWeight, service, address }) {
+  const requestKey =
+    service && address ? JSON.stringify([service, address.fias, address.value, orderWeight]) : null;
+
+  const [result, setResult] = useState({ key: null, offer: null, error: false });
+
+  useEffect(() => {
+    if (!requestKey) {
+      return;
+    }
+
+    let cancelled = false;
+
+    fetchCalculation(token, {
+      service,
+      to: address.fias,
+      weight: orderWeight,
+      address: address.value,
+    })
+      .then((json) => {
+        if (!cancelled) setResult({ key: requestKey, offer: getDeliveryOffer(json, "door"), error: false });
+      })
+      .catch((error) => {
+        console.error("Ошибка пересчёта курьерской доставки:", error);
+        if (!cancelled) setResult({ key: requestKey, offer: null, error: true });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // address и service уже учтены в requestKey.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestKey, token]);
+
+  if (!requestKey) {
+    return EMPTY_QUOTE;
+  }
+
+  if (result.key !== requestKey) {
+    return { ...EMPTY_QUOTE, isLoading: true };
+  }
+
+  return {
+    offer: result.offer,
+    isLoading: false,
+    error: result.error,
+    unavailable: !result.error && !result.offer,
+  };
+}
+
+// ============================================================
+// Хук useDeliveryContacts
+// ============================================================
+
+// Ключи совпадают с прежней версией компонента, чтобы не потерять сохранённые данные.
+const STORAGE_KEY = "EShopLogisticDeliveryData";
+
+function loadContacts() {
+  let saved = {};
+
+  try {
+    saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch {
+    // localStorage недоступен или содержит мусор — начинаем с пустой формы.
+  }
+
+  return {
+    room: saved.deliveryRoom || "",
+    name: saved.deliveryName || "",
+    phone: formatPhone(saved.deliveryPhone || ""),
+    comment: saved.deliveryComment || "",
+  };
+}
+
+function saveContacts({ room, name, phone, comment }) {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        deliveryRoom: room,
+        deliveryName: name,
+        deliveryPhone: phone,
+        deliveryComment: comment,
+      })
+    );
+  } catch {
+    // Сохранение — удобство, а не обязательная функция.
+  }
+}
+
+// Контакты получателя с сохранением между визитами.
+function useDeliveryContacts() {
+  const [contacts, setContacts] = useState(loadContacts);
+
+  useEffect(() => {
+    saveContacts(contacts);
+  }, [contacts]);
+
+  function setContact(field, value) {
+    setContacts((prev) => ({
+      ...prev,
+      [field]: field === "phone" ? formatPhone(value) : value,
+    }));
+  }
+
+  return { contacts, setContact };
+}
+
+// ============================================================
+// Хук useYandexMap
+// ============================================================
+
+const DEFAULT_LOCATION = {
   center: [37.588144, 55.733842],
   zoom: 9,
 };
 
-const INITIAL_STATUS = {
-  code: "initial-loading",
-  type: "info",
-  text: "Загружаем варианты доставки...",
-  reloadRecommended: false,
-};
+const TERMINALS_SOURCE = "clusterer-source";
+const ADDRESS_SOURCE = "delivery-address-source";
 
-const DELIVERY_CONTACT_STORAGE_KEY = "EShopLogisticDeliveryData";
+let cdnRegistered = false;
 
-const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orderWeight, onDeliveryConfirm }) => {
-  // Этап 1. Загружаем справочники и базовые данные для расчёта доставки.
-  // Основные данные API и справочники служб доставки.
-  function getSavedDeliveryContact() {
-    try {
-      const saved = localStorage.getItem(DELIVERY_CONTACT_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
+function loadYandexMapsScript(apiKey) {
+  return new Promise((resolve, reject) => {
+    if (window.ymaps3) {
+      resolve();
+      return;
     }
+
+    const existingScript = document.querySelector('script[src^="https://api-maps.yandex.ru/v3/"]');
+
+    if (existingScript) {
+      existingScript.addEventListener("load", resolve, { once: true });
+      existingScript.addEventListener("error", reject, { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = `https://api-maps.yandex.ru/v3/?apikey=${apiKey}&lang=ru_RU`;
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+async function loadYandexModules(apiKey) {
+  await loadYandexMapsScript(apiKey);
+  await window.ymaps3.ready;
+
+  if (!cdnRegistered) {
+    window.ymaps3.import.registerCdn(
+      "https://cdn.jsdelivr.net/npm/{package}",
+      "@yandex/ymaps3-default-ui-theme@latest"
+    );
+    cdnRegistered = true;
   }
 
-  const savedDeliveryContact = getSavedDeliveryContact();
+  const [{ YMapZoomControl }, clustererModule] = await Promise.all([
+    window.ymaps3.import("@yandex/ymaps3-default-ui-theme"),
+    window.ymaps3.import("@yandex/ymaps3-clusterer@0.0.1"),
+  ]);
 
-  
-  const [data, setData] = useState({});
-  const [services, setServices] = useState({});
+  return { ymaps3: window.ymaps3, YMapZoomControl, clustererModule };
+}
 
-  // Этап 2. Пользователь выбирает город, способ доставки и адрес получения.
-  // Состояние выбора пользователя.
-  const [selectedCity, setSelectedCity] = useState(null);
-  const [selectedMethod, setSelectedMethod] = useState(false);
-  const [selectedTerminal, setSelectedTerminal] = useState(null);
-  const [addressPickMode, setAddressPickMode] = useState(false);
-  const [deliveryAddress, setDeliveryAddress] = useState(null);
-  const [lastUserAddress, setLastUserAddress] = useState(null);
+function isSameCode(a, b) {
+  return a != null && b != null && String(a) === String(b);
+}
 
-  // Этап 3. Пользователь заполняет контактные данные для подтверждения доставки.
-  const [deliveryRoom, setDeliveryRoom] = useState(savedDeliveryContact.deliveryRoom || "");
-  const [deliveryName, setDeliveryName] = useState(savedDeliveryContact.deliveryName || "");
-  const [deliveryPhone, setDeliveryPhone] = useState(savedDeliveryContact.deliveryPhone || "");
-  const [deliveryComment, setDeliveryComment] = useState(savedDeliveryContact.deliveryComment || null);
-
-  const [fieldErrors, setFieldErrors] = useState({});
-  const [deliveryLoading, setDeliveryLoading] = useState({});
-  const [hasSelectedDelivery, setHasSelectedDelivery] = useState(false);
-  const [output, setOutput] = useState(null);
-
-  // Этап 4. Управляем интерфейсом: статусы, загрузка и готовность карты.
-  // Состояние интерфейса и загрузки.
-  const [loading, setLoading] = useState(true);
-  const [statusMessage, setStatusMessage] = useState(INITIAL_STATUS);
-  const [mapLoad, setMapLoad] = useState(false);
-  const [mapReady, setMapReady] = useState(false);
-
-  // Технические ссылки для синхронизации шагов выбора доставки и состояния карты.
-  // Ссылки на объекты карты, чтобы не пересоздавать их без необходимости.
+// Управляет картой декларативно: компонент передаёт центр, терминалы, выбранный
+// терминал и точку адреса, а хук синхронизирует с ними объекты Яндекс.Карт.
+function useYandexMap({
+  apiKey,
+  enabled,
+  center,
+  terminals,
+  selectedTerminalCode,
+  addressPoint,
+  onMapClick,
+  onTerminalClick,
+}) {
+  const containerRef = useRef(null);
   const mapRef = useRef(null);
-  const mapInstanceRef = useRef(null);
+  const modulesRef = useRef(null);
   const clustererRef = useRef(null);
-  const addressPickModeRef = useRef(false);
-  const deliveryAddressMarkerRef = useRef(null);
-  const manualAddressChangeRef = useRef(false);
-  const sourceReadyRef = useRef(false);
-  const lastCalculatedFiasRef = useRef(null);
+  const addressMarkerRef = useRef(null);
 
+  const [isReady, setIsReady] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
+  const onMapClickRef = useLatest(onMapClick);
+  const onTerminalClickRef = useLatest(onTerminalClick);
+  const selectedTerminalCodeRef = useLatest(selectedTerminalCode);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // Унифицированное отображение статусов и ошибок для пользователя.
-  function showStatus(code, type, text, reloadRecommended = false) {
-    setStatusMessage((prev) => {
-      if (
-        prev?.code === code &&
-        prev?.type === type &&
-        prev?.text === text &&
-        prev?.reloadRecommended === reloadRecommended
-      ) {
-        return prev;
-      }
-
-      return { code, type, text, reloadRecommended };
-    });
-  }
-
-  function showError(code, text, reloadRecommended = false) {
-    showStatus(code, "error", text, reloadRecommended);
-  }
-
-  function clearStatus(codeToClear = null) {
-    setStatusMessage((prev) => {
-      if (!prev) {
-        return prev;
-      }
-
-      if (codeToClear && prev.code !== codeToClear) {
-        return prev;
-      }
-
-      return null;
-    });
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // Этап 0. Базовые UI-хелперы и форматирование значений для интерфейса.
-  // Безопасно преобразуем значение к строке для вывода в UI.
-  function renderValue(value) {
-    if (value == null) return "";
-    if (typeof value === "object") return JSON.stringify(value);
-    return String(value);
-  }
-
-  function formatPhone(value) {
-    const digits = value.replace(/\D/g, "").slice(0, 11);
-
-    if (!digits.length) {
-      return "";
-    }
-
-    let formatted = digits;
-
-    if (digits.length > 4) {
-      formatted = `${digits.slice(0, 4)} ${digits.slice(4)}`;
-    }
-
-    if (digits.length > 7) {
-      formatted = `${digits.slice(0, 4)} ${digits.slice(4, 7)}-${digits.slice(7)}`;
-    }
-
-    if (digits.length > 9) {
-      formatted = `${digits.slice(0, 4)} ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9)}`;
-    }
-
-    return formatted;
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // Этап 1. Хелперы для геоданных и сетевых запросов доставки.
-  // Преобразуем подсказку DaData в компактную структуру города/локации.
-  function buildCityData(suggestion) {
-    if (!suggestion?.data) {
-      return null;
-    }
-
-    return {
-      value: suggestion.value || suggestion.source,
-      fias:
-        suggestion.data.city_fias_id ||
-        suggestion.data.settlement_fias_id ||
-        suggestion.data.region_fias_id,
-      lon: Number(suggestion.data.geo_lon),
-      lat: Number(suggestion.data.geo_lat),
-    };
-  }
-
-  // Этап 1.1. Выбор города или адреса через строку поиска.
-  // Обработчик выбора города или адреса из DaData.
-  const handleCitySelect = (suggestion) => {
-    const cityData = buildCityData(suggestion);
-
-    if (!cityData) {
-      setSelectedCity(null);
-      return;
-    }
-
-    clearStatus("invalid-method");
-    clearStatus("map-click-error");
-
-    if (addressPickMode) {
-      const nextAddress = {
-        value: suggestion.value,
-        lon: cityData.lon,
-        lat: cityData.lat,
-      };
-
-      manualAddressChangeRef.current = true;
-      setDeliveryAddress(nextAddress);
-      setLastUserAddress(nextAddress);
-
-      setSelectedCity({
-        ...cityData,
-        value: suggestion.value || cityData.value,
-      });
-
-      showStatus("address-selected", "success", "Адрес выбран. Проверьте данные и подтвердите доставку.");
-    } else {
-      setSelectedCity(cityData);
-      showStatus("city-selected", "info", "Город выбран. Загружаем доступные способы доставки...");
-    }
-  };
-
-  // Ищем FIAS по текстовому адресу, чтобы корректно пересчитать доставку.
-  async function getDataByAddress(address) {
-    try {
-      const response = await fetch(
-        "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address",
-        {
-          method: "POST",
-          mode: "cors",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: "Token " + DADATA_TOKEN,
-          },
-          body: JSON.stringify({
-            query: address,
-            count: 1,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        console.error("Ошибка получения FIAS по адресу:", response.status, address);
-        return null;
-      }
-
-      const result = await response.json();
-      const suggestion = result.suggestions?.[0];
-
-      return {
-        fias:
-          suggestion?.data?.city_fias_id ||
-          suggestion?.data?.settlement_fias_id ||
-          suggestion?.data?.region_fias_id ||
-          null,
-        value:
-          suggestion?.data?.city_with_type ||
-          suggestion?.data?.settlement_with_type ||
-          suggestion?.data?.region_with_type ||
-          suggestion?.value ||
-          address,
-        country: 
-          suggestion.data.country_iso_code,
-        city:
-          suggestion.data.city_with_type,
-        region:
-          suggestion.data.region_with_type,
-        district:
-          suggestion.data.city_district,
-        street:
-          suggestion.data.street_with_type,
-        house:
-          suggestion.data.house,
-      };
-    } catch (requestError) {
-      console.error("Ошибка получения FIAS по адресу:", requestError);
-      return null;
-    }
-  }
-
-  // Получаем адрес по координатам клика на карте.
-  async function reverseGeocode(lon, lat) {
-    const response = await fetch(
-      `https://geocode-maps.yandex.ru/1.x/?apikey=${YANDEX_API_KEY}&geocode=${lon},${lat}&format=json`
-    );
-
-    if (!response.ok) {
-      throw new Error("Не удалось определить адрес по точке на карте.");
-    }
-
-    const geocodeData = await response.json();
-    const geoObject = geocodeData.response.GeoObjectCollection.featureMember?.[0]?.GeoObject;
-    const meta = geoObject?.metaDataProperty?.GeocoderMetaData;
-
-    return {
-      address: meta?.text || null,
-    };
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // Этап 2. Работа с картой, адресом доставки и объектами на карте.
-  // Этап 2.1. Выбор адреса курьерской доставки кликом по карте.
-  // Обрабатываем клик по карте в режиме выбора адреса курьерской доставки.
-  async function handleMapClick(coords) {
-    const [lon, lat] = coords;
-
-    try {
-      clearStatus("map-click-error");
-      showStatus("map-click-loading", "info", "Определяем адрес по выбранной точке на карте...");
-
-      const geocodeResult = await reverseGeocode(lon, lat);
-      const address = geocodeResult?.address;
-
-      if (!address) {
-        showError(
-          "map-click-error",
-          "Не удалось определить адрес по выбранной точке. Попробуйте выбрать другое место."
-        );
-        return;
-      }
-
-      const locationData = await getDataByAddress(address);
-      const nextFias = locationData?.fias;
-      const nextLocationValue = locationData?.value;
-
-      const nextAddress = {
-        value: address,
-        lon,
-        lat,
-        country: 
-          locationData.country,
-        city:
-          locationData.city,
-        region:
-          locationData.region,
-        district:
-          locationData.district,
-        street:
-          locationData.street,
-        house:
-          locationData.house,
-      };
-
-      manualAddressChangeRef.current = true;
-      setDeliveryAddress(nextAddress);
-      setLastUserAddress(nextAddress);
-
-      setSelectedCity({
-        value: nextLocationValue || address,
-        fias: nextFias || selectedCity?.fias || null,
-        lon,
-        lat,
-      });
-
-      showStatus("address-selected", "success", "Адрес определён. Проверьте его и подтвердите доставку.");
-    } catch (requestError) {
-      console.error("Ошибка выбора адреса на карте:", requestError);
-      showError(
-        "map-click-error",
-        "Не удалось получить адрес по точке на карте. Попробуйте ещё раз. Если ошибка повторяется, перезагрузите страницу.",
-        true
-      );
-    }
-  }
-
-  // Удаляем маркер выбранного адреса курьерской доставки.
-  function deleteDeliveryAddressMarker() {
-    if (deliveryAddressMarkerRef.current && mapInstanceRef.current) {
-      mapInstanceRef.current.removeChild(deliveryAddressMarkerRef.current);
-      deliveryAddressMarkerRef.current = null;
-    }
-  }
-
-  // Отрисовываем маркер адреса доставки на карте.
-  function renderDeliveryAddressMarker(addressData) {
-    if (!mapInstanceRef.current || !window.ymaps3 || !addressData || !sourceReadyRef.current) {
-      return;
-    }
-
-    const { YMapMarker } = window.ymaps3;
-
-    deleteDeliveryAddressMarker();
-
-    const markerElement = document.createElement("div");
-    markerElement.className = "delivery-address-marker";
-
-    deliveryAddressMarkerRef.current = new YMapMarker(
-      {
-        coordinates: [addressData.lon, addressData.lat],
-        source: "delivery-address-source",
-      },
-      markerElement
-    );
-
-    mapInstanceRef.current.addChild(deliveryAddressMarkerRef.current);
-  }
-
-  // Обёртка над API EShopLogistic с сохранением ответа в общий state.
-  async function customFetch(api, props = {}, saveKey = false) {
-    const apiParts = api.split("/");
-    const dataKey = apiParts[apiParts.length - 1];
-
-    try {
-      const response = await fetch("https://api.esplc.ru" + api, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: ESHOPLOGISTIC_TOKEN, ...props }),
-      });
-
-      setDeliveryLoading(prev => ({
-        ...prev,
-        [saveKey]: false
-      }));
-
-      if (!response.ok) {
-        console.error(`Ошибка ${dataKey}: ${response.status}`, props);
-
-        if (saveKey) {
-          setData((prev) => ({
-            ...prev,
-            [dataKey]: {
-              ...prev[dataKey],
-              [saveKey]: {},
-            },
-          }));
-        }
-
-        showError(
-          `${dataKey}-error`,
-          "Не удалось загрузить часть данных по доставке. Попробуйте выбрать другой способ или перезагрузить страницу.",
-          true
-        );
-
-        setDeliveryLoading(prev => ({
-          ...prev,
-          [saveKey]: true
-        }));
-
-        return null;
-      }
-
-      const json = await response.json();
-
-      setDeliveryLoading(prev => ({
-        ...prev,
-        [saveKey]: true
-      }));
-
-      if (saveKey) {
-        setData((prev) => ({
-          ...prev,
-          [dataKey]: {
-            ...prev[dataKey],
-            [saveKey]: json,
-          },
-        }));
-      } else {
-        setData((prev) => ({
-          ...prev,
-          [dataKey]: json,
-        }));
-      }
-
-      return json;
-    } catch (requestError) {
-      console.error(`Network error ${api}:`, requestError);
-
-      if (saveKey) {
-        setData((prev) => ({
-          ...prev,
-          [dataKey]: {
-            ...prev[dataKey],
-            [saveKey]: {},
-          },
-        }));
-      }
-
-      showError(
-        `${dataKey}-network-error`,
-        "Ошибка сети при загрузке доставки. Проверьте интернет и, если проблема не исчезнет, перезагрузите страницу.",
-        true
-      );
-
-      return null;
-    }
-  }
-
-  // Создаём маркер терминала для карты.
-  function createMarker(feature) {
-    const { YMapMarker } = window.ymaps3;
-    const terminal = feature.properties.terminal;
-
-    const markerElement = document.createElement("img");
-    markerElement.className = "ymap-marker";
-    markerElement.src = terminal.image;
-
-    markerElement.onclick = (event) => {
-      const terminalAddress = {
-        value: terminal.address,
-        lon: Number(terminal.lon),
-        lat: Number(terminal.lat),
-      };
-
-      setSelectedTerminal(terminal);
-      setDeliveryAddress(terminalAddress);
-      clearStatus("invalid-method");
-      showStatus("terminal-selected", "success", "Пункт выдачи выбран. Проверьте данные и подтвердите доставку.");
-
-      document.querySelectorAll(".ymap-marker").forEach((target) => {
-        target.classList.remove("active");
-      });
-
-      event.currentTarget.classList.add("active");
-    };
-
-    return new YMapMarker(
-      {
-        coordinates: feature.geometry.coordinates,
-        source: "clusterer-source",
-      },
-      markerElement
-    );
-  }
-
-  // Создаём маркер-кластер для групп близких точек.
-  function createCluster(coordinates, features) {
-    const { YMapMarker } = window.ymaps3;
-
-    const clusterElement = document.createElement("div");
-    clusterElement.className = "ymap-cluster";
-    clusterElement.textContent = features.length;
-
-    return new YMapMarker(
-      {
-        coordinates,
-        source: "clusterer-source",
-      },
-      clusterElement
-    );
-  }
-
-  // Собираем список гео-объектов терминалов для кластеризации на карте.
-  function buildFeatures(calculation) {
-    if (!calculation) return [];
-
-    return Object.entries(calculation.data.terminals || {}).map(([idx, terminal]) => ({
-      id: `${terminal.service}-${idx}`,
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [Number(terminal.lon), Number(terminal.lat)],
-      },
-      properties: {
-        terminal,
-        service: terminal.service,
-      },
-    }));
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // Этап 3. Выбор способа доставки и сбор черновика заказа.
-  // Этап 3.1. Переключение между доставкой в ПВЗ и доставкой до двери.
-  // При возврате к курьеру восстанавливаем только адрес, который пользователь
-  // выбирал сам, чтобы не смешивать адрес ПВЗ и адрес доставки до двери.
-  function changeDeliveryMethod(event, key, type) {
-    document.querySelectorAll(".deliveryMethod").forEach((element) => element.classList.remove("active"));
-    event.currentTarget.classList.add("active");
-
-    const nextDoorAddress = lastUserAddress;
-    const isMethodChanged =
-      selectedMethod?.name !== key || selectedMethod?.type !== type;
-
-    if (isMethodChanged) {
-      setDeliveryAddress(null);
-      setOutput(null);
-      onDeliveryConfirm?.(null);
-    }
-
-    switch (type) {
-      case "terminal":
-        setAddressPickMode(false);
-        manualAddressChangeRef.current = false;
-        deleteDeliveryAddressMarker();
-        setSelectedTerminal(null);
-        showStatus("terminal-mode", "info", "Выберите удобный пункт выдачи на карте.");
-        break;
-
-      case "door":
-        setAddressPickMode(true);
-        setSelectedTerminal(null);
-        manualAddressChangeRef.current = false;
-
-        // При возврате к курьерской доставке восстанавливаем только тот адрес,
-        // который пользователь выбрал сам через карту или ввёл вручную.
-        if (!isMethodChanged && nextDoorAddress) {
-          setDeliveryAddress(nextDoorAddress);
-        } else {
-          setDeliveryAddress(null);
-        }
-
-        showStatus("door-mode", "info", "Выберите адрес на карте или введите его в строке поиска.");
-        break;
-
-      default:
-        break;
-    }
-
-    setSelectedMethod({ name: key, type });
-  }
-
-  // Этап 3.2. Собираем черновик доставки после выбора способа и адреса.
-  // На этом этапе фиксируем стоимость, сроки и точку получения.
-  async function handleDeliverySubmit() {
-    if (!selectedMethod) {
-      return;
-    }
-
-    let out = {};
-    out.service = selectedMethod.name;
-    out.type = selectedMethod.type;
-
-    switch (selectedMethod.type) {
-      case "terminal":
-        if (!selectedTerminal) {
-          return;
-        }
-        
-        out.isPostamat = selectedTerminal.is_postamat;
-        out.address = {
-          value: selectedTerminal.address
-        };
-        out.code = selectedTerminal.code;
-        out.price = selectedTerminal.price.value;
-        out.unitPrice = selectedTerminal.price.unit;
-        out.time = selectedTerminal.time.value;
-        out.unitTime = selectedTerminal.time.unit;
-        out.payment = selectedTerminal.payment.methods;
-
-        // console.log("selectedTerminal", selectedTerminal);
-
-        break;
-
-      case "door": {
-        if (!deliveryAddress) {
-          // console.error('❌ Не указан адрес');
-          return;
-        }
-
-        let recalculation = null;
-
-        if (manualAddressChangeRef.current) {
-          // console.log('recalculation');
-          
-          // console.log("Адрес доставки", deliveryAddress.value);
-          
-          recalculation = await customFetch(
-            "/delivery/calculation",
-            {
-              to: selectedCity.fias,
-              weight: orderWeight,
-              service: selectedMethod.name,
-              address: deliveryAddress.value,
-            },
-            selectedMethod.name
-          );
-
-          // console.log('📦 Результат пересчёта:', recalculation);
-
-          if (!recalculation) {
-            console.error('❌ Пересчёт не удался');
-            return;
-          }
-        }
-
-        out.address = deliveryAddress;
-        if (recalculation) {
-          out.price = recalculation.data.door.price.value;
-          out.unitPrice = recalculation.data.door.price.unit;
-          out.time = recalculation.data.door.time.value;
-          out.unitTime = recalculation.data.door.time.unit;
-        } else {
-          out.price = data.calculation[selectedMethod.name].data.door.price.value;
-          out.unitPrice = data.calculation[selectedMethod.name].data.door.price.unit;
-          out.time = data.calculation[selectedMethod.name].data.door.time.value;
-          out.unitTime = data.calculation[selectedMethod.name].data.door.time.unit;
-        }
-
-        break;
-      }
-
-      default:
-        break;
-    }
-
-    setOutput(out);
-    // onDeliveryConfirm(out);
-
-    showStatus("delivery-confirmed", "success", "Адрес доставки подтверждён.");
-  }
-
-  // Этап 4. Эффекты и синхронизация состояния доставки.
-  // Этап 4.1. Служебная синхронизация режима выбора адреса с обработчиком карты.
-  // Синхронизируем ref, чтобы обработчик карты всегда видел актуальный режим.
+  // Инициализация карты.
   useEffect(() => {
-    addressPickModeRef.current = addressPickMode;
-  }, [addressPickMode]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // Этап 4.2. После выбора курьерского адреса показываем его маркер на карте.
-  // Когда выбран адрес курьерской доставки, отображаем его маркер на карте.
-  useEffect(() => {
-    if (!mapReady || !deliveryAddress || !addressPickMode) {
+    if (!enabled) {
       return;
     }
-
-    const lon = Number(deliveryAddress.lon);
-    const lat = Number(deliveryAddress.lat);
-
-    if (mapInstanceRef.current && Number.isFinite(lon) && Number.isFinite(lat)) {
-      mapInstanceRef.current.setLocation({
-        center: [lon, lat],
-      });
-    }
-
-    renderDeliveryAddressMarker(deliveryAddress);
-  }, [deliveryAddress, mapReady, addressPickMode]);
-
-  // Этап 4.3. При открытии виджета загружаем базовые данные и пробуем определить город.
-  // Загружаем базовые данные: состояние EShopLogistic и примерный город по IP.
-  useEffect(() => {
-    const loadInitialData = async () => {
-      try {
-        setLoading(true);
-        clearStatus();
-        showStatus("initial-loading", "info", "Загружаем варианты доставки...");
-
-        await customFetch("/client/state");
-
-        const ipResponse = await fetch("https://api.ipify.org?format=json");
-        if (!ipResponse.ok) {
-          throw new Error("Не удалось определить IP адрес.");
-        }
-
-        const ipData = await ipResponse.json();
-
-        const locationResponse = await fetch(
-          "https://suggestions.dadata.ru/suggestions/api/4_1/rs/iplocate/address",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-              Authorization: "Token " + DADATA_TOKEN,
-            },
-            body: JSON.stringify({ ip: ipData.ip }),
-          }
-        );
-
-        if (!locationResponse.ok) {
-          throw new Error("Не удалось определить город автоматически.");
-        }
-
-        const locationData = await locationResponse.json();
-        handleCitySelect(locationData.location);
-
-        // Автоопределённый по геолокации город нужен только для расчёта доставки,
-        // но не должен считаться выбранным адресом доставки.
-        setDeliveryAddress(null);
-        setLastUserAddress(null);
-      } catch (requestError) {
-        console.error("Ошибка начальной загрузки:", requestError);
-        showError(
-          "initial-load-error",
-          "Не удалось полностью загрузить данные доставки. Вы можете попробовать выбрать город вручную. Если ошибка повторяется, перезагрузите страницу.",
-          true
-        );
-      }
-    };
-
-    loadInitialData();
-  }, []);
-
-  // Этап 4.4. После загрузки state сохраняем справочник служб доставки.
-  useEffect(() => {
-    if (data.state) {
-      setServices(data.state.data.services);
-    }
-  }, [data.state]);
-
-  // Этап 4.5. Когда известен город, запрашиваем первичный расчёт доставки по службам.
-  useEffect(() => {
-    if (!selectedCity?.fias || !selectedCity?.value || !Object.keys(services).length) {
-      return;
-    }
-
-    if (lastCalculatedFiasRef.current !== selectedCity.fias) {
-      lastCalculatedFiasRef.current = selectedCity.fias;
-      showStatus("calculation-loading", "info", "Рассчитываем стоимость и сроки доставки...");
-
-      Object.keys(services).forEach((service) => {
-        customFetch(
-          "/delivery/calculation",
-          { to: selectedCity.fias, weight: orderWeight, service, address: selectedCity.value },
-          service
-        );
-      });
-    }
-  }, [selectedCity, services]);
-
-  // Если после пересчёта выбранный сервис или его тип доставки недоступен,
-  // сбрасываем текущий выбор, чтобы интерфейс не оставался в невалидном состоянии.
-  useEffect(() => {
-    if (!selectedMethod || !data.calculation) {
-      return;
-    }
-
-    const selectedCalculation = data.calculation[selectedMethod.name];
-    const isSelectedMethodAvailable =
-      selectedMethod.type === "terminal"
-        ? Boolean(selectedCalculation?.data?.terminal)
-        : Boolean(selectedCalculation?.data?.door);
-
-    if (isSelectedMethodAvailable) {
-      return;
-    }
-
-    document.querySelectorAll(".deliveryMethod").forEach((element) => element.classList.remove("active"));
-
-    setSelectedMethod(false);
-    setSelectedTerminal(null);
-
-    if (!addressPickMode) {
-      deleteDeliveryAddressMarker();
-    }
-
-    showStatus(
-      "invalid-method",
-      "info",
-      "Выбранный способ доставки больше недоступен для текущего адреса. Пожалуйста, выберите другой вариант."
-    );
-  }, [data.calculation, selectedMethod, addressPickMode]);
-
-  // Центрируем карту на выбранном городе.
-  useEffect(() => {
-    if (!mapLoad || !mapInstanceRef.current || !selectedCity) {
-      return;
-    }
-
-    const lon = Number(selectedCity.lon);
-    const lat = Number(selectedCity.lat);
-
-    if (!Number.isFinite(lon) || !Number.isFinite(lat)) {
-      return;
-    }
-
-    if (mapLoad && data.state) {
-      mapInstanceRef.current.setLocation({
-        center: [lon, lat],
-      });
-    }
-  }, [selectedCity, mapLoad, data.state]);
-
-  // В зависимости от способа доставки либо показываем кластеры ПВЗ, либо очищаем их.
-  useEffect(() => {
-    if (!mapLoad || !mapReady || !data.calculation || !mapInstanceRef.current || !window.ymaps3 || !selectedMethod) {
-      return;
-    }
-
-    const initClusterer = async () => {
-      setSelectedTerminal(null);
-
-      const { YMapClusterer, clusterByGrid } = await window.ymaps3.import(
-        "@yandex/ymaps3-clusterer@0.0.1"
-      );
-
-      const calculation = data.calculation[selectedMethod.name];
-      if (!calculation?.data?.terminals) {
-        showStatus(
-          "terminal-points-missing",
-          "info",
-          "Для выбранного способа нет точек выдачи. Попробуйте другой вариант доставки."
-        );
-        return;
-      }
-
-      const features = buildFeatures(calculation);
-
-      if (clustererRef.current) {
-        mapInstanceRef.current.removeChild(clustererRef.current);
-        clustererRef.current = null;
-      }
-
-      clustererRef.current = new YMapClusterer({
-        method: clusterByGrid({ gridSize: 128 }),
-        features,
-        marker: createMarker,
-        cluster: createCluster,
-      });
-
-      mapInstanceRef.current.addChild(clustererRef.current);
-    };
-
-    const initPointer = async () => {
-      setSelectedTerminal(null);
-
-      if (clustererRef.current) {
-        mapInstanceRef.current.removeChild(clustererRef.current);
-        clustererRef.current = null;
-      }
-    };
-
-    if (selectedMethod.type === "terminal") {
-      initClusterer();
-    }
-
-    if (selectedMethod.type === "door") {
-      initPointer();
-    }
-  }, [mapLoad, mapReady, selectedMethod, data.calculation]);
-
-  // Этап 4.6. Скрываем общий loader после загрузки базового состояния доставки.
-  useEffect(() => {
-    if (data.state) {
-      setLoading(false);
-
-      showStatus("state-loaded", "success", "Данные доставки загружены. Выберите подходящий способ.");
-    }
-  }, [data.state]);
-
-  // Этап 4.7. Подключаем и инициализируем карту после загрузки основных данных.
-  useEffect(() => {
-    if (loading) {
-      return;
-    }
-
-    setMapReady(false);
-    sourceReadyRef.current = false;
 
     let cancelled = false;
 
-    const loadYandexMapsScript = () =>
-      new Promise((resolve, reject) => {
-        if (window.ymaps3) {
-          resolve();
+    loadYandexModules(apiKey)
+      .then((modules) => {
+        if (cancelled || !containerRef.current) {
           return;
         }
 
-        const existingScript = document.querySelector('script[src^="https://api-maps.yandex.ru/v3/"]');
-
-        if (existingScript) {
-          existingScript.addEventListener("load", resolve, { once: true });
-          existingScript.addEventListener("error", reject, { once: true });
-          return;
-        }
-
-        const scriptElement = document.createElement("script");
-        scriptElement.src = `https://api-maps.yandex.ru/v3/?apikey=${YANDEX_API_KEY}&lang=ru_RU`;
-        scriptElement.async = true;
-        scriptElement.onload = resolve;
-        scriptElement.onerror = reject;
-        document.head.appendChild(scriptElement);
-      });
-
-    const initMap = async () => {
-      try {
-        showStatus("map-loading", "info", "Загружаем карту...");
-
-        await loadYandexMapsScript();
-        await window.ymaps3.ready;
-
-        ymaps3.import.registerCdn(
-          "https://cdn.jsdelivr.net/npm/{package}",
-          "@yandex/ymaps3-default-ui-theme@latest"
-        );
-
-        if (cancelled || !mapRef.current) {
-          return;
-        }
-
+        const { ymaps3, YMapZoomControl } = modules;
         const {
           YMap,
           YMapDefaultSchemeLayer,
@@ -1051,381 +591,702 @@ const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orde
           YMapFeatureDataSource,
           YMapLayer,
           YMapListener,
-        } = window.ymaps3;
-        const { YMapControls } = window.ymaps3;
-        const { YMapZoomControl } = await window.ymaps3.import("@yandex/ymaps3-default-ui-theme");
+          YMapControls,
+        } = ymaps3;
 
-        mapInstanceRef.current = new YMap(mapRef.current, {
-          location: DEFAULT_MAP_LOCATION,
-        });
+        const map = new YMap(containerRef.current, { location: DEFAULT_LOCATION });
 
-        const controls = new YMapControls(
-          { position: "right", orientation: "vertical" },
-          [new YMapZoomControl({ easing: "linear" })]
-        );
-
-        const mapListener = new YMapListener({
-          layer: "any",
-          onClick: (object, event) => {
-            if (!addressPickModeRef.current) return;
-            handleMapClick(event.coordinates);
-          },
-        });
-
-        mapInstanceRef.current
+        map
           .addChild(new YMapDefaultSchemeLayer())
           .addChild(new YMapDefaultFeaturesLayer())
-          .addChild(new YMapFeatureDataSource({ id: "clusterer-source" }))
-          .addChild(new YMapLayer({ source: "clusterer-source", type: "markers", zIndex: 1800 }))
-          .addChild(new YMapFeatureDataSource({ id: "delivery-address-source" }))
+          .addChild(new YMapFeatureDataSource({ id: TERMINALS_SOURCE }))
+          .addChild(new YMapLayer({ source: TERMINALS_SOURCE, type: "markers", zIndex: 1800 }))
+          .addChild(new YMapFeatureDataSource({ id: ADDRESS_SOURCE }))
+          .addChild(new YMapLayer({ source: ADDRESS_SOURCE, type: "markers", zIndex: 1900 }))
           .addChild(
-            new YMapLayer({ source: "delivery-address-source", type: "markers", zIndex: 1900 })
+            new YMapControls({ position: "right", orientation: "vertical" }, [
+              new YMapZoomControl({ easing: "linear" }),
+            ])
           )
-          .addChild(controls)
-          .addChild(mapListener);
+          .addChild(
+            new YMapListener({
+              layer: "any",
+              onClick: (object, event) => onMapClickRef.current?.(event.coordinates),
+            })
+          );
 
-        sourceReadyRef.current = true;
-        setMapReady(true);
-        setMapLoad(true);
-
-        showStatus("map-ready", "success", "Карта загружена. Теперь можно выбрать способ и адрес доставки.");
-      } catch (requestError) {
-        console.error("Ошибка загрузки Яндекс.Карт:", requestError);
-        showError(
-          "map-load-error",
-          "Не удалось загрузить карту. Попробуйте перезагрузить страницу. Если карта не нужна, вы всё равно можете выбрать город через поиск.",
-          true
-        );
-      }
-    };
-
-    initMap();
+        modulesRef.current = modules;
+        mapRef.current = map;
+        setLoadError(false);
+        setIsReady(true);
+      })
+      .catch((error) => {
+        console.error("Ошибка загрузки Яндекс.Карт:", error);
+        if (!cancelled) setLoadError(true);
+      });
 
     return () => {
       cancelled = true;
-      setMapReady(false);
-      sourceReadyRef.current = false;
-      deliveryAddressMarkerRef.current = null;
-
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.destroy();
-      }
+      mapRef.current?.destroy();
+      mapRef.current = null;
+      clustererRef.current = null;
+      addressMarkerRef.current = null;
+      setIsReady(false);
     };
-  }, [loading]);
+    // Обработчики читаются через ref, пересоздавать карту из-за них не нужно.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, apiKey]);
 
-  // Этап 4.8. Понимаем, что пользователь уже выбрал ПВЗ или адрес курьера.
+  // Центр карты.
+  const centerLon = center?.lon;
+  const centerLat = center?.lat;
+
   useEffect(() => {
-    const status = selectedTerminal || (addressPickMode && deliveryAddress);
-    if (status) {
-      setHasSelectedDelivery(status);
-      return;
+    if (isReady && hasCoordinates({ lon: centerLon, lat: centerLat })) {
+      mapRef.current.setLocation({ center: [centerLon, centerLat] });
     }
+  }, [isReady, centerLon, centerLat]);
 
-    setHasSelectedDelivery(false);
-  }, [selectedTerminal, addressPickMode, deliveryAddress]);
-
-  // Этап 4.9. Автоматически обновляем черновик доставки после выбора ПВЗ
-  // или после ручного изменения адреса курьерской доставки.
+  // Кластеры пунктов выдачи.
   useEffect(() => {
-    setOutput(null);
-    // onDeliveryConfirm(null);
-    if (selectedMethod?.type === "door") {
-      if (!manualAddressChangeRef.current || !addressPickMode || !deliveryAddress) {
-        return;
-      }
+    const map = mapRef.current;
 
-      handleDeliverySubmit();
-      manualAddressChangeRef.current = false;
+    if (!isReady || !map) {
       return;
     }
 
-    if (selectedMethod?.type === "terminal" && selectedTerminal) {
-      handleDeliverySubmit();
-    }
-  }, [deliveryAddress, addressPickMode, selectedMethod, selectedTerminal]);
+    const { ymaps3, clustererModule } = modulesRef.current;
+    const { YMapMarker } = ymaps3;
+    const { YMapClusterer, clusterByGrid } = clustererModule;
 
+    const createMarker = (feature) => {
+      const { terminal } = feature.properties;
+      const element = document.createElement("img");
 
+      element.className = "ymap-marker";
+      element.src = terminal.image;
+      element.dataset.code = String(terminal.code);
+      element.classList.toggle("active", isSameCode(terminal.code, selectedTerminalCodeRef.current));
+      element.onclick = () => onTerminalClickRef.current?.(terminal);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // Этап 5. Финально проверяем контакты и передаём подтверждённую доставку в checkout.
-  async function submitDelivery() {
-    if (!output) {
-      return;
-    }
-
-    const nextErrors = {};
-
-    if (output.type === "door" && !deliveryRoom?.trim()) {
-      nextErrors.deliveryRoom = true;
-    }
-
-    if (!deliveryName?.trim()) {
-      nextErrors.deliveryName = true;
-    }
-
-    const phoneDigits = (deliveryPhone || "").replace(/\D/g, "");
-
-    if (!deliveryPhone?.trim() || phoneDigits.length !== 11) {
-      nextErrors.deliveryPhone = true;
-    }
-
-    setFieldErrors(nextErrors);
-
-    if (Object.keys(nextErrors).length > 0) {
-      showError("delivery-required-fields", "Заполните обязательные поля доставки.");
-      return;
-    }
-
-    clearStatus("delivery-required-fields");
-
-    const finalOutput = {
-      ...output,
-      room: deliveryRoom?.trim() || "",
-      name: deliveryName.trim(),
-      phone: deliveryPhone.trim(),
-      comment: deliveryComment,
-      checked: true,
+      return new YMapMarker({ coordinates: feature.geometry.coordinates, source: TERMINALS_SOURCE }, element);
     };
 
-    onDeliveryConfirm?.(finalOutput);
-  }
+    const createCluster = (coordinates, features) => {
+      const element = document.createElement("div");
+
+      element.className = "ymap-cluster";
+      element.textContent = features.length;
+
+      return new YMapMarker({ coordinates, source: TERMINALS_SOURCE }, element);
+    };
+
+    if (terminals?.length) {
+      clustererRef.current = new YMapClusterer({
+        method: clusterByGrid({ gridSize: 128 }),
+        features: buildTerminalFeatures(terminals),
+        marker: createMarker,
+        cluster: createCluster,
+      });
+      map.addChild(clustererRef.current);
+    }
+
+    return () => {
+      if (clustererRef.current && mapRef.current) {
+        mapRef.current.removeChild(clustererRef.current);
+      }
+      clustererRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isReady, terminals]);
+
+  // Подсветка выбранного пункта выдачи (только внутри этой карты).
+  useEffect(() => {
+    containerRef.current?.querySelectorAll(".ymap-marker").forEach((element) => {
+      element.classList.toggle("active", isSameCode(element.dataset.code, selectedTerminalCode));
+    });
+  }, [selectedTerminalCode, isReady]);
+
+  // Маркер адреса курьерской доставки.
+  const addressLon = addressPoint?.lon;
+  const addressLat = addressPoint?.lat;
 
   useEffect(() => {
-    if (!output) {
+    const map = mapRef.current;
+
+    if (!isReady || !map || !hasCoordinates({ lon: addressLon, lat: addressLat })) {
       return;
     }
 
-    submitDelivery();
-  }, [output, deliveryRoom, deliveryName, deliveryPhone, deliveryComment]);
+    const { YMapMarker } = modulesRef.current.ymaps3;
+    const element = document.createElement("div");
+    element.className = "delivery-address-marker";
 
-
-  useEffect(() => {
-    const nextErrors = {};
-    nextErrors.deliveryRoom = deliveryRoom ? false : true;
-    nextErrors.deliveryName = deliveryName ? false : true;
-    nextErrors.deliveryPhone = deliveryPhone ? false : true;
-    setFieldErrors(nextErrors);
-
-  },[deliveryRoom, deliveryName, deliveryPhone, selectedMethod]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      DELIVERY_CONTACT_STORAGE_KEY,
-      JSON.stringify({
-        deliveryRoom,
-        deliveryName,
-        deliveryPhone,
-        deliveryComment
-      })
+    addressMarkerRef.current = new YMapMarker(
+      { coordinates: [addressLon, addressLat], source: ADDRESS_SOURCE },
+      element
     );
-  }, [deliveryRoom, deliveryName, deliveryPhone, deliveryComment]);
+    map.addChild(addressMarkerRef.current);
 
+    return () => {
+      if (addressMarkerRef.current && mapRef.current) {
+        mapRef.current.removeChild(addressMarkerRef.current);
+      }
+      addressMarkerRef.current = null;
+    };
+  }, [isReady, addressLon, addressLat]);
 
+  return { containerRef, isReady, loadError };
+}
 
+// ============================================================
+// Компонент StatusMessage
+// ============================================================
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Сообщение о текущем шаге или ошибке. type: "info" | "success" | "error".
+function StatusMessage({ type, text, reloadRecommended = false }) {
   return (
-    <div className="EShopLogistic">
-
-      {loading && <div className="deliveryLoading">Загрузка...</div>}
-
-      {!loading && (
-        <>
-          <AddressSuggestions
-            token={DADATA_TOKEN}
-            onChange={handleCitySelect}
-            inputProps={{ placeholder: "Выберите адрес доставки" }}
-            value={deliveryAddress || selectedCity || ""}
-            delay={300}
-          />
-
-          {data.calculation && (
-            <div className="deliverySettings">
-              <ul className="deliveryCalculation">
-                {Object.entries(data.calculation).map(([serviceKey, body]) => (
-                  <Fragment key={serviceKey}>
-                    {body?.data?.terminal && (
-                      <li
-                        className="deliveryMethod"
-                        onClick={(event) => {
-                          changeDeliveryMethod(event, serviceKey, "terminal");
-                        }}
-                      >
-                        <span>
-                          {data.state.data.services[serviceKey].name} до пункта выдачи: {body?.data?.terminal?.price?.value}{" "}
-                          {body?.data?.terminal?.price?.unit} - {body?.data?.terminal?.time?.value}{" "}
-                          {body?.data?.terminal?.time?.unit}
-                        </span>
-                      </li>
-                    )}
-
-                    {body?.data?.door && (
-                      <li
-                        className="deliveryMethod"
-                        onClick={(event) => {
-                          changeDeliveryMethod(event, serviceKey, "door");
-                        }}
-                      >
-                        <span>
-                          {data.state.data.services[serviceKey].name} курьером: {body?.data?.door?.price?.value}{" "}
-                          {body?.data?.door?.price?.unit} - {body?.data?.door?.time?.value}{" "}
-                          {body?.data?.door?.time?.unit}
-                        </span>
-                      </li>
-                    )}
-                  </Fragment>
-                ))}
-              </ul>
-              <div>{Object.values(deliveryLoading).some(status => status === false) && (
-                <div>Loading...</div>
-              )}</div>
-            </div>
-          )}
-
-          <div className="deliveryInfo">
-            <div id="ymap" ref={mapRef}></div>
-
-            <ul className="pointInfo">
-              {selectedTerminal && (
-                <>
-                  <li>
-                    <img src={selectedTerminal.image} alt={selectedTerminal.service} />
-                  </li>
-                  <li>{selectedTerminal.is_postamat ? "Постамат" : "Пункт выдачи"}</li>
-                  <li>{renderValue(selectedTerminal.address)}</li>
-                  <li>{renderValue(selectedTerminal.workTime)}</li>
-                  <li>
-                    Номер: {Array.isArray(selectedTerminal.phones)
-                      ? selectedTerminal.phones.join(", ")
-                      : renderValue(selectedTerminal.phones)}
-                  </li>
-                  <q>{renderValue(selectedTerminal.note)}</q>
-                  {/* <li>Оплата: {renderValue(selectedTerminal.payment?.possible)}</li> */}
-                  
-                  {/* {selectedTerminal.payment?.possible == "yes" ? (
-                    <li>
-                      Методы оплаты: {Array.isArray(selectedTerminal.payment?.methods)
-                        ? selectedTerminal.payment.methods.join(", ")
-                        : renderValue(selectedTerminal.payment?.methods)}
-                    </li>
-                  ) : ("")} */}
-                </>
-              )}
-
-              {!selectedTerminal && deliveryAddress && selectedMethod && services[selectedMethod.name] && (
-                <>
-                  <li>
-                    <img src={services[selectedMethod.name].logo} alt={selectedMethod.name} />
-                  </li>
-                  <li>{services[selectedMethod.name].name}</li>
-                  <li>{deliveryAddress.value}</li>
-                </>
-              )}
-            </ul>
-          </div>
-
-
-
-          {output && (
-            <div className="prooveDelivery">
-              <img src={services[output.service].logo} alt={output.service} />
-              <div className="heading">{output.type == 'terminal' ? (output.isPostamat == true ? 'Постамат' : 'Пункт выдачи') : 'Курьер' } {services[output.service].name}</div>
-              <div className="address">{deliveryAddress.value}</div>
-              {selectedMethod.type == 'door' && (
-                <div>
-                  <span className="red">*</span>Квартира: {" "}
-                  <input
-                    className={`room ${fieldErrors.deliveryRoom ? "inputError" : ""}`}
-                    type="text"
-                    placeholder="№"
-                    value={deliveryRoom || ""}
-                    onChange={(e) => {
-                      setDeliveryRoom(e.target.value);
-                      setFieldErrors((prev) => ({ ...prev, deliveryRoom: false }));
-                    }}
-                  />
-                </div>
-              )}
-              
-              <div>
-                <span className="red">*</span>Имя: {" "}
-                <input
-                  className={`name ${fieldErrors.deliveryName ? "inputError" : ""}`}
-                  type="text"
-                  placeholder="Сайтама"
-                  value={deliveryName || ""}
-                  onChange={(e) => {
-                    setDeliveryName(e.target.value);
-                    setFieldErrors((prev) => ({ ...prev, deliveryName: false }));
-                  }}
-                />
-              </div>
-              <div>
-                <span className="red">*</span>Телефон: {" "}
-                <input
-                  className={`phone ${fieldErrors.deliveryPhone ? "inputError" : ""}`}
-                  type="text"
-                  inputMode="tel"
-                  placeholder="+7 (900) 800-70-60"
-                  value={deliveryPhone || ""}
-                  onChange={(e) => {
-                    setDeliveryPhone(formatPhone(e.target.value));
-                    setFieldErrors((prev) => ({ ...prev, deliveryPhone: false }));
-                  }}
-                />
-              </div>
-              <div>Комментарий: 
-                <input
-                  className="comment"
-                  type="text"
-                  value={deliveryComment || ''}
-                  onChange={(e) => setDeliveryComment(e.target.value)}
-                  placeholder="Комментарий к доставке (укажите особенности адреса)"
-                />
-              </div>
-              <div className="time">{output.time + ' ' + output.unitTime}</div>
-              <div className="price">{output.price + ' ' + output.unitPrice}</div>
-            </div>
-          )}
-          
-        {statusMessage?.text && (
-          <div className={`deliveryStatus deliveryStatus--${statusMessage.type}`}>
-            <div>{statusMessage.text}</div>
-            {statusMessage.reloadRecommended && (
-              <div className="deliveryStatusHint">Если проблема повторяется, попробуйте перезагрузить страницу.</div>
-            )}
-          </div>
-        )}
-        </>
+    <div className={`deliveryStatus deliveryStatus--${type}`}>
+      <div>{text}</div>
+      {reloadRecommended && (
+        <div className="deliveryStatusHint">Если проблема повторяется, попробуйте перезагрузить страницу.</div>
       )}
     </div>
   );
+}
+
+// ============================================================
+// Компонент DeliveryMethodList
+// ============================================================
+
+// Список доступных способов доставки по всем службам.
+function DeliveryMethodList({ services, calculations, selectedMethod, onSelect }) {
+  const items = Object.keys(services).flatMap((service) =>
+    DELIVERY_TYPES.map(({ type, label }) => ({
+      service,
+      type,
+      label,
+      offer: getDeliveryOffer(calculations[service], type),
+    })).filter((item) => item.offer)
+  );
+
+  if (!items.length) {
+    return null;
+  }
+
+  return (
+    <ul className="deliveryCalculation">
+      {items.map(({ service, type, label, offer }) => {
+        const isActive = selectedMethod?.service === service && selectedMethod?.type === type;
+
+        return (
+          <li
+            key={`${service}-${type}`}
+            className={`deliveryMethod${isActive ? " active" : ""}`}
+            onClick={() => onSelect(service, type)}
+          >
+            <span>
+              {services[service]?.name ?? service} {label}: {formatOffer(offer)}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+// ============================================================
+// Компонент PointInfo
+// ============================================================
+
+// Карточка рядом с картой: выбранный пункт выдачи или адрес курьерской доставки.
+function PointInfo({ terminal, serviceInfo, address }) {
+  if (terminal) {
+    return (
+      <ul className="pointInfo">
+        <li>
+          <img src={terminal.image} alt={terminal.service} />
+        </li>
+        <li>{terminal.is_postamat ? "Постамат" : "Пункт выдачи"}</li>
+        <li>{renderValue(terminal.address)}</li>
+        <li>{renderValue(terminal.workTime)}</li>
+        <li>
+          Номер: {Array.isArray(terminal.phones) ? terminal.phones.join(", ") : renderValue(terminal.phones)}
+        </li>
+        {terminal.note && <q>{renderValue(terminal.note)}</q>}
+      </ul>
+    );
+  }
+
+  if (address && serviceInfo) {
+    return (
+      <ul className="pointInfo">
+        <li>
+          <img src={serviceInfo.logo} alt={serviceInfo.name} />
+        </li>
+        <li>{serviceInfo.name}</li>
+        <li>{address.value}</li>
+      </ul>
+    );
+  }
+
+  return <ul className="pointInfo" />;
+}
+
+// ============================================================
+// Компонент DeliveryConfirmForm
+// ============================================================
+
+function ContactField({ label, required, className, hasError, value, onChange, ...inputProps }) {
+  return (
+    <div>
+      {required && <span className="red">*</span>}
+      {label}:{" "}
+      <input
+        className={`${className}${hasError ? " inputError" : ""}`}
+        type="text"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        {...inputProps}
+      />
+    </div>
+  );
+}
+
+function getHeading(draft) {
+  if (draft.type === "door") return "Курьер";
+  return draft.isPostamat ? "Постамат" : "Пункт выдачи";
+}
+
+// Итог выбранной доставки и контакты получателя.
+function DeliveryConfirmForm({ draft, serviceInfo, contacts, errors, onContactChange }) {
+  return (
+    <div className="prooveDelivery">
+      {serviceInfo?.logo && <img src={serviceInfo.logo} alt={draft.service} />}
+      <div className="heading">
+        {getHeading(draft)} {serviceInfo?.name}
+      </div>
+      <div className="address">{draft.address.value}</div>
+
+      {draft.type === "door" && (
+        <ContactField
+          label="Квартира"
+          required
+          className="room"
+          placeholder="№"
+          hasError={errors.room}
+          value={contacts.room}
+          onChange={(value) => onContactChange("room", value)}
+        />
+      )}
+
+      <ContactField
+        label="Имя"
+        required
+        className="name"
+        placeholder="Сайтама"
+        hasError={errors.name}
+        value={contacts.name}
+        onChange={(value) => onContactChange("name", value)}
+      />
+
+      <ContactField
+        label="Телефон"
+        required
+        className="phone"
+        inputMode="tel"
+        placeholder="+7 (900) 800-70-60"
+        hasError={errors.phone}
+        value={contacts.phone}
+        onChange={(value) => onContactChange("phone", value)}
+      />
+
+      <ContactField
+        label="Комментарий"
+        className="comment"
+        placeholder="Комментарий к доставке (укажите особенности адреса)"
+        value={contacts.comment}
+        onChange={(value) => onContactChange("comment", value)}
+      />
+
+      <div className="time">{`${draft.time} ${draft.unitTime}`}</div>
+      <div className="price">{`${draft.price} ${draft.unitPrice}`}</div>
+    </div>
+  );
+}
+
+// ============================================================
+// Главный компонент EShopLogistic
+// ============================================================
+
+// Подсказка о текущем шаге оформления доставки.
+function getProgressStatus({
+  delivery,
+  city,
+  hasOffers,
+  selectedMethod,
+  terminals,
+  selectedTerminal,
+  doorAddress,
+  doorQuote,
+  isResolvingAddress,
+  draft,
+  isContactsValid,
+}) {
+  const info = (text) => ({ type: "info", text });
+
+  if (delivery.isLoading) return info("Загружаем варианты доставки...");
+  if (!delivery.services) return null;
+  if (!city) return info("Укажите город или адрес доставки в строке поиска.");
+  if (!selectedMethod && delivery.isCalculating) return info("Рассчитываем стоимость и сроки доставки...");
+  if (!hasOffers) return info("Для этого города нет доступных способов доставки. Попробуйте указать другой адрес.");
+  if (!selectedMethod) return info("Выберите способ доставки.");
+
+  if (selectedMethod.type === "terminal") {
+    if (!terminals.length) return info("Для выбранного способа нет точек выдачи. Попробуйте другой вариант.");
+    if (!selectedTerminal) return info("Выберите удобный пункт выдачи на карте.");
+  }
+
+  if (selectedMethod.type === "door") {
+    if (isResolvingAddress) return info("Определяем адрес по выбранной точке на карте...");
+    if (!doorAddress) return info("Выберите адрес на карте или введите его в строке поиска.");
+    if (doorQuote.isLoading) return info("Пересчитываем стоимость доставки для адреса...");
+    if (doorQuote.unavailable) {
+      return info("Курьерская доставка этой службы недоступна по выбранному адресу. Выберите другой адрес или способ.");
+    }
+  }
+
+  if (!draft) return null;
+  if (!isContactsValid) return info("Заполните обязательные поля доставки.");
+
+  return { type: "success", text: "Доставка подтверждена." };
+}
+
+const EShopLogistic = ({ DADATA_TOKEN, ESHOPLOGISTIC_TOKEN, YANDEX_API_KEY, orderWeight, onDeliveryConfirm }) => {
+  // Шаг 1. Город и расчёт доставки всеми службами.
+  const [city, setCity] = useState(null);
+  const cityRef = useLatest(city);
+  const delivery = useDeliveryCalculation({ token: ESHOPLOGISTIC_TOKEN, orderWeight, city });
+
+  // Шаг 2. Способ доставки и точка получения (пункт выдачи или адрес курьера).
+  const [selectedMethod, setSelectedMethod] = useState(null); // { service, type }
+  const [selectedTerminal, setSelectedTerminal] = useState(null);
+  const [doorAddress, setDoorAddress] = useState(null);
+  const [isResolvingAddress, setIsResolvingAddress] = useState(false);
+  const [mapClickError, setMapClickError] = useState(false);
+  const [notice, setNotice] = useState(null);
+  const mapClickIdRef = useRef(0);
+
+  const isDoorMode = selectedMethod?.type === "door";
+  const selectedService = selectedMethod ? delivery.services?.[selectedMethod.service] : null;
+  const methodCalculation = selectedMethod ? delivery.calculations[selectedMethod.service] : undefined;
+
+  const terminals = useMemo(
+    () => (selectedMethod?.type === "terminal" ? getTerminals(methodCalculation) : []),
+    [selectedMethod?.type, methodCalculation]
+  );
+
+  const doorQuote = useDoorQuote({
+    token: ESHOPLOGISTIC_TOKEN,
+    orderWeight,
+    service: isDoorMode ? selectedMethod.service : null,
+    address: isDoorMode ? doorAddress : null,
+  });
+
+  // Шаг 3. Контакты получателя.
+  const { contacts, setContact } = useDeliveryContacts();
+
+  // Черновик доставки — выводится из выбора пользователя, без отдельного state.
+  const draft = useMemo(() => {
+    if (selectedMethod?.type === "terminal" && selectedTerminal) {
+      return buildTerminalDraft(selectedMethod.service, selectedTerminal);
+    }
+
+    if (selectedMethod?.type === "door" && doorAddress && doorQuote.offer) {
+      return buildDoorDraft(selectedMethod.service, doorAddress, doorQuote.offer);
+    }
+
+    return null;
+  }, [selectedMethod, selectedTerminal, doorAddress, doorQuote.offer]);
+
+  const contactErrors = draft ? validateContacts(contacts, draft.type) : {};
+  const isContactsValid = Object.keys(contactErrors).length === 0;
+
+  const confirmedDelivery = useMemo(() => {
+    if (!draft || !isContactsValid) {
+      return null;
+    }
+
+    return {
+      ...draft,
+      room: draft.type === "door" ? contacts.room.trim() : "",
+      name: contacts.name.trim(),
+      phone: contacts.phone.trim(),
+      comment: contacts.comment.trim() || null,
+      checked: true,
+    };
+  }, [draft, isContactsValid, contacts]);
+
+  // ---------- Обработчики ----------
+
+  function selectCity(nextCity) {
+    if (nextCity.fias !== cityRef.current?.fias) {
+      setSelectedTerminal(null);
+      setDoorAddress((prev) => (prev?.fias === nextCity.fias ? prev : null));
+    }
+
+    setCity(nextCity);
+  }
+
+  function selectDoorAddress(address) {
+    const fias = address.fias || cityRef.current?.fias;
+
+    if (!fias) {
+      setMapClickError(true);
+      return;
+    }
+
+    selectCity({
+      value: address.city || address.region || address.value,
+      fias,
+      lon: address.lon,
+      lat: address.lat,
+    });
+    setDoorAddress({ ...address, fias });
+  }
+
+  function handleSearchSelect(suggestion) {
+    setNotice(null);
+    setMapClickError(false);
+
+    // В режиме курьера адрес с номером дома становится адресом доставки,
+    // а всё менее точное — просто сменой города.
+    if (isDoorMode && suggestion?.data?.house) {
+      selectDoorAddress(addressFromSuggestion(suggestion));
+      return;
+    }
+
+    const nextCity = cityFromSuggestion(suggestion);
+
+    if (!nextCity) {
+      return;
+    }
+
+    selectCity(nextCity);
+
+    if (isDoorMode) {
+      setNotice({ type: "info", text: "Уточните адрес до номера дома или выберите точку на карте." });
+    }
+  }
+
+  async function handleMapClick(coordinates) {
+    if (!isDoorMode) {
+      return;
+    }
+
+    const requestId = ++mapClickIdRef.current;
+    const isLatestRequest = () => requestId === mapClickIdRef.current;
+
+    setNotice(null);
+    setMapClickError(false);
+    setIsResolvingAddress(true);
+
+    try {
+      const addressText = await reverseGeocode(YANDEX_API_KEY, coordinates);
+
+      if (!addressText) {
+        throw new Error("Геокодер не вернул адрес.");
+      }
+
+      // Подсказка DaData нужна для FIAS и структурированных полей адреса.
+      // Если она недоступна, оставляем текст геокодера и FIAS текущего города.
+      const suggestion = await suggestAddress(DADATA_TOKEN, addressText).catch((error) => {
+        console.warn("Не удалось уточнить адрес в DaData:", error);
+        return null;
+      });
+
+      if (!isLatestRequest()) {
+        return;
+      }
+
+      const [lon, lat] = coordinates;
+      selectDoorAddress(addressFromSuggestion(suggestion, { value: addressText, lon, lat }));
+    } catch (error) {
+      console.error("Ошибка выбора адреса на карте:", error);
+      if (isLatestRequest()) setMapClickError(true);
+    } finally {
+      if (isLatestRequest()) setIsResolvingAddress(false);
+    }
+  }
+
+  function handleMethodSelect(service, type) {
+    if (selectedMethod?.service === service && selectedMethod?.type === type) {
+      return;
+    }
+
+    setSelectedMethod({ service, type });
+    setSelectedTerminal(null);
+    setNotice(null);
+    setMapClickError(false);
+  }
+
+  function handleTerminalSelect(terminal) {
+    setSelectedTerminal(terminal);
+    setNotice(null);
+  }
+
+  // ---------- Эффекты ----------
+
+  // Пробуем определить город по IP, если пользователь ещё не выбрал его сам.
+  useEffect(() => {
+    let cancelled = false;
+
+    detectLocationByIp(DADATA_TOKEN)
+      .then((location) => {
+        const detectedCity = cityFromSuggestion(location);
+        if (!cancelled && detectedCity) setCity((prev) => prev ?? detectedCity);
+      })
+      .catch((error) => console.warn("Не удалось определить город по IP:", error));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [DADATA_TOKEN]);
+
+  // После пересчёта выбранный способ может стать недоступным — сбрасываем выбор.
+  useEffect(() => {
+    if (!selectedMethod || methodCalculation === undefined) {
+      return;
+    }
+
+    if (getDeliveryOffer(methodCalculation, selectedMethod.type)) {
+      return;
+    }
+
+    setSelectedMethod(null);
+    setSelectedTerminal(null);
+    setNotice({
+      type: "info",
+      text: "Выбранный способ доставки недоступен для текущего адреса. Пожалуйста, выберите другой вариант.",
+    });
+  }, [selectedMethod, methodCalculation]);
+
+  // Сообщаем наружу актуальные данные доставки: объект, когда всё заполнено, иначе null.
+  const onDeliveryConfirmRef = useLatest(onDeliveryConfirm);
+  const lastConfirmedRef = useRef(JSON.stringify(null));
+
+  useEffect(() => {
+    const serialized = JSON.stringify(confirmedDelivery);
+
+    if (serialized === lastConfirmedRef.current) {
+      return;
+    }
+
+    lastConfirmedRef.current = serialized;
+    onDeliveryConfirmRef.current?.(confirmedDelivery);
+  }, [confirmedDelivery, onDeliveryConfirmRef]);
+
+  const map = useYandexMap({
+    apiKey: YANDEX_API_KEY,
+    enabled: Boolean(delivery.services),
+    center: isDoorMode && doorAddress ? doorAddress : city,
+    terminals,
+    selectedTerminalCode: selectedTerminal?.code,
+    addressPoint: isDoorMode ? doorAddress : null,
+    onMapClick: handleMapClick,
+    onTerminalClick: handleTerminalSelect,
+  });
+
+  // ---------- Сообщения ----------
+
+  const errors = [
+    delivery.stateError && { text: "Не удалось загрузить службы доставки.", reloadRecommended: true },
+    delivery.calculationFailed && {
+      text: "Не удалось рассчитать доставку для части служб. Попробуйте выбрать другой способ.",
+      reloadRecommended: true,
+    },
+    map.loadError && {
+      text: "Не удалось загрузить карту. Вы всё равно можете выбрать город и адрес через поиск.",
+      reloadRecommended: true,
+    },
+    mapClickError && { text: "Не удалось определить адрес по выбранной точке. Попробуйте выбрать другое место." },
+    doorQuote.error && { text: "Не удалось пересчитать стоимость доставки для адреса.", reloadRecommended: true },
+  ].filter(Boolean);
+
+  const progressStatus = getProgressStatus({
+    delivery,
+    city,
+    hasOffers: Object.values(delivery.calculations).some(
+      (calculation) => getDeliveryOffer(calculation, "terminal") || getDeliveryOffer(calculation, "door")
+    ),
+    selectedMethod,
+    terminals,
+    selectedTerminal,
+    doorAddress,
+    doorQuote,
+    isResolvingAddress,
+    draft,
+    isContactsValid,
+  });
+
+  // Стабильные ссылки: react-dadata перезаписывает текст в поле при смене объекта value.
+  const terminalSearchValue = useMemo(
+    () => (selectedTerminal ? { value: selectedTerminal.address } : null),
+    [selectedTerminal]
+  );
+  const searchValue = terminalSearchValue || (isDoorMode && doorAddress) || city || undefined;
+
+  return (
+    <div className="EShopLogistic">
+      {delivery.isLoading && <div className="deliveryLoading">Загрузка...</div>}
+
+      {delivery.services && (
+        <>
+          <AddressSuggestions
+            token={DADATA_TOKEN}
+            onChange={handleSearchSelect}
+            inputProps={{ placeholder: isDoorMode ? "Введите адрес доставки" : "Выберите город или адрес доставки" }}
+            value={searchValue}
+            delay={300}
+          />
+
+          <div className="deliverySettings">
+            <DeliveryMethodList
+              services={delivery.services}
+              calculations={delivery.calculations}
+              selectedMethod={selectedMethod}
+              onSelect={handleMethodSelect}
+            />
+          </div>
+
+          <div className="deliveryInfo">
+            <div className="ymap" ref={map.containerRef} />
+            <PointInfo
+              terminal={selectedTerminal}
+              serviceInfo={selectedService}
+              address={isDoorMode ? doorAddress : null}
+            />
+          </div>
+
+          {draft && (
+            <DeliveryConfirmForm
+              draft={draft}
+              serviceInfo={delivery.services[draft.service]}
+              contacts={contacts}
+              errors={contactErrors}
+              onContactChange={setContact}
+            />
+          )}
+        </>
+      )}
+
+      {errors.map((error) => (
+        <StatusMessage key={error.text} type="error" {...error} />
+      ))}
+      {notice && <StatusMessage {...notice} />}
+      {progressStatus && <StatusMessage {...progressStatus} />}
+    </div>
+  );
 };
+
 export { EShopLogistic };
